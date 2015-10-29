@@ -39,6 +39,7 @@ int main(void)
 	}
 	
 	m_red(!m_imu_init(1,1));
+	m_usb_init();
 	
 	sei();
 	
@@ -47,6 +48,9 @@ int main(void)
 	while (1)  {
 		if(m_imu_raw(imuBuffer)){
 			m_red(OFF);
+			for(int i = 0; i < 9; i++){
+			m_usb_tx_int(i);
+			}
 			requestedCurrent = (int)calculateCurrent(0,0,0,0);
 		}
 		else
@@ -104,25 +108,25 @@ void initTimer1(){
 	set(TCCR1A,WGM11);
 	set(TCCR1A,WGM10);
 	
-	//Enable PWM on pins B5 and B6
-	set(DDRB,5);
+	//Enable PWM on pins B6 and B7
 	set(DDRB,6);
-	set(PORTB,5);
-	set(PORTB,6);
+	set(DDRB,7);
+	//toggle modes
+	set(TCCR1A,COM1B1);
+	clear(TCCR1A,COM1B0);
+	
+	set(TCCR1A,COM1C1);
+	clear(TCCR1A,COM1C0);
+	
 	
 	//Enable Interrupts
 	set(TIMSK1,TOIE1);
 	
-	OCR1A = 0xFFFF;
+	OCR1A = 16000;
 	OCR1B = 0x00FF;
-	
-	//set prescaler to /1024 ~8 KHz KHz
-	set(TCCR1B,CS12);
-	clear(TCCR1B,CS11);
-	set(TCCR1B,CS10);
 }
 
-//PID Current Controller running at 16khz
+//PID Current Controller running at 1khz
 ISR(TIMER1_OVF_vect,ISR_NOBLOCK){
 	motorCurrent = (ADC * 525) / 1000; //525 mV/A
 	int delta = motorCurrent - requestedCurrent;
@@ -131,7 +135,7 @@ ISR(TIMER1_OVF_vect,ISR_NOBLOCK){
 	float cd = 1;
 	float p = delta;
 	integralTerm += delta;
-	float d = (delta - oldDelta) / (1 / (F_CPU / 1024.0));
+	float d = (delta - oldDelta) / (1.0 / 1000);
 	if (requestedCurrent >= 0){ //spin clockwise?
 		set(PORTB,0);
 		clear(PORTB,1);
