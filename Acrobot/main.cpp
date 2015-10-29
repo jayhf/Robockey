@@ -19,12 +19,21 @@ int requestedCurrent = 0; //Measured in mA
 
 void initADC();
 void initTimer1();
+void calculateTheta();
+void calculateDX();
 
 float calculateCurrent(float o, float w, float x, float dx);
 int motorCurrent = 0;
 float integralTerm = 0;
 int oldDelta = 0;
 int imuBuffer[9];
+float theta = 0;
+float x = 0;
+float dx = 0;
+float dxPrev = 0;
+float ax = 0;
+float wheelDiameter = 3.1; //inches
+float timeStep = 1/1000.0; //seconds
 
 int main(void)
 {
@@ -51,7 +60,8 @@ int main(void)
 			for(int i = 0; i < 9; i++){
 			m_usb_tx_int(i);
 			}
-			requestedCurrent = (int)calculateCurrent(0,0,0,0);
+			
+			requestedCurrent = (int)calculateCurrent(theta,imuBuffer[4],x,dx);
 		}
 		else
 		m_red(ON);
@@ -126,6 +136,21 @@ void initTimer1(){
 	OCR1B = 0x00FF;
 }
 
+void calculateDX(){
+	float rpm = (motorCurrent - 150) * 130/2250.0;
+	if(check(PINB,0)){
+		dx = rpm * M_PI * wheelDiameter; //inches / minute
+	}
+	else if (check(PINB,1)){
+		dx = -rpm * M_PI * wheelDiameter; //inches / minute
+	}
+	
+}
+
+void calculateAX(){
+	ax = (dx - dxPrev) / timeStep;
+}
+
 //PID Current Controller running at 1khz
 ISR(TIMER1_OVF_vect,ISR_NOBLOCK){
 	motorCurrent = (ADC * 525) / 1000; //525 mV/A
@@ -135,7 +160,7 @@ ISR(TIMER1_OVF_vect,ISR_NOBLOCK){
 	float cd = 1;
 	float p = delta;
 	integralTerm += delta;
-	float d = (delta - oldDelta) / (1.0 / 1000);
+	float d = (delta - oldDelta) / timeStep;
 	if (requestedCurrent >= 0){ //spin clockwise?
 		set(PORTB,0);
 		clear(PORTB,1);
