@@ -15,6 +15,7 @@ extern "C"{
 #include "m_bus.h"
 }
 
+
 int requestedCurrent = 0; //Measured in mA
 
 void initADC();
@@ -75,14 +76,14 @@ int main(void)
 		m_usb_tx_int((int)(dx));
 		m_usb_tx_char(',');
 		m_usb_tx_char('\n');
-		requestedCurrent = 1000;//(int)calculateCurrent(theta,imuBuffer[4],x,dx);
+		requestedCurrent = (int)calculateCurrent(theta,imuBuffer[4],x,dx);
 	}
 }
 
 //Calculates the desired current in mA. Negative means reverse.
 float calculateCurrent(float o, float w, float x, float dx){
 	//Tune these parameters to optimize performance
-	float co = 1;
+	float co = 0;
 	float cw = 1;
 	float cdx = 1;
 	float cx = 1;
@@ -170,10 +171,10 @@ void calculateAX(){
 //PID Current Controller running at 1khz
 ISR(TIMER1_OVF_vect,ISR_NOBLOCK){
 	motorCurrent = (ADC * 525) / 1000; //525 mV/A
-	int delta = motorCurrent - requestedCurrent;
-	float cp = 1;
-	float ci = 0;//1;
-	float cd = 0;//1;
+	int delta = imuBuffer[4];
+	float cp = 150;
+	float ci = 10;//1;
+	float cd = 30;//1;
 	float p = delta;
 	integralTerm += delta;
 	float d = (delta - oldDelta) / timeStep;
@@ -189,7 +190,7 @@ ISR(TIMER1_OVF_vect,ISR_NOBLOCK){
 		set(PORTB,2);
 		clear(PORTB,3);
 	}
-	OCR1C = OCR1B = 15999;//OCR1B + (cp*p + ci * integralTerm + cd*d);
+	OCR1C = OCR1B = OCR1B + (cp*p + ci * integralTerm + cd*d);
 	//Check for direction based on pin settings or keep track
 	//Add sign to measured current based on this
 	//use PID to calculate new OCR1B/C based on difference from old and current difference
