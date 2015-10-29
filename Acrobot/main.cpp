@@ -8,11 +8,12 @@
 #define F_CPU 16000000
 
 #include "math.h"
-
-extern "C" {
-	#include "m_general.h"
-	#include "m_imu.h"
-};
+extern "C"{
+#include "m_general.h"
+#include "m_imu.h"
+#include "m_usb.h"
+#include "m_bus.h"
+}
 
 int requestedCurrent = 0; //Measured in mA
 
@@ -21,6 +22,8 @@ void initTimer1();
 
 float calculateCurrent(float o, float w, float x, float dx);
 int motorCurrent = 0;
+float integralTerm = 0;
+int oldDelta = 0;
 int imuBuffer[9];
 
 int main(void)
@@ -30,20 +33,25 @@ int main(void)
 	initADC();
 	initTimer1();
 	
+	//initialize motor output pins
+	for (int i = 0; i<4; i++){
+		set(PORTB,i);
+	}
+	
 	m_red(!m_imu_init(1,1));
 	
 	sei();
 	
 	m_green(ON);
-    /* Replace with your application code */
-    while (1)  {
+	/* Replace with your application code */
+	while (1)  {
 		if(m_imu_raw(imuBuffer)){
 			m_red(OFF);
 			requestedCurrent = (int)calculateCurrent(0,0,0,0);
 		}
 		else
-			m_red(ON);
-    }
+		m_red(ON);
+	}
 }
 
 //Calculates the desired current in mA. Negative means reverse.
@@ -69,8 +77,8 @@ void initADC(){
 	set(ADCSRA,ADPS1);
 	set(ADCSRA,ADPS0);
 	
-	//Initialize the ADC to read from F6
-	set(DIDR0, ADC6D);
+	//Initialize the ADC to read from F0
+	set(DIDR0, ADC0D);
 	
 	//Continuously read
 	set(ADCSRA,ADATE);
@@ -96,26 +104,51 @@ void initTimer1(){
 	set(TCCR1A,WGM11);
 	set(TCCR1A,WGM10);
 	
-	//Enable PWM on pins B and C
-	set(TCCR1A,COM1B1);
-	set(TCCR1A,COM1B0);
-	set(TCCR1A,COM1C1);
-	set(TCCR1A,COM1C0);
+	//Enable PWM on pins B5 and B6
+	set(DDRB,5);
+	set(DDRB,6);
+	set(PORTB,5);
+	set(PORTB,6);
 	
 	//Enable Interrupts
 	set(TIMSK1,TOIE1);
+	
+	OCR1A = 0xFFFF;
+	OCR1B = 0x00FF;
+	
+	//set prescaler to /1024 ~8 KHz KHz
+	set(TCCR1B,CS12);
+	clear(TCCR1B,CS11);
+	set(TCCR1B,CS10);
 }
 
-//PID Current Controller running at 1khz
+//PID Current Controller running at 16khz
 ISR(TIMER1_OVF_vect,ISR_NOBLOCK){
-	static int oldCurrent = 0;
+	motorCurrent = (ADC * 525) / 1000; //525 mV/A
+	int delta = motorCurrent - requestedCurrent;
 	float cp = 1;
 	float ci = 1;
 	float cd = 1;
+	float p = delta;
+	integralTerm += delta;
+	float d = (delta - oldDelta) / (1 / (F_CPU / 1024.0));
+	if (requestedCurrent >= 0){ //spin clockwise?
+		set(PORTB,0);
+		clear(PORTB,1);
+		set(PORTB,2);
+		clear(PORTB,3);
+	}
+	else{
+		clear(PORTB,0);
+		set(PORTB,1);
+		clear(PORTB,2);
+		set(PORTB,3);
+	}
+	OCR1B = OCR1B + (cp*p + ci * integralTerm + cd*d);
 	//Check for direction based on pin settings or keep track
 	//Add sign to measured current based on this
 	//use PID to calculate new OCR1B/C based on difference from old and current difference
 	//OCR1B = OCR1C = X
 	//Reverse direction if needed
-	oldCurrent = ADC;
+	oldDelta = delta;
 }
