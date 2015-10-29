@@ -33,6 +33,16 @@
 *.atsln
 *.atsuo
 *.cppproj
+*.eep
+*.elf
+*.hex
+*.lss
+*.map
+*.srec
+*.d
+*.mk
+Makefile
+
 
 #notepad++
 *.bak
