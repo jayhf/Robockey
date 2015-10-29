@@ -38,7 +38,8 @@ int main(void)
 		set(PORTB,i);
 	}
 	
-	m_red(!m_imu_init(1,1));
+	m_imu_init(1,1);
+	
 	m_usb_init();
 	
 	sei();
@@ -47,14 +48,20 @@ int main(void)
 	/* Replace with your application code */
 	while (1)  {
 		if(m_imu_raw(imuBuffer)){
-			m_red(OFF);
 			for(int i = 0; i < 9; i++){
-			m_usb_tx_int(i);
+				//m_usb_tx_int(imuBuffer[i]);
+				//m_usb_tx_char(',');
 			}
-			requestedCurrent = (int)calculateCurrent(0,0,0,0);
+			m_usb_tx_char('\n');
 		}
-		else
-		m_red(ON);
+		
+		float o = atan2(imuBuffer[2],imuBuffer[0]);
+		float w = imuBuffer[4]*0.03051757812-3;
+		m_usb_tx_int((int)(o*180/3.14159));
+		m_usb_tx_char(',');
+		m_usb_tx_int((int)(w));
+		m_usb_tx_char(',');
+		requestedCurrent = 100;//(int)calculateCurrent(0,0,0,0);
 	}
 }
 
@@ -118,21 +125,26 @@ void initTimer1(){
 	set(TCCR1A,COM1C1);
 	clear(TCCR1A,COM1C0);
 	
+	//Enable with divider 1
+	set(TCCR1B,CS10);
+	clear(TCCR1B,CS11);
+	clear(TCCR1B,CS12);
 	
 	//Enable Interrupts
 	set(TIMSK1,TOIE1);
 	
 	OCR1A = 16000;
-	OCR1B = 0x00FF;
+	OCR1B = OCR1C = 1;
 }
 
 //PID Current Controller running at 1khz
 ISR(TIMER1_OVF_vect,ISR_NOBLOCK){
+	m_usb_tx_char(65);
 	motorCurrent = (ADC * 525) / 1000; //525 mV/A
 	int delta = motorCurrent - requestedCurrent;
 	float cp = 1;
-	float ci = 1;
-	float cd = 1;
+	float ci = 0;//1;
+	float cd = 0;//1;
 	float p = delta;
 	integralTerm += delta;
 	float d = (delta - oldDelta) / (1.0 / 1000);
