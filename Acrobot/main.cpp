@@ -44,7 +44,7 @@ int main(void)
 	
 	//initialize motor output pins
 	for (int i = 0; i<4; i++){
-		set(PORTB,i);
+		set(DDRB,i);
 	}
 	
 	m_imu_init(1,1);
@@ -60,12 +60,22 @@ int main(void)
 		
 		float o = atan2(imuBuffer[2],imuBuffer[0]);
 		float w = imuBuffer[4]*0.03051757812-3;
-		m_usb_tx_int((int)(o*180/3.14159));
+		m_usb_tx_int(motorCurrent);
 		m_usb_tx_char(',');
-		m_usb_tx_int((int)(w));
+		
+		m_usb_tx_int(requestedCurrent);
+		m_usb_tx_char(',');
+		
+		m_usb_tx_int(ADC);
+		m_usb_tx_char(',');
+		//m_usb_tx_int((int)(o*180/3.14159));
+		//m_usb_tx_char(',');
+		//m_usb_tx_int((int)(w));
+		//m_usb_tx_char(',');
+		m_usb_tx_int((int)(dx));
 		m_usb_tx_char(',');
 		m_usb_tx_char('\n');
-		requestedCurrent = 100;//(int)calculateCurrent(theta,imuBuffer[4],x,dx);
+		requestedCurrent = 1000;//(int)calculateCurrent(theta,imuBuffer[4],x,dx);
 	}
 }
 
@@ -122,6 +132,7 @@ void initTimer1(){
 	//Enable PWM on pins B6 and B7
 	set(DDRB,6);
 	set(DDRB,7);
+	
 	//toggle modes
 	set(TCCR1A,COM1B1);
 	clear(TCCR1A,COM1B0);
@@ -158,7 +169,6 @@ void calculateAX(){
 
 //PID Current Controller running at 1khz
 ISR(TIMER1_OVF_vect,ISR_NOBLOCK){
-	m_usb_tx_char(65);
 	motorCurrent = (ADC * 525) / 1000; //525 mV/A
 	int delta = motorCurrent - requestedCurrent;
 	float cp = 1;
@@ -170,16 +180,16 @@ ISR(TIMER1_OVF_vect,ISR_NOBLOCK){
 	if (requestedCurrent >= 0){ //spin clockwise?
 		set(PORTB,0);
 		clear(PORTB,1);
-		set(PORTB,2);
-		clear(PORTB,3);
+		clear(PORTB,2);
+		set(PORTB,3);
 	}
 	else{
 		clear(PORTB,0);
 		set(PORTB,1);
-		clear(PORTB,2);
-		set(PORTB,3);
+		set(PORTB,2);
+		clear(PORTB,3);
 	}
-	OCR1B = OCR1B + (cp*p + ci * integralTerm + cd*d);
+	OCR1C = OCR1B = 15999;//OCR1B + (cp*p + ci * integralTerm + cd*d);
 	//Check for direction based on pin settings or keep track
 	//Add sign to measured current based on this
 	//use PID to calculate new OCR1B/C based on difference from old and current difference
