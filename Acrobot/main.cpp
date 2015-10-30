@@ -22,6 +22,8 @@ void initADC();
 void initTimer1();
 void calculateTheta();
 void calculateDX();
+void approximateDX();
+void approximateTheta();
 
 float calculateCurrent(float o, float w, float x, float dx);
 int motorCurrent = 0;
@@ -29,6 +31,7 @@ float integralTerm = 0;
 int oldDelta = 0;
 int imuBuffer[9];
 float theta = 0;
+float thetaPrev = 0;
 float x = 0;
 float dx = 0;
 float dxPrev = 0;
@@ -55,19 +58,22 @@ int main(void)
 	sei();
 	
 	m_green(ON);
+	thetaPrev = atan2(imuBuffer[2],imuBuffer[0]);
 	/* Replace with your application code */
 	while (1)  {
 		if(m_imu_raw(imuBuffer));
-		
-		float o = atan2(imuBuffer[2],imuBuffer[0]);
-		float w = imuBuffer[4]*0.03051757812-3;
-		m_usb_tx_int(motorCurrent);
+		approximateTheta();
+		approximateDX();
+		dxPrev = dx;
+		//float o = atan2(imuBuffer[2],imuBuffer[0]);
+		//float w = imuBuffer[4]*0.03051757812-3;
+		m_usb_tx_int((int)theta);
 		m_usb_tx_char(',');
 		
-		m_usb_tx_int(requestedCurrent);
+		m_usb_tx_int(imuBuffer[4]);
 		m_usb_tx_char(',');
 		
-		m_usb_tx_int(ADC);
+		m_usb_tx_int(x);
 		m_usb_tx_char(',');
 		//m_usb_tx_int((int)(o*180/3.14159));
 		//m_usb_tx_char(',');
@@ -75,15 +81,17 @@ int main(void)
 		//m_usb_tx_char(',');
 		m_usb_tx_int((int)(dx));
 		m_usb_tx_char(',');
+		m_usb_tx_int(requestedCurrent);
+		m_usb_tx_char(',');
 		m_usb_tx_char('\n');
-		requestedCurrent = (int)calculateCurrent(theta,imuBuffer[4],x,dx);
+		requestedCurrent = (int)calculateCurrent(theta,imuBuffer[4],0,0);
 	}
 }
 
 //Calculates the desired current in mA. Negative means reverse.
 float calculateCurrent(float o, float w, float x, float dx){
 	//Tune these parameters to optimize performance
-	float co = 0;
+	float co = 1;
 	float cw = 1;
 	float cdx = 1;
 	float cx = 1;
@@ -166,6 +174,14 @@ void calculateDX(){
 
 void calculateAX(){
 	ax = (dx - dxPrev) / timeStep;
+}
+
+void approximateTheta(){
+	theta = imuBuffer[4]*timeStep + thetaPrev;
+}
+
+void approximateDX(){
+	dx = imuBuffer[2] * timeStep + dxPrev;
 }
 
 //PID Current Controller running at 1khz
