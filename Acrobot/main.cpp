@@ -8,11 +8,16 @@
 #define F_CPU 16000000
 
 #include "math.h"
+#include "avr/builtins.h"
+#include "string.h"
+#include <stdlib.h>
+
 extern "C"{
-#include "m_general.h"
-#include "m_imu.h"
-#include "m_usb.h"
-#include "m_bus.h"
+	#include "m_general.h"
+	#include "m_bus.h"
+	#include "m_imu.h"
+	//#include "m_rf.h"
+	//#include "m_usb.h"
 }
 
 
@@ -25,27 +30,47 @@ void calculateDX();
 void approximateDX();
 void approximateTheta();
 
-float calculateCurrent(float o, float w, float x, float dx);
+int calculateCurrent(float o, float w, float x, float dx);
 int motorCurrent = 0;
 float integralTerm = 0;
 int oldDelta = 0;
 int imuBuffer[9];
-float theta = 0;
-float thetaPrev = 0;
-float x = 0;
+//float theta = 0;
+//float x = 0;
 float dx = 0;
-float dxPrev = 0;
 float ax = 0;
 float wheelDiameter = 3.1; //inches
 float timeStep = 1/1000.0; //seconds
+volatile float w = 0;
+volatile int accelXLowPass = 0;
+volatile int wLowPass = 0;
+volatile long wIntegral = 0;
+volatile long oIntegral = 0;
 
-int main(void)
-{
+struct sendData{
+	 uint8_t id;
+	 int16_t ocr1b;
+	 int16_t theta;
+	 int16_t omega;
+	 int16_t axLowPass;
+	 int16_t omegaLowPass;
+	 char padding[15];
+};
+struct sendData sendBuffer;
+char receiveBuffer[32];
+volatile bool newMessage = false;
+
+volatile float co = 20;
+volatile float cw = 175;
+volatile float cv = .1;
+volatile float cx = 1;
+
+int main(void){
 	m_clockdivide(0);
 	
 	initADC();
 	initTimer1();
-	
+	//m_usb_init();
 	//initialize motor output pins
 	for (int i = 0; i<4; i++){
 		set(DDRB,i);
@@ -53,49 +78,116 @@ int main(void)
 	
 	m_imu_init(1,1);
 	
-	m_usb_init();
-	
+	//m_usb_init();
+	//m_rf_open(12,52,32);
 	sei();
 	
 	m_green(ON);
-	thetaPrev = atan2(imuBuffer[2],imuBuffer[0]);
-	/* Replace with your application code */
+	
+	//int x = 0;
 	while (1)  {
-		if(m_imu_raw(imuBuffer));
-		approximateTheta();
-		approximateDX();
-		dxPrev = dx;
+		m_imu_raw(imuBuffer);
+		//approximateDX();
 		//float o = atan2(imuBuffer[2],imuBuffer[0]);
-		//float w = imuBuffer[4]*0.03051757812-3;
-		m_usb_tx_int((int)theta);
-		m_usb_tx_char(',');
 		
-		m_usb_tx_int(imuBuffer[4]);
-		m_usb_tx_char(',');
+		//m_usb_tx_int(imuBuffer[2]);
+		//m_usb_tx_char(',');
 		
-		m_usb_tx_int(x);
-		m_usb_tx_char(',');
+		//m_usb_tx_int(x);
+		//m_usb_tx_char(',');
+		//m_usb_tx_int((int)dx);
+		//m_usb_tx_char(',');
 		//m_usb_tx_int((int)(o*180/3.14159));
+		//m_usb_tx_char(',');
+		//m_usb_tx_int((int)(theta*1000));
 		//m_usb_tx_char(',');
 		//m_usb_tx_int((int)(w));
 		//m_usb_tx_char(',');
-		m_usb_tx_int((int)(dx));
-		m_usb_tx_char(',');
-		m_usb_tx_int(requestedCurrent);
-		m_usb_tx_char(',');
-		m_usb_tx_char('\n');
-		requestedCurrent = (int)calculateCurrent(theta,imuBuffer[4],0,0);
+		//m_usb_tx_int(requestedCurrent);
+		//m_usb_tx_char('\n');
+		//int i=0;
+		//int q=1000;
+		/*sendBuffer[i++]=0;
+		memcpy(&sendBuffer[i+=4],&ocr1b,4);
+		memcpy(&sendBuffer[i+=4],&co,4);//theta;
+		memcpy(&sendBuffer[i+=4],&w,4);
+		memcpy(&sendBuffer[i+=4],&q,4);//accelXLowPass;
+		memcpy(&sendBuffer[i+=4],&wLowPass,4);*/
+		/*if((x++ % 100)==0){
+			m_red(TOGGLE);
+			sendBuffer.id = 0;
+			sendBuffer.ocr1b = OCR1B;
+			sendBuffer.theta = 0;//accelXLowPass;
+			sendBuffer.omega = w;
+			sendBuffer.axLowPass = accelXLowPass;
+			sendBuffer.omegaLowPass = wLowPass;
+			m_rf_send(86,(char*)&sendBuffer,32);
+		}*/
+		/*if(newMessage){
+			m_rf_read(receiveBuffer,32);
+			newMessage = false;
+			m_green(TOGGLE);
+			char variable = receiveBuffer[0];
+			float number = 0;
+			float decimalProduct = 1;
+			for(int i=1;((receiveBuffer[i]=='.')||(receiveBuffer[i]>='0'&&receiveBuffer[i]<='9'))&&i<32;i++){
+				if(receiveBuffer[i] == '.')
+					decimalProduct = .1;
+				else{
+					number = number*10+receiveBuffer[i]-'0';
+					if(decimalProduct<1)
+						decimalProduct*=.1;
+				}
+			}
+			//m_usb_tx_long((long)number);
+			if(decimalProduct<1)
+				decimalProduct *= 10;
+			number *= decimalProduct;
+			//m_usb_tx_char('\t');
+			//m_usb_tx_long((long)number);
+			//m_usb_tx_char('\n');
+			switch(variable){
+				case 'o':
+					co = number;
+					break;
+				case 'w':
+					cw = number;
+					break;
+				case 'x':
+					cx = number;
+					break;
+				case 'v':
+					cv = number;
+					break;
+			}
+		}*/
+		w = wLowPass*0.03051757812;
+		
+		accelXLowPass = imuBuffer[2]*.02+accelXLowPass*(.98);
+		wLowPass = (imuBuffer[4]-3)*.05+wLowPass*(.95);
+		wIntegral=((wIntegral*15)>>4) + wLowPass;
+		oIntegral=((oIntegral*15)>>4) + accelXLowPass;
+		
+		requestedCurrent = calculateCurrent(accelXLowPass,w,wIntegral,oIntegral);
 	}
 }
-
+float f(float x){
+	return copysign(x,pow(copysign(1.0,x),2));
+}
+//float ce = 1/16000.0;
 //Calculates the desired current in mA. Negative means reverse.
-float calculateCurrent(float o, float w, float x, float dx){
+int calculateCurrent(float o, float w, float x, float dx){
 	//Tune these parameters to optimize performance
-	float co = 1;
-	float cw = 1;
-	float cdx = 1;
-	float cx = 1;
-	return co * sin(o) + cw * w + cx * x + cdx * dx;
+	//if(w<5&&w>-5)
+	//	w=0;
+	//if(o<100&&o>-100)
+	//	o=0;
+	float result =  co * o + cw * w + cx * x + cv * dx+(OCR1B>>8);
+	if(result > 16000)
+		return 16000;
+	else if(result<-16000)
+		return -16000;
+	return (int) result;
 }
 
 //Initialize the ADC to read from F0 continuously.
@@ -171,29 +263,31 @@ void calculateDX(){
 	}
 	
 }
-
+/*
 void calculateAX(){
 	ax = (dx - dxPrev) / timeStep;
 }
 
-void approximateTheta(){
-	theta = imuBuffer[4]*timeStep + thetaPrev;
-}
 
 void approximateDX(){
 	dx = imuBuffer[2] * timeStep + dxPrev;
-}
+}*/
 
 //PID Current Controller running at 1khz
-ISR(TIMER1_OVF_vect,ISR_NOBLOCK){
-	motorCurrent = (ADC * 525) / 1000; //525 mV/A
-	int delta = imuBuffer[4];
-	float cp = 150;
-	float ci = 10;//1;
-	float cd = 30;//1;
-	float p = delta;
-	integralTerm += delta;
-	float d = (delta - oldDelta) / timeStep;
+ISR(TIMER1_OVF_vect){
+	
+
+	//theta = atan2(accelXLowPass,imuBuffer[0])+.43;//+.135
+	
+	//motorCurrent = (ADC * 525) / 1000; //525 mV/A
+	//int delta = imuBuffer[4];
+	//float cp = 150;
+	//float ci = 10;//1;
+	//float cd = 30;//1;
+	//float p = delta;
+	//integralTerm += delta;
+	//float d = (delta - oldDelta) / timeStep;*/
+	
 	if (requestedCurrent >= 0){ //spin clockwise?
 		set(PORTB,0);
 		clear(PORTB,1);
@@ -206,11 +300,15 @@ ISR(TIMER1_OVF_vect,ISR_NOBLOCK){
 		set(PORTB,2);
 		clear(PORTB,3);
 	}
-	OCR1C = OCR1B = OCR1B + (cp*p + ci * integralTerm + cd*d);
+	OCR1C = OCR1B = (15*(long)OCR1B+abs(requestedCurrent))>>4;//OCR1B + (cp*p + ci * integralTerm + cd*d);
 	//Check for direction based on pin settings or keep track
 	//Add sign to measured current based on this
 	//use PID to calculate new OCR1B/C based on difference from old and current difference
 	//OCR1B = OCR1C = X
 	//Reverse direction if needed
-	oldDelta = delta;
+	//oldDelta = delta;
+}
+
+ISR(INT2_vect){
+	newMessage = true;
 }
