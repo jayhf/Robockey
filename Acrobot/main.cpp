@@ -17,7 +17,7 @@ extern "C"{
 	#include "m_bus.h"
 	#include "m_imu.h"
 	//#include "m_rf.h"
-	//#include "m_usb.h"
+	#include "m_usb.h"
 }
 
 
@@ -30,7 +30,7 @@ void calculateDX();
 void approximateDX();
 void approximateTheta();
 
-int calculateCurrent(float o, float w, float x, float dx);
+int calculateCurrent(float o, float w, float x, float dx, int max);
 int motorCurrent = 0;
 float integralTerm = 0;
 int oldDelta = 0;
@@ -68,7 +68,7 @@ int main(void){
 	
 	initADC();
 	initTimer1();
-	//m_usb_init();
+	
 	//initialize motor output pins
 	for (int i = 0; i<4; i++){
 		set(DDRB,i);
@@ -159,14 +159,18 @@ int main(void){
 					break;
 			}
 		}*/
+		int max = 0;
 		w = wLowPass*0.03051757812;
-		
-		accelXLowPass = (imuBuffer[2] + 40 + 0*wLowPass)*.02+accelXLowPass*(.98);
+		//offset of 250 towards block, 500 middle, 1000 batteries
+		accelXLowPass = (imuBuffer[2] + 250 + 0*wLowPass)*.02+accelXLowPass*(.98);
+		//m_usb_tx_int(accelXLowPass);
+		//m_usb_tx_char('\n');
+		//if (accelXLowPass<100 ) max = -1;// (imuBuffer[2] + -500 + .02*wLowPass)*.02+accelXLowPass*(.98);
 		wLowPass = (imuBuffer[4]-3)*.05+wLowPass*(.95);
 		wIntegral=((wIntegral*15)>>4) + 1*wLowPass;
 		oIntegral=((oIntegral*15)>>4) + accelXLowPass;
 		
-		requestedCurrent = calculateCurrent(accelXLowPass,w,wIntegral,oIntegral);
+		requestedCurrent = calculateCurrent(accelXLowPass,w,wIntegral,oIntegral,max);
 	}
 }
 float f(float x){
@@ -174,22 +178,22 @@ float f(float x){
 }
 //float ce = 1/16000.0;
 //Calculates the desired current in mA. Negative means reverse.
-int calculateCurrent(float o, float w, float x, float dx){
+int calculateCurrent(float o, float w, float x, float dx, int max){
 	volatile float co = 22;
 	volatile float cw = 3;
-	volatile float cv = .1;
+	volatile float cv = 0.1;
 	volatile float cx = 1;
 	//Tune these parameters to optimize performance
 	//if(w<5&&w>-5)
 	//	w=0;
 	//if(o<100&&o>-100)
 	//	o=0;
-	static float ocrpass =0;
+	static float ocrpass = 0;
 	ocrpass = OCR1B*0.01 + ocrpass*0.99;
-	float result =  co * o + cw * w + cx * x + cv * dx+1*ocrpass;
-	if(result > frequency)
+	float result =  co * o + cw * w + cx * x + cv * dx+1.5*ocrpass;
+	if(result > frequency || max > 0)
 		return frequency;
-	else if(result<-frequency)
+	else if(result<-frequency || max < 0)
 		return -frequency;
 	return (int) result;
 }
@@ -305,7 +309,7 @@ ISR(TIMER1_OVF_vect){
 		clear(PORTB,3);
 	}
 	OCR1B = (15*(long)OCR1B+abs(requestedCurrent))>>4;
-	OCR1C = 0.89*(float)OCR1B;
+	OCR1C = 0.88*(float)OCR1B;
 	if(OCR1B>15250){
 		OCR1B = OCR1C = 15999;
 	}
