@@ -60,10 +60,8 @@ struct sendData sendBuffer;
 char receiveBuffer[32];
 volatile bool newMessage = false;
 
-volatile float co = 20;
-volatile float cw = 175;
-volatile float cv = .1;
-volatile float cx = 1;
+
+int frequency = 16000;
 
 int main(void){
 	m_clockdivide(0);
@@ -163,9 +161,9 @@ int main(void){
 		}*/
 		w = wLowPass*0.03051757812;
 		
-		accelXLowPass = imuBuffer[2]*.02+accelXLowPass*(.98);
+		accelXLowPass = (imuBuffer[2] + 40 + 0*wLowPass)*.02+accelXLowPass*(.98);
 		wLowPass = (imuBuffer[4]-3)*.05+wLowPass*(.95);
-		wIntegral=((wIntegral*15)>>4) + wLowPass;
+		wIntegral=((wIntegral*15)>>4) + 1*wLowPass;
 		oIntegral=((oIntegral*15)>>4) + accelXLowPass;
 		
 		requestedCurrent = calculateCurrent(accelXLowPass,w,wIntegral,oIntegral);
@@ -177,16 +175,22 @@ float f(float x){
 //float ce = 1/16000.0;
 //Calculates the desired current in mA. Negative means reverse.
 int calculateCurrent(float o, float w, float x, float dx){
+	volatile float co = 22;
+	volatile float cw = 3;
+	volatile float cv = .1;
+	volatile float cx = 1;
 	//Tune these parameters to optimize performance
 	//if(w<5&&w>-5)
 	//	w=0;
 	//if(o<100&&o>-100)
 	//	o=0;
-	float result =  co * o + cw * w + cx * x + cv * dx+(OCR1B>>8);
-	if(result > 16000)
-		return 16000;
-	else if(result<-16000)
-		return -16000;
+	static float ocrpass =0;
+	ocrpass = OCR1B*0.01 + ocrpass*0.99;
+	float result =  co * o + cw * w + cx * x + cv * dx+1*ocrpass;
+	if(result > frequency)
+		return frequency;
+	else if(result<-frequency)
+		return -frequency;
 	return (int) result;
 }
 
@@ -249,7 +253,7 @@ void initTimer1(){
 	//Enable Interrupts
 	set(TIMSK1,TOIE1);
 	
-	OCR1A = 16000;
+	OCR1A = frequency;
 	OCR1B = OCR1C = 1;
 }
 
@@ -300,7 +304,12 @@ ISR(TIMER1_OVF_vect){
 		set(PORTB,2);
 		clear(PORTB,3);
 	}
-	OCR1C = OCR1B = (15*(long)OCR1B+abs(requestedCurrent))>>4;//OCR1B + (cp*p + ci * integralTerm + cd*d);
+	OCR1B = (15*(long)OCR1B+abs(requestedCurrent))>>4;
+	OCR1C = 0.89*(float)OCR1B;
+	if(OCR1B>15250){
+		OCR1B = OCR1C = 15999;
+	}
+	//OCR1B + (cp*p + ci * integralTerm + cd*d);
 	//Check for direction based on pin settings or keep track
 	//Add sign to measured current based on this
 	//use PID to calculate new OCR1B/C based on difference from old and current difference
