@@ -26,6 +26,7 @@ extern "C"{
 
 void goToPosition(int targetX, int targetY, int currentX, int currentY, float currentTheta, bool faceForward);
 void movement(int leftSpeed, int rightSpeed); //pass in as percentage of power
+int[] findPuck();
 bool nearWall(int currentX, int currentY);
 
 int main(void)
@@ -122,6 +123,51 @@ void goToPosition(int targetX, int targetY, int currentX, int currentY, float cu
 			}
 		}
 	}
+}
+
+int[] findPuck(){
+	int val1 = 0;
+	int val2 = 0;
+	int val3 = 0;
+	int photo1 = 0;
+	int photo2 = 0;
+	int photo3 = 0;
+	// loop through transistors
+	int pin = check(PINB,0) + 2 * check(PINB,1) + 4 * check(PINB,2) + 8 * check(PINB,3);
+	if (ADC > val3) {
+		if (ADC > val2) {
+			if (ADC > val 1){
+				photo3 = photo2;
+				photo2 = photo1;
+				photo1 = pin; //current pin
+				val3 = val2;
+				val2 = val1;
+				val1 = ADC;
+			}
+			else {
+				photo3 = photo2;
+				photo2 = pin;
+				val3 = val2;
+				val2 = ADC;
+			}
+		}
+		else{
+			photo3 = pin; //current pin
+			val3 = ADC;
+		}
+	}
+	//end loop
+	float heading;
+	if (((photo2 == photo1 + 1 && photo 3 == photo1 - 1) || (photo2 == photo1 - 1 && photo 3 == photo1 + 1)) && (val2 < val3 + 5 && val2 > val3 - 5)){
+		//if largest reading is in betweeen next two and the next two are within +/- 5, assume that middle is pointing directly at it
+		heading = 2*PI/16 * photo1;
+		
+	}
+	else {
+		heading = 2*PI/16 * (photo1 + photo2) / 2.0;
+	}
+	int distance = 3*(val1 + val2 + val3)/3; //need to scale accordingly
+	return [distance*cos(heading),distance*sin(heading)];
 }
 
 bool nearWall(int currentX, int currentY){
