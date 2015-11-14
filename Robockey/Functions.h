@@ -164,7 +164,7 @@ int[] findPuck(){
 		
 	}
 	else {
-		heading = 2*PI/16 * (photo1 + photo2) / 2.0;
+		heading = 2*PI/16 * (photo1 * val1 + photo2 * val2) / (val1+val2); //compute weighted average and multiply by degrees per transistor
 	}
 	int distance = 3*(val1 + val2 + val3)/3; //need to scale accordingly
 	return [distance*cos(heading),distance*sin(heading)];
