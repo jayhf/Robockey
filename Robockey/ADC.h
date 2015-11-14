@@ -1,16 +1,24 @@
-class ADC{
-public:	
-	void update();
-private:
-	uint8_t resistor;
-	uint16_t irValues[16];
-	uint16_t battery;
-	uint16_t boost;
-	uint16_t leftMotor;
-	uint16_t rightMotor;
+void initADC();
+void beginADC();
+bool adcUpdateCompleted();
+
+//Threshold is just under 3.1V
+bool batteryLow();
+//Threshold is over 29V
+bool boostReady();
+//Current values are in mA
+uint16_t leftMotorCurrent();
+uint16_t rightMotorCurrent();
+
+enum SwitchPosition	{
+	UP, MIDDLE, DOWN
 };
 
-ADC::update(){
-	//start ADC
-}
+enum SwitchPosition switchPosition();
 
+enum resistor{
+	R1K=0, R6K8=1, R47K=2, R330K=3
+};
+
+enum resistor getSelectedResistor();
+uint16_t* getIRData();
