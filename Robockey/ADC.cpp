@@ -79,7 +79,7 @@ ISR(ADC_vect){
 			break;
 		default:
 			updateCompleted = true;
-			ADMUX |= 0b111 << MUX0;
+			ADMUX |= 7 << MUX0;
 			return;
 	}
 	//Start next conversion

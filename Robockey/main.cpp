@@ -38,6 +38,7 @@ int main(void)
 			sleep();
 		
 		while(!adcUpdateCompleted());
+
 		localizePuck();
 		//invert all poses depending on the team. Probably should be dealt with in the localization code itself
 		Pose desiredPose();
@@ -47,4 +48,3 @@ int main(void)
 		//move towards desired pose if allowed by game state
     }
 }
-
