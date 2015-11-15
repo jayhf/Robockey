@@ -27,6 +27,7 @@ ISR(INT2_vect){
 		case 0x43:
 			//Received a message from another team robot
 			enum Robot robot = buffer[0]-40;
+			//processTeamMessage(buffer+1);
 		case 0xA0:
 			updateGameState(GameState.COMM_TEST);
 			break;

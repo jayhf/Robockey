@@ -31,6 +31,7 @@ void setEnabled(bool enabled){
 void setMotors(int8_t right, int8_t left){
 	TCCR1B = abs(right);
 	TCCR1C = abs(left);
+	PORTC = ((PORTC & ~(0b11 << 6))) | ((right>0) << 6) | ((left>0) << 7);
 }
 
 uint16_t kickEndTime;

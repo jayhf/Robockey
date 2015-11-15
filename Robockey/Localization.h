@@ -1,10 +1,15 @@
 #include <stdint.h>
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include "BAMSMath.h"
 #include "ADC.h"
 extern "C"{
 	#include "m_wii.h"
 };
+
+#define YMAX 768
+#define YMIN -768
+#define XMAX 1024
+#define XMIN -1024
 
 class Pose{
 public:
@@ -150,11 +155,11 @@ Pose localizeRobot(uint16_t* irData){
 			float oy = my + cy*dy + cx*py;
 			float ox2 = mx - cy*dx - cx*px;
 			float oy2 = my - cy*dy - cx*py;
-			short o = (short) (32768/M_PI*(atan2((float)dy,(float)dx))+co);
+			short o = (short) (toBAMS(atan2((float)dy,(float)dx))+co);
 
 			possiblePointsX[possiblePointCount] = ox;
 			possiblePointsY[possiblePointCount] = oy;
-			possiblePointsO[possiblePointCount] = (short)(o+32768);
+			possiblePointsO[possiblePointCount] = (short)(o+PI);
 			possiblePointsX[possiblePointCount+1] = ox2;
 			possiblePointsY[possiblePointCount+1] = oy2;
 			possiblePointsO[possiblePointCount+1] = o;
@@ -187,7 +192,7 @@ Pose localizeRobot(uint16_t* irData){
 				float dx = possiblePointsX[i]-possiblePointsX[j];
 				float dy = possiblePointsY[i]-possiblePointsY[j];
 				short dTheta = (short) (possiblePointsO[i]-possiblePointsO[j]);
-				if((dTheta>-16768&&dTheta<16768)&&dx*dx+dy*dy<200)
+				if((dTheta>-PI/2&&dTheta<PI/2)&&dx*dx+dy*dy<200)
 					scores[j]++;
 			}
 		}
@@ -216,8 +221,8 @@ Pose localizeRobot(uint16_t* irData){
 		oo=(short) (oo/originCount+possiblePointsO[maxScoreIndex]);
 
 	}
-	float coso = (float) cos(oo*M_PI/32768);
-	float sino = (float) sin(oo*M_PI/32768);
+	float coso = (float) cos(toFloatAngle(oo));
+	float sino = (float) sin(toFloatAngle(oo));
 	float rx = -ox*coso - oy *sino;
 	float ry = ox*sino - oy *coso;
 	rx*=10;
