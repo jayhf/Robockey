@@ -9,8 +9,8 @@ typedef uint16_t uangle;
 #define toBAMS(x) ((x)*10430.37835047045272f)
 #define toFloatAngle(x) ((x*0.0000958737992428525f))
 
-#define cosb(x) (toBAMS(cos(toFloatAngle(x))))
-#define sinb(x) (toBAMS(sin(toFloatAngle(x))))
+#define cosb(x) (cos(toFloatAngle(x)))
+#define sinb(x) (sin(toFloatAngle(x)))
 #define atan2b(y,x)  (toBAMS(atan2(y,x)))
 
 #define angleGreaterb(x,y) ((x)-(y)>=0)

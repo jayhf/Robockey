@@ -35,7 +35,8 @@ public class Robot {
 	}
 	
 	private RobotController.ControlParameters controls = new RobotController.ControlParameters(0,0);
-	public native void mWiiUpdate(short[] s, short[] location);
+	//public native void mWiiUpdate(short[] s, short[] location);
+	public native void run();
 	public void localize(short[] irData){
 		short[] location = new short[3];
 		short[] location2 = new short[3];

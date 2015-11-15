@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 void initADC();
 void beginADC();
 bool adcUpdateCompleted();
@@ -12,15 +14,15 @@ bool boostReady();
 uint16_t leftMotorCurrent();
 uint16_t rightMotorCurrent();
 
-enum SwitchPosition	{
+enum class SwitchPosition : uint8_t	{
 	UP, MIDDLE, DOWN
 };
 
-enum SwitchPosition switchPosition();
+SwitchPosition switchPosition();
 
-enum resistor{
+enum class Resistor : uint8_t{
 	R1K=0, R6K8=1, R47K=2, R330K=3
 };
 
-enum resistor getSelectedResistor();
+Resistor getSelectedResistor();
 uint16_t* getIRData();

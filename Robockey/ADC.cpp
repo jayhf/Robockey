@@ -2,7 +2,7 @@
 
 bool updateCompleted;
 
-uint8_t irResistor;
+Resistor irResistor;
 uint8_t irIndex;
 uint16_t irValues[16];
 uint16_t battery;
@@ -11,11 +11,11 @@ uint16_t leftMotor;
 uint16_t rightMotor;
 uint16_t switchValue;
 
-adcUpdateCompleted(){
+bool adcUpdateCompleted(){
 	return updateCompleted;
 }
 
-initADC(){
+void initADC(){
 	//Set the ADC clock prescaler
 	ADCSRA |= 0b111 << ADPS0;
 	//Disable the digital inputs on the analog pins
@@ -29,7 +29,7 @@ initADC(){
 	while(!updateCompleted);
 }
 
-beginADC(){
+void beginADC(){
 	updateCompleted = 0;
 	ADMUX |= 0b111 << MUX0;
 	//Start the conversion
@@ -86,10 +86,6 @@ ISR(ADC_vect){
 	ADCSRA |= 1 << ADSC;
 }
 
-bool adcUpdateCompleted(){
-	return updateCompleted;
-}
-
 bool batteryLow(){
 	return battery < 450;
 }
@@ -106,17 +102,17 @@ uint16_t rightMotorCurrent(){
 	return (rightMotor * 147) >> 3;
 }
 
-enum SwitchPosition switchPosition(){
-	if(switchPosition>768)
-		return DOWN;
-	else if(switchPosition>256)
-		return MIDDLE;
-	else
-		return UP;
+SwitchPosition switchPosition(){
+	if(switchValue>768)
+			return SwitchPosition::DOWN;
+		else if(switchValue>256)
+			return SwitchPosition::MIDDLE;
+		else
+			return SwitchPosition::UP;
 };
 
-enum resistor getSelectedResistor(){
-	return resistor;
+Resistor getSelectedResistor(){
+	return irResistor;
 };
 
 uint16_t* getIRData(){
