@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "BAMSMath.h"
 #include "ADC.h"
+#include "time.h"
 
 #ifndef SIMULATION
 extern "C"{
@@ -126,9 +127,9 @@ Pose predictPuck(){
 	uint16_t deltaT = puckTime[0] - puckTime[1];
 	uint16_t deltaX = puckPose[0].x - puckPose[1].x;
 	uint16_t deltaY = puckPose[0].y - puckPose[1].y;
-	uint16_t deltaO = puckPose[0].o - puckPose[1].o;
-	Pose velocity = (deltaX/deltaT,deltaY/deltaT,deltaO/deltaT);
-	uint16_t timeStep = getTime() - currentTime;
+	angle deltaO = puckPose[0].o - puckPose[1].o;
+	Pose velocity(deltaX/deltaT,deltaY/deltaT,deltaO/deltaT);
+	uint16_t timeStep = getTime() - puckTime[0];
 	return Pose(puckPose[0].x + velocity.x*timeStep, puckPose[0].y + velocity.y*timeStep,puckPose[0].o + velocity.o*timeStep);
 }
 

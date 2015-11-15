@@ -1,5 +1,8 @@
 ﻿#include "Digital.h"
 #include "time.h"
+#include "avr/io.h"
+#include "stdlib.h"
+#include "m_general.h"
 
 ///You don't properly handle negative speeds. Floating point math should be avoided.
 ///At the very least never divide by a constant, multiply by 1/constant.
@@ -73,7 +76,7 @@ void updateKick(){
 }
 
 void setLED(enum LEDColor color){
-	PORTD = (PORTD & (~0b11 << 4)) | color << 4;
+	PORTD = (PORTD & (~0b11 << 4)) | static_cast<uint8_t>(color) << 4;
 }
 
 bool switchesPressed(){

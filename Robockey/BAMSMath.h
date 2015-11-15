@@ -15,3 +15,6 @@ typedef uint16_t uangle;
 
 #define angleGreaterb(x,y) ((x)-(y)>=0)
 #define angleGreaterbu(x,y) ((x)-(y)<PI)
+
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#define MIN(a,b) (((a)<(b))?(a):(b))

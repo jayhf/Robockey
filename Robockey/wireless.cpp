@@ -10,12 +10,12 @@ void initWireless(){
 
 
 void sendPacket(Robot robot, uint8_t *packet){
-	m_rf_send(84 + robot, packet, 10);
+	m_rf_send(84 + static_cast<uint8_t>(robot), (char*)packet, 10);
 }
 
 ISR(INT2_vect){
-	uint8_t *buffer[10];
-	m_rf_read(buffer);
+	uint8_t buffer[10];
+	m_rf_read((char*)buffer,10);
 	switch(buffer[0]){
 		case 0x20:
 			//Set variable
@@ -26,32 +26,35 @@ ISR(INT2_vect){
 		case 0x41:
 		case 0x42:
 		case 0x43:
-			//Received a message from another team robot
-			enum Robot robot = buffer[0]-40;
-			//processTeamMessage(buffer+1);
+			{
+				//Received a message from another team robot
+				Robot robot = static_cast<Robot>(buffer[0]-40);
+				//processTeamMessage(buffer+1);
+				break;
+			}
 		case 0xA0:
-			updateGameState(GameState.COMM_TEST);
+			updateGameState(GameState::COMM_TEST);
 			break;
 		case 0xA1:
-			updateGameState(GameState.PLAY);
+			updateGameState(GameState::PLAY);
 			break;
 		case 0xA2:
-			goalScored(Team.RED);
+			goalScored(Team::RED);
 			break;
 		case 0xA3:
-			goalScored(Team.BLUE);
+			goalScored(Team::BLUE);
 			break;
 		case 0xA4:
-			updateGameState(GameState.PAUSE);
+			updateGameState(GameState::PAUSE);
 			break;
 		case 0xA6:
-			updateGameState(GameState.HALFTIME);
+			updateGameState(GameState::HALFTIME);
 			break;
 		case 0xA7:
-			updateGameState(GameState.GAME_OVER);
+			updateGameState(GameState::GAME_OVER);
 			break;
 		case 0xA8:
-			updateEnemyLocations(buffer + 1)
+			updateEnemyLocations(buffer + 1);
 			break;
 	}
 }

@@ -21,7 +21,7 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 		uint16_t deltaY = current.y - target.y;
 		uint16_t distance = sqrt(deltaX*deltaX + deltaY*deltaY);
 		uint16_t targetTheta = atan2b(deltaY,deltaX); //find angle towards target
-		uint16_t deltaTheta = current.o - target.o;
+		angle deltaTheta = current.o - target.o;
 
 		uint16_t k1 = 10; //distance proportional
 		uint16_t k2 = 2; //angle proportional

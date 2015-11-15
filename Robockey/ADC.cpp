@@ -1,5 +1,6 @@
 ﻿#include "ADC.h"
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
 bool updateCompleted;
 
@@ -39,11 +40,11 @@ void beginADC(){
 	uint16_t maxValue = 0;
 	for(uint8_t i=0;i<16;i++)
 		maxValue = maxValue > irValues[i] ? maxValue : irValues[i];
-	if(maxValue>800 && irResistor != Resistor::R1K)
+	if(maxValue>800)
 		irResistor--;
-	else if(maxValue<200 && irResistor != Resistor::R330K)
+	else if(maxValue<200)
 		irResistor++;
-	PORTB = (PORTB & (~0b11 << 4)) | (irResistor << 4);
+	PORTB = (PORTB & (~0b11 << 4)) | (static_cast<uint8_t>(irResistor) << 4);
 }
 
 ISR(ADC_vect){
@@ -57,7 +58,7 @@ ISR(ADC_vect){
 				PORTB = (PORTB & (~0b1111)) | selectedIR;
 				break;
 			}
-			else goto default;
+			else goto defaultCase;
 		case 1:
 			switchValue = ADC;
 			ADMUX |= 0 << MUX0;
@@ -78,6 +79,7 @@ ISR(ADC_vect){
 			boost = ADC;
 			ADMUX |= 6 << MUX0;
 			break;
+		defaultCase:
 		default:
 			updateCompleted = true;
 			ADMUX |= 7 << MUX0;
