@@ -191,6 +191,7 @@ Pose localizeRobot(uint16_t* irData){
 			for(int j=i+1;j<possiblePointCount;j++){
 				float dx = possiblePointsX[i]-possiblePointsX[j];
 				float dy = possiblePointsY[i]-possiblePointsY[j];
+
 				short dTheta = (short) (possiblePointsO[i]-possiblePointsO[j]);
 				if((dTheta>-PI/2&&dTheta<PI/2)&&dx*dx+dy*dy<200)
 					scores[j]++;

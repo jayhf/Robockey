@@ -174,7 +174,7 @@ int[] findPuck(){
 	}
 	else {
 		///You never rotate by the offset by which phototransistor is selected.
-		heading = 2*PI/16 * (photo1 + photo2) / 2.0;
+		heading = 2*PI/16 * (photo1 * val1 + photo2 * val2) / (val1+val2); //compute weighted average and multiply by degrees per transistor
 	}
 	///Don't see the point of multiplying and dividing by 3. Doesn't really matter, because we need a lookup table based system
 	///to get a decent distance measurement. You also will need to consider that the resistor changes and you need to check which is used.
