@@ -1,4 +1,5 @@
 ﻿#include "GameState.h"
+
 extern "C"{
 	#include "m_rf.h"
 }

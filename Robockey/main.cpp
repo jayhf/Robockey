@@ -5,8 +5,6 @@
  * Author : Jay
  */ 
 
-#include "time.h"
-#include "Digital.h"
 
 #ifdef SIMULATION
 	#include "../Simulator/m_general.h"
@@ -16,6 +14,8 @@
 	#include "ADC.h"
 #endif
 
+#include "time.h"
+#include "Digital.h"
 #include "Localization.h"
 #include "GameState.h"
 #include "wireless.h"
