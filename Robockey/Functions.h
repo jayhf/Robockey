@@ -186,15 +186,15 @@ Pose findPuck(Pose current){
 		}
 	}
 	//end loop
-	float heading;
+	unit16_t heading;
 	if (((photo2 == photo1 + 1 && photo 3 == photo1 - 1) || (photo2 == photo1 - 1 && photo 3 == photo1 + 1)) && (val2 < val3 + 5 && val2 > val3 - 5)){
 		//if largest reading is in betweeen next two and the next two are within +/- 5, assume that middle is pointing directly at it
-		heading = 2*PI/16 * photo1;
+		heading = -(2*PI/16 * photo1);
 		
 	}
 	else {
 		///You never rotate by the offset by which phototransistor is selected.
-		heading = 2*PI/16 * (photo1 * val1 + photo2 * val2) / (val1+val2); //compute weighted average and multiply by degrees per transistor
+		heading = -(2*PI/16 * (photo1 * val1 + photo2 * val2) / (val1+val2)); //compute weighted average and multiply by degrees per transistor
 	}
 	heading = current.o + heading;
 	///Don't see the point of multiplying and dividing by 3. Doesn't really matter, because we need a lookup table based system
