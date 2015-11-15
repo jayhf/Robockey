@@ -26,6 +26,7 @@
 *.exe
 *.out
 *.app
+*.bat
 
 #Atmel Studio Files
 *.xml
@@ -43,6 +44,15 @@
 *.mk
 Makefile
 
-
 #notepad++
 *.bak
+
+#eclipse
+.classpath
+.cproject
+.project
+.settings/
+.externalToolBuilders/
+
+#java
+*.class
