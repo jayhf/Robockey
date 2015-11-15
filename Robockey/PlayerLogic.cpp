@@ -9,44 +9,111 @@
 #include "Localization.h"
 #include "PathPlanning.h"
 #include "BAMSMath.h"
+#include <stdlib.h>
+
+#define robotRadius 10
+#define puckRadius 3
+
 
 enum class Player : uint8_t{
 	GOALIE = 0, DEFENSE = 1, SCORER = 2, ASSISTER = 3
 };
 
+void goalieLogic();
+void leftCorner();
+void rightCorner();
+void avoidGoalie();
+void fakeGoalie();
+
 void playerLogic(Player player){
 	switch(player){
-		case Player::GOALIE:
-			{
-				Pose puckPredict = predictPuck();
-				if (puckPredict.x < XMAX / 2) {
-					uint16_t yPos;
-					if (puckPredict.y >= 0) {
-						yPos = MIN(YMAX/2,puckPredict.y);
-					}
-					else{
-						yPos = MAX(YMIN/2,puckPredict.y);
-					}
-					goToPosition(Pose(XMIN + 10, yPos,puckPredict.o),getRobotPose(), true);
-					facePose(puckPredict);
+		case Player::GOALIE:{
+			goalieLogic();
+			break;
+		}
+		case Player::SCORER: {
+			int rando = random() % 4; //change to number of strategies
+			switch(rando){
+				case 0:{
+					leftCorner();
+					break;
 				}
-				else if(puckPredict.x < 3*XMIN/4){
-					facePose(puckPredict);
-					movement(100,100);
-					//communicate to other robot to fill in
+				case 1:{
+					rightCorner();
+					break;
 				}
-				else {
-					uint16_t yPos;
-					if (puckPredict.y >= 0) {
-						yPos = MIN(YMAX/2,puckPredict.y);
-					}
-					else{
-						yPos = MAX(YMIN/2,puckPredict.y);
-					}
-					goToPosition(Pose(7*XMIN/8, yPos, puckPredict.o), getRobotPose(), true);
-					facePose(puckPredict);
+				case 2:{
+					avoidGoalie();
+					break;
 				}
-				break;
+				case 3:{
+					fakeGoalie();
+					break;
+				}
+				default:{
+					break;
+				}
 			}
+			break;
+		}
 	}
+}
+
+void goalieLogic(){
+	Pose puckPredict = predictPuck();
+	if (puckPredict.x < XMAX / 2) {
+		uint16_t yPos;
+		if (puckPredict.y >= 0) {
+			yPos = MIN(YMAX/2,puckPredict.y);
+		}
+		else{
+			yPos = MAX(YMIN/2,puckPredict.y);
+		}
+		goToPosition(Pose(XMIN + robotRadius, yPos,puckPredict.o),getRobotPose(), true);
+		facePose(puckPredict);
+	}
+	else if(puckPredict.x < 3*XMIN/4){
+		facePose(puckPredict);
+		movement(100,100);
+		//communicate to other robot to fill in
+	}
+	else {
+		uint16_t yPos;
+		if (puckPredict.y >= 0) {
+			yPos = MIN(YMAX/2,puckPredict.y);
+		}
+		else{
+			yPos = MAX(YMIN/2,puckPredict.y);
+		}
+		goToPosition(Pose(7*XMIN/8, yPos, puckPredict.o), getRobotPose(), true);
+		facePose(puckPredict);
+	}
+}
+
+void leftCorner(){
+	Pose currentPose = getRobotPose();
+	if (currentPose.x < XMAX - robotRadius && currentPose.y < YMAX - robotRadius - 5) {
+		goToPositionPuck(Pose(XMAX - robotRadius - 5, YMAX - robotRadius - 5, angle -PI/3), currentPose);
+	}
+	else {
+		goToPositionPuck(Pose(XMAX,YMAX/2 - puckRadius,angle 0),currentPose);
+	}
+}
+
+void rightCorner(){
+	Pose currentPose = getRobotPose();
+	if (currentPose.x < XMAX - robotRadius && currentPose.y > YMIN + robotRadius + 5) {
+		goToPositionPuck(Pose(XMAX - robotRadius - 5, YMIN + robotRadius + 5, angle -PI/3), currentPose);
+	}
+	else {
+		goToPositionPuck(Pose(XMAX,YMIN/2 + puckRadius,angle 0),currentPose);
+	}
+}
+
+void avoidGoalie(){
+	//find if one of their players is in the goal and go towards the larger space based on his position
+}
+
+void fakeGoalie(){
+	//do same as avoid goalie but move other direction then turn quickly
 }

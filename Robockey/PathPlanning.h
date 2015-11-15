@@ -77,6 +77,10 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 	}
 }
 
+void goToPositionPuck(Pose target, Pose current){
+	//implement motion with puck
+}
+
 void facePose(Pose pose){
 	Pose robotPose = getRobotPose();
 	if (robotPose.o > pose.o + 1){
