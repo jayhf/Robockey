@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 void initADC();
 void beginADC();
 bool adcUpdateCompleted();

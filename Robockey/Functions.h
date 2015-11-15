@@ -12,6 +12,7 @@
 #include "avr/builtins.h"
 #include "string.h"
 #include <stdlib.h>
+#include "ADC.h"
 
 #define PI 3.14
 
@@ -44,21 +45,27 @@ void movement(int leftSpeed, int rightSpeed){
 	if (rightSpeed > 100) {
 		rightSpeed = 100;
 	}
+	if (leftSpeed < -100) {
+		leftSpeed = -100;
+	}
+	if (rightSpeed < -100) {
+		rightSpeed = -100;
+	}
 	if (leftSpeed > 0) {
 		set(PINC,6);
-		OCR1B = leftSpeed / 100.0 * OCR1A;
+		OCR1B = leftSpeed * OCR1A * 0.01;
 	}
 	else if (leftSpeed < 0) {
 		clear(PINC,6);
-		OCR1B = leftSpeed / 100.0 * OCR1A;
+		OCR1B = leftSpeed * OCR1A * 0.01;
 	}
 	if (rightSpeed > 0) {
 		set(PINC,7);
-		OCR1C = rightSpeed / 100.0 * OCR1A;
+		OCR1C = rightSpeed *0.01* OCR1A;
 	}
 	else if (rightSpeed < 0) {
 		clear(PINC,7);
-		OCR1C = rightSpeed / 100.0 * OCR1A;
+		OCR1C = rightSpeed *0.01* OCR1A;
 	}
 }
 
@@ -132,28 +139,31 @@ int[] findPuck(){
 	int photo1 = 0;
 	int photo2 = 0;
 	int photo3 = 0;
-	// loop through transistors
-	int pin = check(PINB,0) + 2 * check(PINB,1) + 4 * check(PINB,2) + 8 * check(PINB,3);
-	if (ADC > val3) {
-		if (ADC > val2) {
-			if (ADC > val 1){
-				photo3 = photo2;
-				photo2 = photo1;
-				photo1 = pin; //current pin
-				val3 = val2;
-				val2 = val1;
-				val1 = ADC;
+	uint16_t * values = getIRValues(); // loop through transistors
+	for (int i = 0; i < 16; i++){
+		thisADC = values[i];
+		int pin = check(PINB,0) + 2 * check(PINB,1) + 4 * check(PINB,2) + 8 * check(PINB,3);
+		if (thisADC > val3) {
+			if (thisADC > val2) {
+				if (thisADC > val 1){
+					photo3 = photo2;
+					photo2 = photo1;
+					photo1 = pin; //current pin
+					val3 = val2;
+					val2 = val1;
+					val1 = thisADC;
+				}
+				else {
+					photo3 = photo2;
+					photo2 = pin;
+					val3 = val2;
+					val2 = thisADC;
+				}
 			}
-			else {
-				photo3 = photo2;
-				photo2 = pin;
-				val3 = val2;
-				val2 = ADC;
+			else{
+				photo3 = pin; //current pin
+				val3 = thisADC;
 			}
-		}
-		else{
-			photo3 = pin; //current pin
-			val3 = ADC;
 		}
 	}
 	//end loop
