@@ -27,7 +27,7 @@ extern "C"{
 
 void goToPosition(Pose target, Pose current, bool faceForward);
 void movement(uint16_t leftSpeed, uint16_t rightSpeed); //pass in as percentage of power
-uint16_t findPuck();
+Pose findPuck(Pose current);
 bool nearWall(Pose current);
 
 int main(void)
@@ -135,7 +135,7 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 
 ///You can't return arrays. (I'm 95% sure). Return a Pose instead. Also, move this to Localization.h at some point
 
-uint16_t findPuck(){
+Pose findPuck(Pose current){
 	uint16_t val1 = 0;
 	uint16_t val2 = 0;
 	uint16_t val3 = 0;
@@ -196,10 +196,11 @@ uint16_t findPuck(){
 		///You never rotate by the offset by which phototransistor is selected.
 		heading = 2*PI/16 * (photo1 * val1 + photo2 * val2) / (val1+val2); //compute weighted average and multiply by degrees per transistor
 	}
+	heading = current.o + heading;
 	///Don't see the point of multiplying and dividing by 3. Doesn't really matter, because we need a lookup table based system
 	///to get a decent distance measurement. You also will need to consider that the resistor changes and you need to check which is used.
 	uint16_t distance = 3*(val1 + val2 + val3)/3; //need to scale accordingly
-	return [distance*cos(heading),distance*sin(heading)];
+	return Pose(distance*cos(heading) + current.x,distance*sin(heading)+current.y,heading);
 }
 
 ///We definitely have enough information to implement this. Use the ymax etc. constants 
