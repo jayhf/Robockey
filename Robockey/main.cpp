@@ -50,7 +50,7 @@ int main(void)
 		Pose desiredPose;
 		
 		//behavior code
-		
+
 		//move towards desired pose if allowed by game state
     }
 }
