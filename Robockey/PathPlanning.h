@@ -76,3 +76,14 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 		}
 	}
 }
+
+void facePose(Pose pose){
+	if (robotPose.o > pose.o + 1){
+		//spin cw
+		movement(-100,100);
+	}
+	else if (robotPose.o < pose.o - 1){
+		//spin ccw
+		movement(100,-100);
+	}
+}

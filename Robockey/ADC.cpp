@@ -1,4 +1,5 @@
 ﻿#include "ADC.h"
+#include <avr/io.h>
 
 bool updateCompleted;
 
@@ -38,9 +39,9 @@ void beginADC(){
 	uint16_t maxValue = 0;
 	for(uint8_t i=0;i<16;i++)
 		maxValue = maxValue > irValues[i] ? maxValue : irValues[i];
-	if(maxValue>800 && irResistor != R1K)
+	if(maxValue>800 && irResistor != Resistor::R1K)
 		irResistor--;
-	else if(maxValue<200 && irResistor != R330K)
+	else if(maxValue<200 && irResistor != Resistor::R330K)
 		irResistor++;
 	PORTB = (PORTB & (~0b11 << 4)) | (irResistor << 4);
 }

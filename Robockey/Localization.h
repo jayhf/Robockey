@@ -39,6 +39,7 @@ Pose enemyPoses[3];
 Pose puckPose;
 Pose robotPose;
 Pose allyPoses[2];
+Pose pastPuck[5] = [0,0,0,0,0];
 
 
 Pose* getEnemyLocations(){
@@ -111,6 +112,23 @@ void findPuck(Pose current){
 	///to get a decent distance measurement. You also will need to consider that the resistor changes and you need to check which is used.
 	uint16_t distance = 3*(val1 + val2 + val3)/3; //need to scale accordingly
 	puckPose = Pose(distance*cosb(heading) + current.x,distance*sinb(heading)+current.y,heading);
+	for(int i = 4; i>0; i--) {
+		pastPuck[i-1] = pastPuck[i];
+	}
+}
+
+Pose predictPuck(){
+	uint16_t lastTime = getTime();
+	Pose lastPuck = puckPose;
+	Pose currentPuck = findPuck();
+	uint16_t currentTime = getTime();
+	uint16_t deltaT = currentTime - lastTime;
+	uint16_t deltaX = currentPuck.x - lastPuck.x;
+	uint16_t deltaY = currentPuck.y - lastPuck.y;
+	uint16_t deltaO = currentPuck.o - lastPuck.o;
+	Pose velocity = (deltaX/deltaT,deltaY/deltaT,deltaO/deltaT);
+	uint16_t timeStep = getTime() - currentTime;
+	return Pose(currentPuck.x + velocity.x*timeStep, currentPuck.y + velocity.y*timeStep,currentPuck.o + velocity.o*timeStep);
 }
 
 bool nearWall(Pose current){
