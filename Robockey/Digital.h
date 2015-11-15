@@ -10,6 +10,7 @@ void startKick(uint16_t duration);
 void updateKick();
 bool switchesPressed();
 
+#undef OFF
 enum class LEDColor : uint8_t{
 	OFF=0, RED=1 ,BLUE=2, PURPLE=3
 };

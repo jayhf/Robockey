@@ -38,8 +38,10 @@ Pose::Pose(int16_t x, int16_t y, int16_t o):
 Pose enemyPoses[3];
 Pose robotPose;
 Pose allyPoses[2];
+
 Pose puckPose[5];
 uint16_t puckTime[5];
+
 
 
 Pose* getEnemyLocations(){
@@ -120,6 +122,7 @@ void findPuck(Pose current){
 }
 
 Pose predictPuck(){
+	
 	uint16_t deltaT = puckTime[0] - puckTime[1];
 	uint16_t deltaX = puckPose[0].x - puckPose[1].x;
 	uint16_t deltaY = puckPose[0].y - puckPose[1].y;

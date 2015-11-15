@@ -23,9 +23,9 @@ public class Robot {
 	private Color color = Color.getHSBColor((float) Math.random(), 1, 1);
 	public void paint(Graphics2D g){
 		g.setColor(team==Team.RED?Color.RED:Color.BLUE);
-		//g.fill(new Ellipse2D.Double(pose.x-7.5, pose.y-7.5, 15, 15));
+		g.fill(new Ellipse2D.Double(pose.x-7.5, pose.y-7.5, 15, 15));
 		g.setColor(Color.BLACK);
-		//g.draw(new Line2D.Double(pose.x, pose.y, pose.x+7.5*Math.cos(pose.o), pose.y+7.5*Math.sin(pose.o)));
+		g.draw(new Line2D.Double(pose.x, pose.y, pose.x+7.5*Math.cos(pose.o), pose.y+7.5*Math.sin(pose.o)));
 		synchronized (directions) {
 			for(Line2D line:directions)
 			g.draw(line);
@@ -41,7 +41,7 @@ public class Robot {
 		short[] location = new short[3];
 		short[] location2 = new short[3];
 		//javamWiiUpdate(irData, location);
-		mWiiUpdate(irData, location);
+		//mWiiUpdate(irData, location);
 		if(!Arrays.equals(location, location2)){
 			System.out.println(Arrays.toString(irData));
 			System.out.println(Arrays.toString(location));
