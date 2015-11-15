@@ -78,6 +78,7 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 }
 
 void facePose(Pose pose){
+	Pose robotPose = getRobotPose();
 	if (robotPose.o > pose.o + 1){
 		//spin cw
 		movement(-100,100);

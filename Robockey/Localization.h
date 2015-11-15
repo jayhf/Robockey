@@ -36,10 +36,10 @@ Pose::Pose(int16_t x, int16_t y, int16_t o):
 	x(x), y(y), o(o){
 }
 Pose enemyPoses[3];
-Pose puckPose;
 Pose robotPose;
 Pose allyPoses[2];
-Pose pastPuck[5] = [0,0,0,0,0];
+Pose puckPose[5];
+uint16_t puckTime[5];
 
 
 Pose* getEnemyLocations(){
@@ -47,7 +47,7 @@ Pose* getEnemyLocations(){
 }
 
 Pose getPuckLocation(){
-	return puckPose;
+	return puckPose[0];
 }
 
 Pose* getAllyLocations(){
@@ -111,24 +111,22 @@ void findPuck(Pose current){
 	///Don't see the point of multiplying and dividing by 3. Doesn't really matter, because we need a lookup table based system
 	///to get a decent distance measurement. You also will need to consider that the resistor changes and you need to check which is used.
 	uint16_t distance = 3*(val1 + val2 + val3)/3; //need to scale accordingly
-	puckPose = Pose(distance*cosb(heading) + current.x,distance*sinb(heading)+current.y,heading);
-	for(int i = 4; i>0; i--) {
-		pastPuck[i-1] = pastPuck[i];
+	for(int i = 0; i<4; i++) {
+		puckPose[i+1] = puckPose[i];
+		puckTime[i+1] = puckTime[i];
 	}
+	puckPose[0] = Pose(distance*cosb(heading) + current.x,distance*sinb(heading)+current.y,heading);
+	puckTime[0] = getTime();
 }
 
 Pose predictPuck(){
-	uint16_t lastTime = getTime();
-	Pose lastPuck = puckPose;
-	Pose currentPuck = findPuck();
-	uint16_t currentTime = getTime();
-	uint16_t deltaT = currentTime - lastTime;
-	uint16_t deltaX = currentPuck.x - lastPuck.x;
-	uint16_t deltaY = currentPuck.y - lastPuck.y;
-	uint16_t deltaO = currentPuck.o - lastPuck.o;
+	uint16_t deltaT = puckTime[0] - puckTime[1];
+	uint16_t deltaX = puckPose[0].x - puckPose[1].x;
+	uint16_t deltaY = puckPose[0].y - puckPose[1].y;
+	uint16_t deltaO = puckPose[0].o - puckPose[1].o;
 	Pose velocity = (deltaX/deltaT,deltaY/deltaT,deltaO/deltaT);
 	uint16_t timeStep = getTime() - currentTime;
-	return Pose(currentPuck.x + velocity.x*timeStep, currentPuck.y + velocity.y*timeStep,currentPuck.o + velocity.o*timeStep);
+	return Pose(puckPose[0].x + velocity.x*timeStep, puckPose[0].y + velocity.y*timeStep,puckPose[0].o + velocity.o*timeStep);
 }
 
 bool nearWall(Pose current){

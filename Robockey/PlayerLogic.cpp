@@ -6,6 +6,7 @@
 */
 
 #include <stdint.h>
+#include "Localization.h"
 
 enum class Player : uint8_t{
 	GOALIE = 0, DEFENSE = 1, SCORER = 2, ASSISTER = 3
@@ -22,7 +23,7 @@ void playerLogic(Player player){
 			else{
 				uint16_t yPos = max(YMIN/2,puckPredict.y);
 			}
-			goToPosition(Pose(XMIN + 10, yPos,puckPredict.o),robotPose, true);
+			goToPosition(Pose(XMIN + 10, yPos,puckPredict.o),getRobotPose(), true);
 			facePose(puckPredict);
 		}
 		else if(puckPredict.x < 3*XMIN/4){
@@ -37,7 +38,7 @@ void playerLogic(Player player){
 			else{
 				uint16_t yPos = max(YMIN/2,puckPredict.y);
 			}
-			goToPosition(Pose(7*XMIN/8, yPos, puckPredict.o), robotPose, true);
+			goToPosition(Pose(7*XMIN/8, yPos, puckPredict.o), getRobotPose(), true);
 			facePose(puckPredict);
 		}
 		break;
