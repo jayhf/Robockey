@@ -9,11 +9,11 @@ extern "C" {
 #endif
 /*
  * Class:     Robot
- * Method:    mWiiUpdate
- * Signature: ([S[S)V
+ * Method:    run
+ * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_Robot_mWiiUpdate
-  (JNIEnv *, jobject, jshortArray, jshortArray);
+JNIEXPORT void JNICALL Java_Robot_run
+  (JNIEnv *, jobject);
 
 #ifdef __cplusplus
 }

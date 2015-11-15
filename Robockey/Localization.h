@@ -36,7 +36,8 @@ Pose::Pose(int16_t x, int16_t y, int16_t o):
 	x(x), y(y), o(o){
 }
 Pose enemyPoses[3];
-Pose puck;
+Pose puckPose;
+Pose robotPose;
 Pose allyPoses[2];
 
 
@@ -45,33 +46,82 @@ Pose* getEnemyLocations(){
 }
 
 Pose getPuckLocation(){
-	return puck;
+	return puckPose;
 }
 
 Pose* getAllyLocations(){
 	return allyPoses;
 }
+Pose getRobotPose(){
+	return robotPose;
+}
+
 typedef int8_t byte;
 typedef int8_t boolean;
-
-void localizePuck(){
-	uint16_t *irData = getIRData();
-	localizePuck(irData);
-}
 
 void initLocalization(){
 	m_wii_open();
 }
 
+void findPuck(Pose current){
+	uint16_t val1 = 0;
+	uint16_t val2 = 0;
+	uint16_t val3 = 0;
+	uint8_t photo1 = 0;
+	uint8_t photo2 = 0;
+	uint8_t photo3 = 0;
+
+	uint16_t * values = getIRData(); // loop through transistors
+	for (uint8_t i = 0; i < 16; i++){
+		uint16_t thisADC = values[i];
+		if (thisADC > val3) {
+			if (thisADC > val2) {
+				if (thisADC > val1){
+					photo3 = photo2;
+					photo2 = photo1;
+					photo1 = i; //current pin
+					val3 = val2;
+					val2 = val1;
+					val1 = thisADC;
+				}
+				else {
+					photo3 = photo2;
+					photo2 = i;
+					val3 = val2;
+					val2 = thisADC;
+				}
+			}
+		}
+	}
+
+	uint16_t heading;
+	if (((photo2 == photo1 + 1 && photo3 == photo1 - 1)
+			|| (photo2 == photo1 - 1 && photo3 == photo1 + 1))
+			&& (val2 < val3 + 5 && val2 > val3 - 5)){
+		//if largest reading is in betweeen next two and the next two are within +/- 5, assume that middle is pointing directly at it
+		heading = -(2*PI/16 * photo1);
+
+	}
+	else {
+		///You never rotate by the offset by which phototransistor is selected.
+		heading = -(2*PI/16 * (photo1 * val1 + photo2 * val2) / (val1+val2)); //compute weighted average and multiply by degrees per transistor
+	}
+	heading = current.o + heading;
+	///Don't see the point of multiplying and dividing by 3. Doesn't really matter, because we need a lookup table based system
+	///to get a decent distance measurement. You also will need to consider that the resistor changes and you need to check which is used.
+	uint16_t distance = 3*(val1 + val2 + val3)/3; //need to scale accordingly
+	puckPose = Pose(distance*cosb(heading) + current.x,distance*sinb(heading)+current.y,heading);
+}
+
+bool nearWall(Pose current){
+	return current.x > XMAX - 10 || current.x < XMIN + 10 || current.y > YMAX - 10 || current.y < YMIN +10;
+}
+
 Pose localizeRobot(uint16_t* irData);
 
 void localizeRobot(){
-	uint16_t data[16];
-	m_wii_read(data);
-	localizeRobot(data);
-}
-
-Pose localizeRobot(uint16_t* irData){
+	uint16_t irData[16];
+	m_wii_read(irData);
 	float possiblePointsX[12];
 	float possiblePointsY[12];
 	short possiblePointsO[12];
@@ -79,7 +129,8 @@ Pose localizeRobot(uint16_t* irData){
 	short irX[] = {(short)(irData[0]),(short)(irData[3]),(short)(irData[6]),(short)(irData[9])};
 	short irY[] = {(short)(irData[1]),(short)(irData[4]),(short)(irData[7]),(short)(irData[10])};
 	if(irY[1] == 1023){
-		return Pose(1023,1023,0);
+		robotPose = Pose(1023,1023,0);
+		return;
 	}
 	byte validPoints = 0;
 	byte errorPoints = 0;
@@ -235,7 +286,7 @@ Pose localizeRobot(uint16_t* irData){
 	rx*=10;
 	ry*=10;
 	short ro = (short) -oo;
-	return Pose((short)rx,(short)ry,(short)ro);
+	robotPose = Pose((short)rx,(short)ry,(short)ro);
 
 	/*int8_t xOffsets[6];
 	int8_t yOffsets[6];

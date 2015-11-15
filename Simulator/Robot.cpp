@@ -7,13 +7,14 @@
 #define SIMULATION
 #include "Robot.h"
 #include <stdint.h>
-#include "../Robockey/Localization.h"
+#include "../Robockey/main.cpp"
+//#include "../Robockey/Localization.h"
 
 /*void findLocation(int16_t* position, int16_t* cameraData){
 
 }*/
 
-JNIEXPORT void JNICALL Java_Robot_mWiiUpdate (JNIEnv *env, jobject robot, jshortArray data, jshortArray location){
+/*JNIEXPORT void JNICALL Java_Robot_mWiiUpdate (JNIEnv *env, jobject robot, jshortArray data, jshortArray location){
  	jshort* irData = env->GetShortArrayElements(data, NULL);
 	uint16_t intData[12];
 	for(int i=0;i<12;i++)
@@ -25,4 +26,9 @@ JNIEXPORT void JNICALL Java_Robot_mWiiUpdate (JNIEnv *env, jobject robot, jshort
 	result[1] = pose.y;
 	result[2] = pose.o;
 	env->ReleaseShortArrayElements(location,result,NULL);
+}*/
+
+JNIEXPORT void JNICALL Java_Robot_run
+  (JNIEnv *, jobject){
+	main();
 }

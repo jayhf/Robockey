@@ -1,3 +1,7 @@
+#pragma once
+
+#include <stdint.h>
+
 void initClock();
 //Returns the current time in milliseconds. Only useful for relative timing.
 uint16_t getTime();

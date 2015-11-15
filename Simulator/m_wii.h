@@ -2,8 +2,10 @@
 
 #include "Robot.h"
 
-char m_wii_open(void){}
+uint8_t m_wii_open(void){
+	return 1;
+}
 
-char m_wii_read(unsigned int* blobs){
-
+uint8_t m_wii_read(uint16_t* blobs){
+	return 1;
 }

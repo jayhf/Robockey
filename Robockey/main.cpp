@@ -5,12 +5,18 @@
  * Author : Jay
  */ 
 
-#define F_CPU 16000000
-#include "m_general.h"
-#include "Localization.h"
-#include "ADC.h"
 #include "time.h"
 #include "Digital.h"
+
+#ifdef SIMULATION
+	#include "../Simulator/m_general.h"
+#else
+	#define F_CPU 16000000
+	#include "m_general.h"
+	#include "ADC.h"
+#endif
+
+#include "Localization.h"
 #include "GameState.h"
 #include "wireless.h"
 
@@ -38,10 +44,10 @@ int main(void)
 			sleep();
 		
 		while(!adcUpdateCompleted());
-
-		localizePuck();
+		Pose location = getRobotPose();
+		findPuck(location);
 		//invert all poses depending on the team. Probably should be dealt with in the localization code itself
-		Pose desiredPose();
+		Pose desiredPose;
 		
 		//behavior code
 		
