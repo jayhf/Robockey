@@ -39,7 +39,7 @@ Pose enemyPoses[3];
 Pose puckPose;
 Pose robotPose;
 Pose allyPoses[2];
-Pose pastPuck[5] = [0,0,0,0,0];
+Pose pastPuck[5];
 
 
 Pose* getEnemyLocations(){
@@ -126,7 +126,7 @@ Pose predictPuck(){
 	uint16_t deltaX = currentPuck.x - lastPuck.x;
 	uint16_t deltaY = currentPuck.y - lastPuck.y;
 	uint16_t deltaO = currentPuck.o - lastPuck.o;
-	Pose velocity = (deltaX/deltaT,deltaY/deltaT,deltaO/deltaT);
+	Pose velocity = Pose(deltaX/deltaT,deltaY/deltaT,deltaO/deltaT);
 	uint16_t timeStep = getTime() - currentTime;
 	return Pose(currentPuck.x + velocity.x*timeStep, currentPuck.y + velocity.y*timeStep,currentPuck.o + velocity.o*timeStep);
 }
