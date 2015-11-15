@@ -5,14 +5,16 @@
 *  Author: Daniel Orol
 */
 
-
+///Please switch all types to those found in stdint.h
+///F_CPU is handled in the main class, so this is unnecessary
 #define F_CPU 16000000
 
 #include "math.h"
 #include "avr/builtins.h"
 #include "string.h"
 #include <stdlib.h>
-
+///Update to using BAMSMath.h. It should be really easy to switch over. Just use toFloatAngle and toBAMS as needed.
+///PI is defined already in BAMSMath.h and use the type angle ex.  angle o = PI;
 #define PI 3.14
 
 extern "C"{
@@ -37,6 +39,8 @@ int main(void)
 	}
 }
 
+///You don't properly handle negative speeds. Floating point math should be avoided.
+///At the very least never divide by a constant, multiply by 1/constant.
 void movement(int leftSpeed, int rightSpeed){
 	if (leftSpeed > 100) {
 		leftSpeed = 100;
@@ -61,7 +65,7 @@ void movement(int leftSpeed, int rightSpeed){
 		OCR1C = rightSpeed / 100.0 * OCR1A;
 	}
 }
-
+///Switch to using the Pose class (see Localization.h)
 void goToPosition(int targetX, int targetY, int currentX, int currentY, float currentTheta, bool faceForward){
 	if((currentX > targetX + 5 || currentX < targetX - 5) && (currentY > targetY + 5 || currentY < targetY - 5)){ //if not within 5 pixels in both x and y
 		int deltaX = currentX - targetX;
@@ -125,6 +129,8 @@ void goToPosition(int targetX, int targetY, int currentX, int currentY, float cu
 	}
 }
 
+///You can't return arrays. (I'm 95% sure). Return a Pose instead. Also, move this to Localization.h at some point
+///You're assuming we can get readings from both adjacent phototransistors, which is probably a bad assumption, based on the datasheet.
 int[] findPuck(){
 	int val1 = 0;
 	int val2 = 0;
@@ -134,9 +140,11 @@ int[] findPuck(){
 	int photo3 = 0;
 	// loop through transistors
 	int pin = check(PINB,0) + 2 * check(PINB,1) + 4 * check(PINB,2) + 8 * check(PINB,3);
+	///Keeping track of photo1, 2 and 3 is not necessary. You can just do pin+1 or irValue[pin+1]
+	///You don't handle the wrap around case where the brightest is the first or last value
 	if (ADC > val3) {
 		if (ADC > val2) {
-			if (ADC > val 1){
+			if (ADC > val1){
 				photo3 = photo2;
 				photo2 = photo1;
 				photo1 = pin; //current pin
@@ -157,6 +165,7 @@ int[] findPuck(){
 		}
 	}
 	//end loop
+	///This seems unnecessary. If they're that close, whatever averaging you do will keep it nearly centered
 	float heading;
 	if (((photo2 == photo1 + 1 && photo 3 == photo1 - 1) || (photo2 == photo1 - 1 && photo 3 == photo1 + 1)) && (val2 < val3 + 5 && val2 > val3 - 5)){
 		//if largest reading is in betweeen next two and the next two are within +/- 5, assume that middle is pointing directly at it
@@ -164,12 +173,16 @@ int[] findPuck(){
 		
 	}
 	else {
+		///You never rotate by the offset by which phototransistor is selected.
 		heading = 2*PI/16 * (photo1 + photo2) / 2.0;
 	}
+	///Don't see the point of multiplying and dividing by 3. Doesn't really matter, because we need a lookup table based system
+	///to get a decent distance measurement. You also will need to consider that the resistor changes and you need to check which is used.
 	int distance = 3*(val1 + val2 + val3)/3; //need to scale accordingly
 	return [distance*cos(heading),distance*sin(heading)];
 }
 
+///We definitely have enough information to implement this. Use the ymax etc. constants 
 bool nearWall(int currentX, int currentY){
 	return false;
 }
