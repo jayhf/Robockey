@@ -1,3 +1,5 @@
+#pragma once
+
 void initDigital();
 void setEnabled(bool enabled);
 //Positive is forward. 0 is off and 1600 is 100% duty cycle
@@ -11,3 +13,7 @@ enum LEDColor{
 };
 
 void setLED(enum LEDColor color);
+
+///You don't properly handle negative speeds. Floating point math should be avoided.
+///At the very least never divide by a constant, multiply by 1/constant.
+void movement(int leftSpeed, int rightSpeed);

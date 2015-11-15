@@ -1,10 +1,16 @@
+#pragma once
+
 #include <stdint.h>
-#define _USE_MATH_DEFINES
 #include "BAMSMath.h"
 #include "ADC.h"
+
+#ifndef SIMULATION
 extern "C"{
 	#include "m_wii.h"
 };
+#else
+	#include "../Simulator/m_wii.h"
+#endif
 
 #define YMAX 768
 #define YMIN -768
@@ -14,6 +20,7 @@ extern "C"{
 class Pose{
 public:
 	Pose(int16_t x, int16_t y, int16_t o);
+	Pose() : Pose(0,0,0){};
 	int16_t x;
 	int16_t y;
 	int16_t o;
@@ -28,7 +35,6 @@ public:
 Pose::Pose(int16_t x, int16_t y, int16_t o):
 	x(x), y(y), o(o){
 }
-
 Pose enemyPoses[3];
 Pose puck;
 Pose allyPoses[2];

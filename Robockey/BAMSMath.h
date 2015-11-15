@@ -1,3 +1,5 @@
+#pragma once
+
 #include <math.h>
 
 typedef int16_t angle;

@@ -1,3 +1,5 @@
+#pragma once
+
 enum GameState{
 	NONE, COMM_TEST, PLAY, PAUSE, HALFTIME, GAME_OVER
 };

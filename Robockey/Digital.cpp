@@ -1,6 +1,33 @@
 ﻿#include "Digital.h"
 #include "time.h"
 
+///You don't properly handle negative speeds. Floating point math should be avoided.
+///At the very least never divide by a constant, multiply by 1/constant.
+void movement(int leftSpeed, int rightSpeed){
+	if (leftSpeed > 100) {
+		leftSpeed = 100;
+	}
+	if (rightSpeed > 100) {
+		rightSpeed = 100;
+	}
+	if (leftSpeed > 0) {
+		set(PINC,6);
+		OCR1B = leftSpeed / 100.0 * OCR1A;
+	}
+	else if (leftSpeed < 0) {
+		clear(PINC,6);
+		OCR1B = leftSpeed / 100.0 * OCR1A;
+	}
+	if (rightSpeed > 0) {
+		set(PINC,7);
+		OCR1C = rightSpeed / 100.0 * OCR1A;
+	}
+	else if (rightSpeed < 0) {
+		clear(PINC,7);
+		OCR1C = rightSpeed / 100.0 * OCR1A;
+	}
+}
+
 void initDigital(){
 	DDRB |= 0b11 << 6;
 	DDRC |= 0b11 << 6;

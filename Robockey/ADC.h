@@ -1,3 +1,5 @@
+#pragma once
+
 void initADC();
 void beginADC();
 bool adcUpdateCompleted();
