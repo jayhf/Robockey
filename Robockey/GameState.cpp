@@ -34,6 +34,7 @@ Robot getThisRobot(){
 		case SwitchPosition::UP:
 			return Robot::ROBOT3;
 	}
+	return Robot::ROBOT1;
 }
 
 Team getTeam(){

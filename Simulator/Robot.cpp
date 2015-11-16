@@ -4,7 +4,6 @@
  *  Created on: Nov 6, 2015
  *      Author: Jay
  */
-#define SIMULATION
 #include "Robot.h"
 #include <stdint.h>
 #include "../Robockey/main.cpp"

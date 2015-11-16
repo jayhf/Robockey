@@ -5,8 +5,7 @@
  * Author : Jay
  */ 
 
-
-#ifdef SIMULATION
+#ifdef _MSC_VER
 	#include "../Simulator/m_general.h"
 #else
 	#define F_CPU 16000000

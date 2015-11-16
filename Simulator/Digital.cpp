@@ -16,7 +16,9 @@ void startKick(uint16_t duration){}
 
 void updateKick(){}
 
-void setLED(LEDColor color){}
+void setLED(LEDColor color){
+
+}
 
 bool switchesPressed(){
 	return false;

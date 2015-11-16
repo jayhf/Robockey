@@ -7,17 +7,16 @@
 
 #include "Localization.h"
 
-#include "BAMSMath.h"
-#include "ADC.h"
-#include "time.h"
-
-#ifndef SIMULATION
+#ifdef _MSC_VER
+#include "../Simulator/m_wii.h"
+#else
 extern "C"{
 	#include "m_wii.h"
 };
-#else
-#include "../Simulator/m_wii.h"
 #endif
+#include "BAMSMath.h"
+#include "ADC.h"
+#include "time.h"
 
 Pose::Pose(int16_t x, int16_t y, int16_t o):
 	x(x), y(y), o(o){
