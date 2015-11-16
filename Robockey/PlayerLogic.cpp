@@ -6,10 +6,11 @@
 */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "Localization.h"
 #include "PathPlanning.h"
 #include "BAMSMath.h"
-#include <stdlib.h>
+#include "Digital.h"
 
 #define robotRadius 10
 #define puckRadius 3
