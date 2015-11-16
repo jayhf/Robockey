@@ -121,3 +121,24 @@ Resistor getSelectedResistor(){
 uint16_t* getIRData(){
 	return irValues;
 }
+
+Resistor& operator++(Resistor &r){
+	if(r==Resistor::R330K)
+	return r;
+	return r = static_cast<Resistor>(static_cast<uint8_t>(r)+1);
+}
+Resistor operator++(Resistor &r, int){
+	Resistor result = r;
+	++r;
+	return result;
+}
+Resistor& operator--(Resistor &r){
+	if(r==Resistor::R1K)
+	return r;
+	return r = static_cast<Resistor>(static_cast<uint8_t>(r)-1);
+}
+Resistor operator--(Resistor &r, int){
+	Resistor result = r;
+	--r;
+	return result;
+}

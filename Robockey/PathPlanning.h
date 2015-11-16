@@ -11,6 +11,7 @@
 
 #include "Digital.h"
 #include "Localization.h"
+#include "BAMSMath.h"
 
 void goToPosition(Pose target, Pose current, bool faceForward);
 

@@ -11,20 +11,21 @@ enum class Robot : uint8_t{
 };
 
 enum class Team : uint8_t{
-	RED, BLUE
+	UNKNOWN, RED, BLUE
 };
 
 uint8_t getRScore();
 uint8_t getBScore();
-//Returns the ID of this robot in the range [1,3]
-uint8_t getRobotID();
+Robot getThisRobot();
+Team getTeam();
 
 void initGameState();
-void updateGameState();
+void determineTeam();
 void updateGameState(GameState state);
 
 void goalScored(Team team);
-
-void updateEnemyLocations(uint8_t *positions);
+void updateScores(uint8_t red, uint8_t blue);
 
 bool allowedToMove();
+
+bool invertCoordinates();

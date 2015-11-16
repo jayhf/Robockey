@@ -56,6 +56,12 @@ void playerLogic(Player player){
 			}
 			break;
 		}
+		case Player::ASSISTER:{
+			
+		}
+		case Player::DEFENSE:{
+			
+		}
 	}
 }
 
@@ -93,20 +99,20 @@ void goalieLogic(){
 void leftCorner(){
 	Pose currentPose = getRobotPose();
 	if (currentPose.x < XMAX - robotRadius && currentPose.y < YMAX - robotRadius - 5) {
-		goToPositionPuck(Pose(XMAX - robotRadius - 5, YMAX - robotRadius - 5, angle -PI/3), currentPose);
+		goToPositionPuck(Pose(XMAX - robotRadius - 5, YMAX - robotRadius - 5, -PI/3), currentPose);
 	}
 	else {
-		goToPositionPuck(Pose(XMAX,YMAX/2 - puckRadius,angle 0),currentPose);
+		goToPositionPuck(Pose(XMAX,YMAX/2 - puckRadius,0),currentPose);
 	}
 }
 
 void rightCorner(){
 	Pose currentPose = getRobotPose();
 	if (currentPose.x < XMAX - robotRadius && currentPose.y > YMIN + robotRadius + 5) {
-		goToPositionPuck(Pose(XMAX - robotRadius - 5, YMIN + robotRadius + 5, angle -PI/3), currentPose);
+		goToPositionPuck(Pose(XMAX - robotRadius - 5, YMIN + robotRadius + 5, -PI/3), currentPose);
 	}
 	else {
-		goToPositionPuck(Pose(XMAX,YMIN/2 + puckRadius,angle 0),currentPose);
+		goToPositionPuck(Pose(XMAX,YMIN/2 + puckRadius,0),currentPose);
 	}
 }
 

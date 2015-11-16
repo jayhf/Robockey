@@ -1,11 +1,13 @@
-﻿#include "GameState.h"
+﻿#include "wireless.h"
+#include "GameState.h"
+#include "Localization.h"
 
 extern "C"{
 	#include "m_rf.h"
 }
 
 void initWireless(){
-	m_rf_open(1, 84 + getRobotID(),10);
+	m_rf_open(1, 84 + static_cast<uint8_t>(getThisRobot()),10);
 }
 
 
@@ -40,9 +42,11 @@ ISR(INT2_vect){
 			break;
 		case 0xA2:
 			goalScored(Team::RED);
+			updateScores(buffer[0],buffer[1]);
 			break;
 		case 0xA3:
 			goalScored(Team::BLUE);
+			updateScores(buffer[0],buffer[1]);
 			break;
 		case 0xA4:
 			updateGameState(GameState::PAUSE);
@@ -54,7 +58,7 @@ ISR(INT2_vect){
 			updateGameState(GameState::GAME_OVER);
 			break;
 		case 0xA8:
-			updateEnemyLocations(buffer + 1);
+			updateEnemyLocations((int8_t*)(buffer + 1));
 			break;
 	}
 }

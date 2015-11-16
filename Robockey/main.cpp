@@ -11,7 +11,6 @@
 #else
 	#define F_CPU 16000000
 	#include "m_general.h"
-	#include "ADC.h"
 #endif
 
 #include "time.h"
@@ -19,6 +18,7 @@
 #include "Localization.h"
 #include "GameState.h"
 #include "wireless.h"
+#include "ADC.h"
 
 int main(void)
 {
@@ -26,7 +26,6 @@ int main(void)
     initDigital();
 	initClock();
 	initADC();
-	initGameState();
 	initWireless();
 	initLocalization();
 	
@@ -34,8 +33,8 @@ int main(void)
     while (1) {
 		beginADC();
 		localizeRobot();
-		updateGameState();
-		
+		if(getTeam() == Team::UNKNOWN)
+			determineTeam();
 		if(batteryLow())
 			batteryLowCount++;
 		else
