@@ -50,5 +50,6 @@ bool nearWall(Pose current);
 Pose localizeRobot(uint16_t* irData);
 
 void localizeRobot();
+void localizeRobot2();
 
 void updateEnemyLocations(int8_t *locations);

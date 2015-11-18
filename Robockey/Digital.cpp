@@ -13,21 +13,27 @@ void movement(int leftSpeed, int rightSpeed){
 	if (rightSpeed > 100) {
 		rightSpeed = 100;
 	}
+	if (leftSpeed < -100){
+		leftSpeed = -100;
+	}
+	if (rightSpeed < -100){
+		rightSpeed = -100;
+	}
 	if (leftSpeed > 0) {
 		set(PINC,6);
-		OCR1B = leftSpeed / 100.0 * OCR1A;
+		OCR1B = leftSpeed *0.01 * (OCR1A-1);
 	}
 	else if (leftSpeed < 0) {
 		clear(PINC,6);
-		OCR1B = leftSpeed / 100.0 * OCR1A;
+		OCR1B = -leftSpeed *0.01 * (OCR1A-1);
 	}
 	if (rightSpeed > 0) {
 		set(PINC,7);
-		OCR1C = rightSpeed / 100.0 * OCR1A;
+		OCR1C = rightSpeed *0.01 * (OCR1A-1);
 	}
 	else if (rightSpeed < 0) {
 		clear(PINC,7);
-		OCR1C = rightSpeed / 100.0 * OCR1A;
+		OCR1C = -rightSpeed *0.01 * (OCR1A-1);
 	}
 }
 
