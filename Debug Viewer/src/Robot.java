@@ -43,13 +43,12 @@ public class Robot {
 		short[] location2 = new short[3];
 		javamWiiUpdate(irData, location2);
 		mWiiUpdate(irData, location);
-		if(!Arrays.equals(location, location2)){
+		boolean wrong = (Math.abs(location[0] - location2[0])>100)||(Math.abs(location[1] - location2[1])>100)||(Math.abs(location[2] - location2[2])>100);
+		if(wrong){
 			System.out.println(Arrays.toString(irData));
 			System.out.println(Arrays.toString(location));
 			System.out.println(Arrays.toString(location2));
 		}
-		else
-			System.out.println("OK");
 		moveTo(new Pose(location[0]/10.0*115/1024,location[1]/10.0*115/1024,location[2]*Math.PI/32768));
 	}
 	public static final short toBAMS(float angle){
@@ -166,10 +165,10 @@ public class Robot {
 
 			}
 		}*/
-		System.out.println("\n");
-		System.out.println(Arrays.toString(possiblePointsX));
-		System.out.println(Arrays.toString(possiblePointsY));
-		System.out.println(Arrays.toString(possiblePointsO));
+		//System.out.println("\n");
+		//System.out.println(Arrays.toString(possiblePointsX));
+		//System.out.println(Arrays.toString(possiblePointsY));
+		//System.out.println(Arrays.toString(possiblePointsO));
 		float ox = 0;
 		float oy = 0;
 		short oo = 0;
@@ -199,7 +198,7 @@ public class Robot {
 					float dx = possiblePointsX[i]-possiblePointsX[j];
 					float dy = possiblePointsY[i]-possiblePointsY[j];
 					short dTheta = (short) (possiblePointsO[i]-possiblePointsO[j]);
-					if((dTheta>-16384&&dTheta<16384)&&dx*dx+dy*dy<200)
+					if((dTheta>-16384&&dTheta<16384)&&dx*dx+dy*dy<400)
 						scores[j]++;
 				}
 			}
@@ -210,14 +209,16 @@ public class Robot {
 					maxScore = scores[i];
 					maxScoreIndex = i;
 				}
-			System.out.printf("%d: (%f,%f,%d)\n",maxScoreIndex, possiblePointsX[maxScoreIndex],possiblePointsY[maxScoreIndex],possiblePointsO[maxScoreIndex]);
+			//System.out.println(Arrays.toString(scores));
+
+			//System.out.printf("%d: (%f,%f,%d)\n",maxScoreIndex, possiblePointsX[maxScoreIndex],possiblePointsY[maxScoreIndex],possiblePointsO[maxScoreIndex]);
 
 			int originCount = 0;
 			for(int i=0;i<possiblePointCount;i++){
 				float dx = possiblePointsX[i]-possiblePointsX[maxScoreIndex];
 				float dy = possiblePointsY[i]-possiblePointsY[maxScoreIndex];
 				short dTheta = (short) (possiblePointsO[i]-possiblePointsO[maxScoreIndex]);
-				if((dTheta>-16384&&dTheta<16384)&&dx*dx+dy*dy<200){
+				if((dTheta>-16384&&dTheta<16384)&&dx*dx+dy*dy<400){
 					originCount++;
 					ox += possiblePointsX[i];
 					oy += possiblePointsY[i];
@@ -231,12 +232,12 @@ public class Robot {
 			oo=(short) ((oo/originCount)+possiblePointsO[maxScoreIndex]);
 
 		}
-		System.out.printf("(%f,%f,%d)\n",ox,oy,oo);
+		//System.out.printf("(%f,%f,%d)\n",ox,oy,oo);
 		float coso = (float) Math.cos(toFloatAngle(oo));
 		float sino = (float) Math.sin(toFloatAngle(oo));
 		float rx = -ox*coso - oy *sino;
 		float ry = ox*sino - oy *coso;
-		//System.out.printf("(%f,%f,%f)\n",rx,ry,oo);
+		//System.out.printf("(%f,%f,%d)\n",rx,ry,oo);
 		rx*=10;
 		ry*=10;
 		System.arraycopy(new short[]{(short)rx,(short)ry,(short) -oo}, 0, location, 0, 3);

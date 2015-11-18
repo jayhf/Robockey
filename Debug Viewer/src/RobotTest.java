@@ -26,14 +26,15 @@ public class RobotTest {
 	}
 	@Test
 	public void javaVcppLocalization(){
-		short data[] = {805, 508, 0, 856, 490, 0, 887, 524, 0, 814, 579, 0};
+		short data[] = {432, 689, 0, 453, 739, 0, 416, 760, 0, 363, 696, 0};
+		//{805, 508, 0, 856, 490, 0, 887, 524, 0, 814, 579, 0};
 		//{634, 684, 0, 683, 709, 0, 1023, 1023, 0, 586, 735, 0};
 		short java[] = new short[3];
 		short cpp[] = new short[3];
 		Robot.javamWiiUpdate(data, java);
 		Robot.mWiiUpdate(data, cpp);
-		System.out.println(Arrays.toString(java));
-		System.out.println(Arrays.toString(cpp));
+		System.out.println("J: "+Arrays.toString(java));
+		System.out.println("C: "+Arrays.toString(cpp));
 		assertArrayEquals(java, cpp);
 	}
 	private static short[] transformStars(double x, double y, double o){

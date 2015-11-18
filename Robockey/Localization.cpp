@@ -17,6 +17,7 @@ extern "C"{
 #include "BAMSMath.h"
 #include "ADC.h"
 #include "time.h"
+#include "stdio.h"
 
 Pose::Pose(int16_t x, int16_t y, int16_t o):
 x(x), y(y), o(o){
@@ -134,10 +135,10 @@ void localizeRobot(){
 }
 
 Pose localizeRobot(uint16_t* irData){
-	float possiblePointsX[12];
-	float possiblePointsY[12];
+	int16_t possiblePointsX[12];
+	int16_t possiblePointsY[12];
 	int16_t possiblePointsO[12];
-	int possiblePointCount = 0;
+	uint8_t possiblePointCount = 0;
 	int16_t irX[4] = {irData[0], irData[3], irData[6], irData[9]};
 	int16_t irY[4] = {irData[1], irData[4], irData[7], irData[10]};
 	if(irY[1] == 1023){
@@ -184,42 +185,42 @@ Pose localizeRobot(uint16_t* irData){
 			int16_t co;
 			switch(id){
 				case 0:
-				cx = 2.014857231f;
-				cy = 0.011916738f;
-				co = 27951;
-				break;
+					cx = 2.014857231f;
+					cy = 0.011916738f;
+					co = 27951;
+					break;
 				case 1:
-				cx = 1.189835575f;
-				cy = 0.358868959f;
-				co = -23947;
-				break;
+					cx = 1.189835575f;
+					cy = 0.358868959f;
+					co = -23947;
+					break;
 				case 2:
-				cx = 0.761287104f;
-				cy = -0.230281866f;
-				co = 22225;
-				break;
+					cx = 0.761287104f;
+					cy = -0.230281866f;
+					co = 22225;
+					break;
 				case 3:
-				cx = 0.45522679f;
-				cy = 0.177359962f;
-				co = -29904;
-				break;
+					cx = 0.45522679f;
+					cy = 0.177359962f;
+					co = -29904;
+					break;
 				case 4:
-				cx = 0.503755633f;
-				cy = -0.002927468f;
-				co = 11567;
-				break;
+					cx = 0.503755633f;
+					cy = -0.002927468f;
+					co = 11567;
+					break;
 				case 5:
-				cx = 0;
-				cy = 0;
-				co = -16384;
-				break;
+					cx = 0;
+					cy = 0;
+					co = -16384;
+					break;
 				default:
-				continue;
+					continue;
 			}
-			float ox = mx + cy*dx + cx*px;
-			float oy = my + cy*dy + cx*py;
-			float ox2 = mx - cy*dx - cx*px;
-			float oy2 = my - cy*dy - cx*py;
+			int16_t ox = mx + cy*dx + cx*px;
+			int16_t oy = my + cy*dy + cx*py;
+			int16_t ox2 = mx - cy*dx - cx*px;
+			int16_t oy2 = my - cy*dy - cx*py;
 			int16_t o = (int16_t)(32768/3.14159*(atan2((float)dy,(float)dx)))+co;
 
 			possiblePointsX[possiblePointCount] = ox;
@@ -253,16 +254,16 @@ Pose localizeRobot(uint16_t* irData){
 	fprintf(stdout,"]\n[");
 	for(int i = 0; i < 12;i++)
 			fprintf(stdout,"%d, ", possiblePointsO[i]);
-	fprintf(stdout,"]\n");*/
-	float ox = 0;
-	float oy = 0;
+	fprintf(stdout,"]\n[");*/
+	int16_t ox = 0;
+	int16_t oy = 0;
 	int16_t oo = 0;
 	if(possiblePointCount == 0){
 		return Pose(1023,1023,0);
 	}
 	else if(possiblePointCount == 2){
-		float d1 = possiblePointsX[0]*possiblePointsX[0]+possiblePointsY[0]*possiblePointsY[0];
-		float d2 = possiblePointsX[1]*possiblePointsX[1]+possiblePointsY[1]*possiblePointsY[1];
+		int32_t d1 = possiblePointsX[0]*possiblePointsX[0]+possiblePointsY[0]*possiblePointsY[0];
+		int32_t d2 = possiblePointsX[1]*possiblePointsX[1]+possiblePointsY[1]*possiblePointsY[1];
 		if(d1<d2){
 			ox = possiblePointsX[1];
 			oy = possiblePointsY[1];
@@ -276,31 +277,38 @@ Pose localizeRobot(uint16_t* irData){
 	}
 	else{
 		bool stop = false;
-		int scores[12];
-		for(int i=0;i<possiblePointCount && !stop;i++){
-			for(int j=i+1;j<possiblePointCount;j++){
-				float dx = possiblePointsX[i]-possiblePointsX[j];
-				float dy = possiblePointsY[i]-possiblePointsY[j];
+		uint8_t scores[12];
+		for(uint8_t i=0;i<possiblePointCount;i++)
+			scores[i] = 0;
+		for(uint8_t i=0;i<possiblePointCount && !stop;i++){
+			for(uint8_t j=i+1;j<possiblePointCount;j++){
+				int16_t dx = possiblePointsX[i]-possiblePointsX[j];
+				int16_t dy = possiblePointsY[i]-possiblePointsY[j];
 				int16_t dTheta = possiblePointsO[i]-possiblePointsO[j];
-				if((dTheta>-16384&&dTheta<16384)&& dx*dx+dy*dy<200)
+				if((abs(dTheta)<16384)&& (dx*dx+dy*dy<400)){
 					scores[j]++;
+				}
 			}
 		}
 		int maxScore = 0;
 		int maxScoreIndex = 0;
-		for(int i=0;i<possiblePointCount;i++)
+		for(uint8_t i=0;i<possiblePointCount;i++)
 			if(scores[i]>maxScore){
 				maxScore = scores[i];
 				maxScoreIndex = i;
 			}
+
+		//for(int i = 0; i < 12;i++)
+		//	fprintf(stdout,"%d, ", scores[i]);
+		//fprintf(stdout,"?] %d\n", possiblePointCount);
 		//fprintf(stdout,"%d: (%f,%f,%d)\n",maxScoreIndex, possiblePointsX[maxScoreIndex],possiblePointsY[maxScoreIndex],possiblePointsO[maxScoreIndex]);
 
 		int originCount = 0;
-		for(int i=0;i<possiblePointCount;i++){
-			float dx = possiblePointsX[i]-possiblePointsX[maxScoreIndex];
-			float dy = possiblePointsY[i]-possiblePointsY[maxScoreIndex];
+		for(uint8_t i=0;i<possiblePointCount;i++){
+			int16_t dx = possiblePointsX[i]-possiblePointsX[maxScoreIndex];
+			int16_t dy = possiblePointsY[i]-possiblePointsY[maxScoreIndex];
 			int16_t dTheta = possiblePointsO[i]-possiblePointsO[maxScoreIndex];
-			if((dTheta>-16384&&dTheta<16384)&&dx*dx+dy*dy<200){
+			if((dTheta>-16384&&dTheta<16384)&&dx*dx+dy*dy<400){
 				originCount++;
 				ox += possiblePointsX[i];
 				oy += possiblePointsY[i];
@@ -315,16 +323,14 @@ Pose localizeRobot(uint16_t* irData){
 
 	}
 	//fprintf(stdout,"(%f,%f,%d)\n",ox,oy,oo);
-	float coso = cos(3.14159f/32768*oo);
-	float sino = sin(3.14159f/32768*oo);
-	float rx = -ox*coso - oy *sino;
-	float ry = ox*sino - oy *coso;
-	//System.out.printf("(%f,%f,%f)\n",rx,ry,oo);
-	rx*=10;
-	ry*=10;
+	float coso = cos(toFloatAngle(oo));
+	float sino = sin(toFloatAngle(oo));
+	int16_t rx = 10*(-ox*coso - oy *sino);
+	int16_t ry = 10*(ox*sino - oy *coso);
+	//fprintf(stdout,"(%f,%f,%d)\n",rx,ry,oo);
 	return Pose(rx, ry, -oo);
 }
-
+#ifndef _MSC_VER
 void localizeRobot2(){
 	uint16_t center[2] = {1024/2,768/2};
 	//constellation center in pixels
@@ -394,3 +400,4 @@ void localizeRobot2(){
 	float dvect[2] = {rotated[10]-rotated[8],rotated[11]-rotated[9]};
 	robotPose2 = Pose((short)dvect[0],(short)dvect[1],(short)offsettheta);
 }
+#endif
