@@ -37,11 +37,12 @@ public class Robot {
 	private RobotController.ControlParameters controls = new RobotController.ControlParameters(0,0);
 	//public native void mWiiUpdate(short[] s, short[] location);
 	public native void run();
+	public static native void mWiiUpdate(short[] irData, short[] location);
 	public void localize(short[] irData){
 		short[] location = new short[3];
 		short[] location2 = new short[3];
-		//javamWiiUpdate(irData, location);
-		//mWiiUpdate(irData, location);
+		javamWiiUpdate(irData, location2);
+		mWiiUpdate(irData, location);
 		if(!Arrays.equals(location, location2)){
 			System.out.println(Arrays.toString(irData));
 			System.out.println(Arrays.toString(location));
@@ -51,13 +52,16 @@ public class Robot {
 			System.out.println("OK");
 		moveTo(new Pose(location[0]/10.0*115/1024,location[1]/10.0*115/1024,location[2]*Math.PI/32768));
 	}
-	public void javamWiiUpdate(short[] irData, short[] location){
-		//if(Math.random()>0)
-		//	return;
+	public static final short toBAMS(float angle){
+		return (short)(angle*32768/Math.PI);
+	}
+	public static final float toFloatAngle(short angle){
+		return (float) ((Math.PI/32768)*angle);
+	}
+	public static void javamWiiUpdate(short[] irData, short[] location){
 		float possiblePointsX[] = new float[12];
 		float possiblePointsY[] = new float[12];
 		short possiblePointsO[] = new short[12];
-		byte possiblePointsID[] = new byte[12];
 		int possiblePointCount = 0;
 		short irX[] = {(short)(irData[0]),(short)(irData[3]),(short)(irData[6]),(short)(irData[9])};
 		short irY[] = {(short)(irData[1]),(short)(irData[4]),(short)(irData[7]),(short)(irData[10])};
@@ -67,12 +71,9 @@ public class Robot {
 		}
 		byte validPoints = 0;
 		byte errorPoints = 0;
-		for(byte i = 0; i<4;i++){
-			if(irY[i]==1023)
-				continue;
-			for(byte j = (byte) (i+1); j<4;j++){
-				if(irY[j]==1023)
-					continue;
+		byte pointCount = (byte) (2 + ((irY[2] != 1023)?1:0)+((irY[3] != 1023)?1:0));
+		for(byte i = 0; i<pointCount;i++){
+			for(byte j = (byte) (i+1); j<pointCount;j++){
 				short dx = (short) (irX[i]-irX[j]);
 				short dy = (short) (irY[i]-irY[j]);
 				short d = (short) (dx*dx + dy*dy);
@@ -145,24 +146,38 @@ public class Robot {
 				float oy = my + cy*dy + cx*py;
 				float ox2 = mx - cy*dx - cx*px;
 				float oy2 = my - cy*dy - cx*py;
-				short o = (short) (32768/Math.PI*(Math.atan2(dy,dx))+co);
+				short o = (short) (toBAMS((float) (Math.atan2(dy,dx)))+co);
 
 				possiblePointsX[possiblePointCount] = ox;
 				possiblePointsY[possiblePointCount] = oy;
-				possiblePointsO[possiblePointCount] = (short)(o+32768);
-				possiblePointsID[possiblePointCount] = id;
+				possiblePointsO[possiblePointCount] = (short) (o+32768);
 				possiblePointsX[possiblePointCount+1] = ox2;
 				possiblePointsY[possiblePointCount+1] = oy2;
 				possiblePointsO[possiblePointCount+1] = o;
-				possiblePointsID[possiblePointCount+1] = id;
 				possiblePointCount+=2;
-				//System.out.printf("(%f,%f,%f) (%f,%f,%f)\n",ox,oy,o,ox2,oy2,(o+Math.PI)%(2*Math.PI));
 			}
 		}
+		/*validPoints &= ~errorPoints;
+		short x = 0;
+		short y = 0;
+		short o = 0;
+		for(int i=0;i<6;i++){
+			if((validPoints&1<<i)!=0){
+
+			}
+		}*/
+		System.out.println("\n");
+		System.out.println(Arrays.toString(possiblePointsX));
+		System.out.println(Arrays.toString(possiblePointsY));
+		System.out.println(Arrays.toString(possiblePointsO));
 		float ox = 0;
 		float oy = 0;
 		short oo = 0;
-		if(possiblePointCount == 2){
+		if(possiblePointCount == 0){
+			System.arraycopy(new short[]{1023,1023,0}, 0, location, 0, 3);
+			return;
+		}
+		else if(possiblePointCount == 2){
 			float d1 = possiblePointsX[0]*possiblePointsX[0]+possiblePointsY[0]*possiblePointsY[0];
 			float d2 = possiblePointsX[1]*possiblePointsX[1]+possiblePointsY[1]*possiblePointsY[1];
 			if(d1<d2){
@@ -177,17 +192,14 @@ public class Robot {
 			}
 		}
 		else{
+			boolean stop = false;
 			int scores[] = new int[12];
-			for(int i=0;i<possiblePointCount;i++){
-				if((errorPoints&(1<<possiblePointsID[i]))!=0)
-					continue;
+			for(int i=0;i<possiblePointCount && !stop;i++){
 				for(int j=i+1;j<possiblePointCount;j++){
-					if((errorPoints&(1<<possiblePointsID[j]))!=0)
-						continue;
 					float dx = possiblePointsX[i]-possiblePointsX[j];
 					float dy = possiblePointsY[i]-possiblePointsY[j];
 					short dTheta = (short) (possiblePointsO[i]-possiblePointsO[j]);
-					if((dTheta>-16768&&dTheta<16768)&&dx*dx+dy*dy<200)
+					if((dTheta>-16384&&dTheta<16384)&&dx*dx+dy*dy<200)
 						scores[j]++;
 				}
 			}
@@ -198,32 +210,36 @@ public class Robot {
 					maxScore = scores[i];
 					maxScoreIndex = i;
 				}
+			System.out.printf("%d: (%f,%f,%d)\n",maxScoreIndex, possiblePointsX[maxScoreIndex],possiblePointsY[maxScoreIndex],possiblePointsO[maxScoreIndex]);
+
 			int originCount = 0;
 			for(int i=0;i<possiblePointCount;i++){
 				float dx = possiblePointsX[i]-possiblePointsX[maxScoreIndex];
 				float dy = possiblePointsY[i]-possiblePointsY[maxScoreIndex];
-				short dTheta = (short) ((possiblePointsO[i]-possiblePointsO[maxScoreIndex]));
-				
-				if((dTheta>-16768&&dTheta<16768)&&dx*dx+dy*dy<200){
+				short dTheta = (short) (possiblePointsO[i]-possiblePointsO[maxScoreIndex]);
+				if((dTheta>-16384&&dTheta<16384)&&dx*dx+dy*dy<200){
 					originCount++;
 					ox += possiblePointsX[i];
 					oy += possiblePointsY[i];
-					oo += dTheta;
+					if(i!=maxScoreIndex)
+						oo += dTheta;
+					//System.out.println("O"+possiblePointsO[i]);
 				}
 			}
 			ox/=originCount;
 			oy/=originCount;
-			oo=(short) (oo/originCount+possiblePointsO[maxScoreIndex]);
+			oo=(short) ((oo/originCount)+possiblePointsO[maxScoreIndex]);
 
 		}
-		float coso = (float) Math.cos(oo*Math.PI/32768);
-		float sino = (float) Math.sin(oo*Math.PI/32768);
+		System.out.printf("(%f,%f,%d)\n",ox,oy,oo);
+		float coso = (float) Math.cos(toFloatAngle(oo));
+		float sino = (float) Math.sin(toFloatAngle(oo));
 		float rx = -ox*coso - oy *sino;
 		float ry = ox*sino - oy *coso;
+		//System.out.printf("(%f,%f,%f)\n",rx,ry,oo);
 		rx*=10;
 		ry*=10;
-		short ro = (short) -oo;
-		System.arraycopy(new short[]{(short)rx,(short)ry,ro}, 0, location, 0, 3);
+		System.arraycopy(new short[]{(short)rx,(short)ry,(short) -oo}, 0, location, 0, 3);
 
 	}
 	public void moveTo(Pose pose){

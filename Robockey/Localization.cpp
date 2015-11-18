@@ -126,36 +126,32 @@ bool nearWall(Pose current){
 	return current.x > XMAX - 10 || current.x < XMIN + 10 || current.y > YMAX - 10 || current.y < YMIN +10;
 }
 
-Pose localizeRobot(uint16_t* irData);
-
 void localizeRobot(){
-	typedef int8_t byte;
-	typedef int8_t boolean;
-	uint16_t irData[16];
+	uint16_t irData[12];
 	m_wii_read(irData);
+	robotPose = localizeRobot(irData);
+}
+
+Pose localizeRobot(uint16_t* irData){
 	float possiblePointsX[12];
 	float possiblePointsY[12];
-	short possiblePointsO[12];
+	int16_t possiblePointsO[12];
 	int possiblePointCount = 0;
-	short irX[] = {(short)(irData[0]),(short)(irData[3]),(short)(irData[6]),(short)(irData[9])};
-	short irY[] = {(short)(irData[1]),(short)(irData[4]),(short)(irData[7]),(short)(irData[10])};
+	int16_t irX[4] = {irData[0], irData[3], irData[6], irData[9]};
+	int16_t irY[4] = {irData[1], irData[4], irData[7], irData[10]};
 	if(irY[1] == 1023){
-		robotPose = Pose(1023,1023,0);
-		return;
+		return Pose(1023,1023,0);
 	}
-	byte validPoints = 0;
-	byte errorPoints = 0;
-	for(byte i = 0; i<4;i++){
-		if(irY[i]==1023)
-			continue;
-		for(byte j = (byte) (i+1); j<4;j++){
-			if(irY[j]==1023)
-				continue;
-			short dx = (short) (irX[i]-irX[j]);
-			short dy = (short) (irY[i]-irY[j]);
-			short d = (short) (dx*dx + dy*dy);
+	int8_t validPoints = 0;
+	int8_t errorPoints = 0;
+	int8_t pointCount = 2 + ((irY[2] != 1023)?1:0)+((irY[3] != 1023)?1:0);
+	for(int8_t i = 0; i<pointCount;i++){
+		for(int8_t j = i+1; j<pointCount;j++){
+			int16_t dx = irX[i]-irX[j];
+			int16_t dy = irY[i]-irY[j];
+			int16_t d = dx*dx + dy*dy;
 			//System.out.println(d);
-			byte id;
+			int8_t id;
 			if(d>5500){
 				if(d>8950){
 					if(d>11000) continue;
@@ -178,13 +174,13 @@ void localizeRobot(){
 				errorPoints |= 1<<id;
 				continue;
 			}
-			short mx = (short) (irX[i]+irX[j]-1024);
-			short my = (short) (irY[i]+irY[j]-768);
-			short px = dy;
-			short py = (short) -dx;
+			int16_t mx = irX[i]+irX[j]-1024;
+			int16_t my = irY[i]+irY[j]-768;
+			int16_t px = dy;
+			int16_t py = -dx;
 			float cx;
 			float cy;
-			short co;
+			int16_t co;
 			switch(id){
 				case 0:
 					cx = 2.014857231f;
@@ -223,22 +219,47 @@ void localizeRobot(){
 			float oy = my + cy*dy + cx*py;
 			float ox2 = mx - cy*dx - cx*px;
 			float oy2 = my - cy*dy - cx*py;
-			short o = (short) (toBAMS(atan2((float)dy,(float)dx))+co);
+			int16_t o = (int16_t)(32768/3.14159*(atan2((float)dy,(float)dx)))+co;
 
 			possiblePointsX[possiblePointCount] = ox;
 			possiblePointsY[possiblePointCount] = oy;
-			possiblePointsO[possiblePointCount] = (short)(o+PI);
+			possiblePointsO[possiblePointCount] = o+32768;
 			possiblePointsX[possiblePointCount+1] = ox2;
 			possiblePointsY[possiblePointCount+1] = oy2;
 			possiblePointsO[possiblePointCount+1] = o;
 			possiblePointCount+=2;
-			//System.out.printf("(%f,%f,%f) (%f,%f,%f)\n",ox,oy,o,ox2,oy2,(o+M_PI)%(2*M_PI));
+			//System.out.printf("(%f,%f,%f) (%f,%f,%f)\n",ox,oy,o,ox2,oy2,(o+Math.PI)%(2*Math.PI));
 		}
 	}
+	/*validPoints &= ~errorPoints;
+	short x = 0;
+	short y = 0;
+	short o = 0;
+	for(int i=0;i<6;i++){
+		if((validPoints&1<<i)!=0){
+
+		}
+	}*/
+	//System.out.println(Arrays.toString(possiblePointsX));
+	//System.out.println(Arrays.toString(possiblePointsY));
+	//System.out.println(Arrays.toString(possiblePointsO));
+	/*fprintf(stdout,"\n[");
+	for(int i = 0; i < 12;i++)
+			fprintf(stdout,"%f, ", possiblePointsX[i]);
+	fprintf(stdout,"]\n[");
+	for(int i = 0; i < 12;i++)
+			fprintf(stdout,"%f, ", possiblePointsY[i]);
+	fprintf(stdout,"]\n[");
+	for(int i = 0; i < 12;i++)
+			fprintf(stdout,"%d, ", possiblePointsO[i]);
+	fprintf(stdout,"]\n");*/
 	float ox = 0;
 	float oy = 0;
-	short oo = 0;
-	if(possiblePointCount == 2){
+	int16_t oo = 0;
+	if(possiblePointCount == 0){
+		return Pose(1023,1023,0);
+	}
+	else if(possiblePointCount == 2){
 		float d1 = possiblePointsX[0]*possiblePointsX[0]+possiblePointsY[0]*possiblePointsY[0];
 		float d2 = possiblePointsX[1]*possiblePointsX[1]+possiblePointsY[1]*possiblePointsY[1];
 		if(d1<d2){
@@ -253,15 +274,14 @@ void localizeRobot(){
 		}
 	}
 	else{
-		boolean stop = false;
+		bool stop = false;
 		int scores[12];
 		for(int i=0;i<possiblePointCount && !stop;i++){
 			for(int j=i+1;j<possiblePointCount;j++){
 				float dx = possiblePointsX[i]-possiblePointsX[j];
 				float dy = possiblePointsY[i]-possiblePointsY[j];
-
-				short dTheta = (short) (possiblePointsO[i]-possiblePointsO[j]);
-				if((dTheta>-PI/2&&dTheta<PI/2)&&dx*dx+dy*dy<200)
+				int16_t dTheta = possiblePointsO[i]-possiblePointsO[j];
+				if((dTheta>-16384&&dTheta<16384)&& dx*dx+dy*dy<200)
 					scores[j]++;
 			}
 		}
@@ -272,83 +292,33 @@ void localizeRobot(){
 				maxScore = scores[i];
 				maxScoreIndex = i;
 			}
+		//fprintf(stdout,"%d: (%f,%f,%d)\n",maxScoreIndex, possiblePointsX[maxScoreIndex],possiblePointsY[maxScoreIndex],possiblePointsO[maxScoreIndex]);
 		int originCount = 0;
 		for(int i=0;i<possiblePointCount;i++){
 			float dx = possiblePointsX[i]-possiblePointsX[maxScoreIndex];
 			float dy = possiblePointsY[i]-possiblePointsY[maxScoreIndex];
-			short dTheta = (short) ((possiblePointsO[i]-possiblePointsO[maxScoreIndex]));
-
-			if((dTheta>-16768&&dTheta<16768)&&dx*dx+dy*dy<200){
+			int16_t dTheta = possiblePointsO[i]-possiblePointsO[maxScoreIndex];
+			if((dTheta>-16384&&dTheta<16384)&&dx*dx+dy*dy<200){
 				originCount++;
 				ox += possiblePointsX[i];
 				oy += possiblePointsY[i];
-				oo += dTheta;
+				if(i!=maxScoreIndex)
+					oo += dTheta;
+				//System.out.println("O"+possiblePointsO[i]);
 			}
 		}
 		ox/=originCount;
 		oy/=originCount;
-		oo=(short) (oo/originCount+possiblePointsO[maxScoreIndex]);
+		oo=(oo/originCount)+possiblePointsO[maxScoreIndex];
 
 	}
-	float coso = (float) cos(toFloatAngle(oo));
-	float sino = (float) sin(toFloatAngle(oo));
+	//fprintf(stdout,"(%f,%f,%d)\n",ox,oy,oo);
+	float coso = cos(3.14159f/32768*oo);
+	float sino = sin(3.14159f/32768*oo);
 	float rx = -ox*coso - oy *sino;
 	float ry = ox*sino - oy *coso;
+	//System.out.printf("(%f,%f,%f)\n",rx,ry,oo);
 	rx*=10;
 	ry*=10;
-	short ro = (short) -oo;
-	robotPose = Pose((short)rx,(short)ry,(short)ro);
-
-	/*int8_t xOffsets[6];
-	int8_t yOffsets[6];
-	int16_t estimatedPoints[18];
-	uint16_t irX[4] = {irData[0],irData[3],irData[6],irData[9]};
-	uint16_t irY[4] = {irData[1],irData[4],irData[7],irData[10]};
-	if(irY[1] == 1023)
-		return Pose(1023,1023,0);
-	uint8_t validPoints = 0;
-	uint8_t errorPoints = 0;
-	uint8_t pointCount = 2 + (irY[2] != 1023)+(irY[3] != 1023);
-	for(uint8_t i = 0; i<pointCount;i++){
-		for(uint8_t j = i+1; j<pointCount;j++){
-			int16_t dx = irX[i]-irX[j];
-			int16_t dy = irY[i]-irY[j];
-			uint16_t d = dx*dx + dy*dy;
-			uint8_t id;
-			if(d>5500){
-				if(d>8950){
-					if(d>11000) continue;
-					else id = 5;
-				}
-				else{
-					if(d>7100) id = 4;
-					else id = 3;
-				}
-			}
-			else if(d>2550){
-				if(d>3800) id = 2;
-				else id = 1;
-			}
-			else if(d>1500) id = 0;
-			else continue;
-			if(!validPoints & 1<<id)
-				validPoints |= id;
-			else{
-				errorPoints |= id;
-				continue;
-			}
-			int16_t mx = irX[i]+irX[j]-1024;
-			int16_t my = irY[i]+irY[j]-768;
-		}
-	}
-	validPoints &= ~errorPoints;
-	int16_t x = 0;
-	int16_t y = 0;
-	int16_t o = 0;
-	for(int i=0;i<6;i++){
-		if(validPoints&1<<i){
-
-		}
-	}
-	return Pose(23,validPoints,errorPoints);*/
+	return Pose(rx, ry, -oo);
 }

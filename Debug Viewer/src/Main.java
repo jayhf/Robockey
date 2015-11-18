@@ -21,8 +21,8 @@ public class Main {
 		Robot robots[] = new Robot[3];
 		for(int i=0;i<3;i++)
 			robots[i] = new Robot(new Pose(0,0,0), Team.BLUE);
-		Rink rink = new Rink(robots[0]);//,robot2);
-		rink.addRobot(new Robot(new Pose(76,12,Math.PI/2),Team.RED));
+		Rink rink = new Rink(robots[1]);//,robot2);
+		//rink.addRobot(new Robot(new Pose(76,12,Math.PI/2),Team.RED));
 		GUI gui = new GUI(rink);
 		SwingUtilities.invokeAndWait(()->gui.init());
 		short location[] = new short[3];
@@ -47,7 +47,7 @@ public class Main {
 				robots[r].localize(data);
 			}
 			gui.refresh();
-			Thread.sleep(20);
+			//Thread.sleep(10);
 		}
 		gui.refresh();
 		s.close();

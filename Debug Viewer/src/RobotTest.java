@@ -11,13 +11,13 @@ public class RobotTest {
 		double actualO = Math.PI-1;
 		short data[] = transformStars(-actualX, -actualY, actualO);
 		short result[] = new short[3];
-		new Robot(new Pose(0,0,0),Team.BLUE).mWiiUpdate(data, result);
+		Robot.javamWiiUpdate(data, result);
 		System.out.printf("(%f,%f,%f)\n",result[0]/10.0,result[1]/10.0,result[2]/100.0);
 		assertEquals(2*actualX,result[0]/10.0,5);
 		assertEquals(2*actualY,result[1]/10.0,5);
-		assertEquals(actualO,result[2]/100.0,.1);
+		assertEquals(actualO,result[2]*Math.PI/32768,.1);
 		short result2[] = new short[3];
-		new Robot(new Pose(0,0,0),Team.BLUE).javamWiiUpdate(data, result2);
+		Robot.mWiiUpdate(data, result2);
 		System.out.printf("(%f,%f,%f)",result2[0]/10.0,result2[1]/10.0,result2[2]/100.0);
 		assertEquals(result[0],result2[0]);
 		assertEquals(result[1],result2[1]);
@@ -26,11 +26,12 @@ public class RobotTest {
 	}
 	@Test
 	public void javaVcppLocalization(){
-		short data[] = {634, 684, 0, 683, 709, 0, 1023, 1023, 0, 586, 735, 0};
+		short data[] = {805, 508, 0, 856, 490, 0, 887, 524, 0, 814, 579, 0};
+		//{634, 684, 0, 683, 709, 0, 1023, 1023, 0, 586, 735, 0};
 		short java[] = new short[3];
 		short cpp[] = new short[3];
-		new Robot(null,null).javamWiiUpdate(data, java);
-		new Robot(null,null).mWiiUpdate(data, cpp);
+		Robot.javamWiiUpdate(data, java);
+		Robot.mWiiUpdate(data, cpp);
 		System.out.println(Arrays.toString(java));
 		System.out.println(Arrays.toString(cpp));
 		assertArrayEquals(java, cpp);

@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT void JNICALL Java_Robot_run
   (JNIEnv *, jobject);
 
+/*
+ * Class:     Robot
+ * Method:    mWiiUpdate
+ * Signature: ([S[S)V
+ */
+JNIEXPORT void JNICALL Java_Robot_mWiiUpdate
+  (JNIEnv *, jclass, jshortArray, jshortArray);
+
 #ifdef __cplusplus
 }
 #endif
