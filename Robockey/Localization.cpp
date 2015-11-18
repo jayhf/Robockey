@@ -1,9 +1,9 @@
 /*
- * Localization.cpp
- *
- * Created: 11/15/2015 7:04:11 PM
- *  Author: Jay
- */ 
+* Localization.cpp
+*
+* Created: 11/15/2015 7:04:11 PM
+*  Author: Jay
+*/
 
 #include "Localization.h"
 
@@ -19,12 +19,13 @@ extern "C"{
 #include "time.h"
 
 Pose::Pose(int16_t x, int16_t y, int16_t o):
-	x(x), y(y), o(o){
+x(x), y(y), o(o){
 }
 
 Pose enemyPoses[3];
 Pose robotPose;
 Pose allyPoses[2];
+Pose robotPose2;
 
 Pose puckPose[5];
 uint16_t puckTime[5];
@@ -89,8 +90,8 @@ void findPuck(Pose current){
 
 	uint16_t heading;
 	if (((photo2 == photo1 + 1 && photo3 == photo1 - 1)
-			|| (photo2 == photo1 - 1 && photo3 == photo1 + 1))
-			&& (val2 < val3 + 5 && val2 > val3 - 5)){
+	|| (photo2 == photo1 - 1 && photo3 == photo1 + 1))
+	&& (val2 < val3 + 5 && val2 > val3 - 5)){
 		//if largest reading is in betweeen next two and the next two are within +/- 5, assume that middle is pointing directly at it
 		heading = -(2*PI/16 * photo1);
 
@@ -150,7 +151,7 @@ Pose localizeRobot(uint16_t* irData){
 			int16_t dx = irX[i]-irX[j];
 			int16_t dy = irY[i]-irY[j];
 			int16_t d = dx*dx + dy*dy;
-			//System.out.println(d);
+
 			int8_t id;
 			if(d>5500){
 				if(d>8950){
@@ -169,7 +170,7 @@ Pose localizeRobot(uint16_t* irData){
 			else if(d>1500) id = 0;
 			else continue;
 			if((validPoints & (1<<id))==0)
-				validPoints |= 1<<id;
+			validPoints |= 1<<id;
 			else{
 				errorPoints |= 1<<id;
 				continue;
@@ -183,37 +184,37 @@ Pose localizeRobot(uint16_t* irData){
 			int16_t co;
 			switch(id){
 				case 0:
-					cx = 2.014857231f;
-					cy = 0.011916738f;
-					co = 27951;
-					break;
+				cx = 2.014857231f;
+				cy = 0.011916738f;
+				co = 27951;
+				break;
 				case 1:
-					cx = 1.189835575f;
-					cy = 0.358868959f;
-					co = -23947;
-					break;
+				cx = 1.189835575f;
+				cy = 0.358868959f;
+				co = -23947;
+				break;
 				case 2:
-					cx = 0.761287104f;
-					cy = -0.230281866f;
-					co = 22225;
-					break;
+				cx = 0.761287104f;
+				cy = -0.230281866f;
+				co = 22225;
+				break;
 				case 3:
-					cx = 0.45522679f;
-					cy = 0.177359962f;
-					co = -29904;
-					break;
+				cx = 0.45522679f;
+				cy = 0.177359962f;
+				co = -29904;
+				break;
 				case 4:
-					cx = 0.503755633f;
-					cy = -0.002927468f;
-					co = 11567;
-					break;
+				cx = 0.503755633f;
+				cy = -0.002927468f;
+				co = 11567;
+				break;
 				case 5:
-					cx = 0;
-					cy = 0;
-					co = -16384;
-					break;
+				cx = 0;
+				cy = 0;
+				co = -16384;
+				break;
 				default:
-					continue;
+				continue;
 			}
 			float ox = mx + cy*dx + cx*px;
 			float oy = my + cy*dy + cx*py;
@@ -293,6 +294,7 @@ Pose localizeRobot(uint16_t* irData){
 				maxScoreIndex = i;
 			}
 		//fprintf(stdout,"%d: (%f,%f,%d)\n",maxScoreIndex, possiblePointsX[maxScoreIndex],possiblePointsY[maxScoreIndex],possiblePointsO[maxScoreIndex]);
+
 		int originCount = 0;
 		for(int i=0;i<possiblePointCount;i++){
 			float dx = possiblePointsX[i]-possiblePointsX[maxScoreIndex];
@@ -321,4 +323,74 @@ Pose localizeRobot(uint16_t* irData){
 	rx*=10;
 	ry*=10;
 	return Pose(rx, ry, -oo);
+}
+
+void localizeRobot2(){
+	uint16_t center[2] = {1024/2,768/2};
+	//constellation center in pixels
+
+	uint16_t data [12];
+	m_wii_read(data);
+	uint16_t datax[4] = {data[0], data[3], data[6], data[9]};
+	uint16_t datay[4] = {data[1], data[4], data[7], data[10]};
+	for (int i = 0; i<4; i++){
+		if (datax[i] == 1023) return;
+	}
+
+	//calculate distance between every pair
+	float d [6] = {sqrt((datax[1]-datax[0])*(datax[1]-datax[0])+(datay[1]-datay[0])*(datay[1]-datay[0])),
+		sqrt((datax[2]-datax[0])*(datax[2]-datax[0])+(datay[2]-datay[0])*(datay[2]-datay[0])),
+		sqrt((datax[3]-datax[0])*(datax[3]-datax[0])+(datay[3]-datay[0])*(datay[3]-datay[0])),
+		sqrt((datax[2]-datax[1])*(datax[2]-datax[1])+(datay[2]-datay[1])*(datay[2]-datay[1])),
+		sqrt((datax[3]-datax[1])*(datax[3]-datax[1])+(datay[3]-datay[1])*(datay[3]-datay[1])),
+	sqrt((datax[3]-datax[2])*(datax[3]-datax[2])+(datay[3]-datay[2])*(datay[3]-datay[2]))};
+
+	//calculate sum of distances from each point (in order 1, 2, 3, 4)
+	float sum[4] = {d[0]+d[1]+d[2],d[0]+d[3]+d[4],d[1]+d[3]+d[5],d[2]+d[4]+d[5]};
+
+	//sort sums into ascending order
+	uint16_t index [4];
+	for(int i = 0; i<3; i++){
+		for(int j = 0; j<3; j++){
+			if(sum[j] > sum[j+1]){
+				uint16_t temp = sum[j+1];
+				sum[j+1] = sum[j];
+				sum[j] = temp;
+				index[j] = j+1;
+				index[j+1] = j;
+			}
+		}
+	}
+
+	//from drawing, note that each point has a unique sum and assign indices
+	//accordingly
+	uint8_t top = index[0];
+	uint8_t right = index[2];
+	uint8_t bottom = index[3];
+	uint8_t left = index[1];
+
+	//reassign matrix so it's in the order, T R B L
+	uint16_t datax2[4] = {datax[top],datax[right],datax[bottom],datax[left]};
+	uint16_t datay2[4] = {datay[top],datay[right],datay[bottom],datay[left]};
+
+	//find center as midpoint of top and bottom point (relative to constellation)
+	uint16_t offsetcenter[2] = {(datax2[0]+datax2[2])/2,(datay2[0]+datay2[2])/2};
+	//find theta as offset of top from center
+	float offsettheta = -atan2((datax2[0]-datax2[2]),(datay2[0]-datay2[2]));
+
+	//put all points in x,y form
+	uint16_t points [12]= {datax2[0],datay2[0],datax2[1],datay2[1],datax2[2],datay2[2],datax2[3],datay2[3],
+	offsetcenter[0],offsetcenter[1], center[0], center[1]};
+	//rotation matrix based on theta
+	float rotationmatrix[4] = {cos(offsettheta), -sin(offsettheta),sin(offsettheta), cos(offsettheta)};
+	//rotate the matrix
+	float rotated[12] = {points[0]*rotationmatrix[0]+points[1]*rotationmatrix[2],points[0]*rotationmatrix[1]+points[1]*rotationmatrix[3],
+		points[2]*rotationmatrix[0]+points[3]*rotationmatrix[2],points[2]*rotationmatrix[1]+points[3]*rotationmatrix[3],
+		points[4]*rotationmatrix[0]+points[5]*rotationmatrix[2],points[4]*rotationmatrix[1]+points[5]*rotationmatrix[3],
+		points[6]*rotationmatrix[0]+points[7]*rotationmatrix[2],points[6]*rotationmatrix[1]+points[7]*rotationmatrix[3],
+		points[8]*rotationmatrix[0]+points[9]*rotationmatrix[2],points[8]*rotationmatrix[1]+points[9]*rotationmatrix[3],
+	points[10]*rotationmatrix[0]+points[11]*rotationmatrix[2],points[10]*rotationmatrix[1]+points[11]*rotationmatrix[3]};
+	//float uvect[2] = {rotationmatrix[0],rotationmatrix[1]};
+	float dvect[2] = {rotated[10]-rotated[8],rotated[11]-rotated[9]};
+	robotPose2 = Pose((short)dvect[0],(short)dvect[1],(short)offsettheta);
 }

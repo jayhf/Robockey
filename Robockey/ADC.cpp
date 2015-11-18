@@ -2,7 +2,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-bool updateCompleted;
+volatile bool updateCompleted;
 
 Resistor irResistor;
 uint8_t irIndex;
@@ -28,7 +28,7 @@ void initADC(){
 	ADCSRA |= 1 << ADIE;
 	
 	beginADC();
-	while(!updateCompleted);
+	//while(!updateCompleted);
 }
 
 void beginADC(){
@@ -56,6 +56,7 @@ ISR(ADC_vect){
 			irValues[selectedIR++] = ADC;
 			if(selectedIR != 0){
 				PORTB = (PORTB & (~0b1111)) | selectedIR;
+				selectedIR &= 0xF;
 				break;
 			}
 			else goto defaultCase;
