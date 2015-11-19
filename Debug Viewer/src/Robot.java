@@ -3,6 +3,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +50,8 @@ public class Robot {
 			System.out.println(Arrays.toString(location));
 			System.out.println(Arrays.toString(location2));
 		}
-		moveTo(new Pose(location[0]/10.0*115/1024,location[1]/10.0*115/1024,location[2]*Math.PI/32768));
+		if(location[0]!=1023 || location[1]!=1023)
+			moveTo(new Pose(location[0],location[1],location[2]*Math.PI/32768));
 	}
 	public static final short toBAMS(float angle){
 		return (short)(angle*32768/Math.PI);
@@ -70,15 +72,40 @@ public class Robot {
 		}
 		byte validPoints = 0;
 		byte errorPoints = 0;
-		byte pointCount = (byte) (2 + ((irY[2] != 1023)?1:0)+((irY[3] != 1023)?1:0));
-		for(byte i = 0; i<pointCount;i++){
-			for(byte j = (byte) (i+1); j<pointCount;j++){
+		//byte pointCount = (byte) (2 + ((irY[2] != 1023)?1:0)+((irY[3] != 1023)?1:0));
+		for(byte i = 0; i<4;i++){
+			if(irY[i]==1023)
+				continue;
+			for(byte j = (byte) (i+1); j<4;j++){
+				if(irY[j]==1023)
+					continue;
 				short dx = (short) (irX[i]-irX[j]);
 				short dy = (short) (irY[i]-irY[j]);
 				short d = (short) (dx*dx + dy*dy);
 				//System.out.println(d);
 				byte id;
-				if(d>5500){
+				if(d>4500){
+					if (d > 7500) {
+						if (d > 9000)
+							continue;
+						else
+							id = 5;
+					} else {
+						if (d > 5850)
+							id = 4;
+						else
+							id = 3;
+					}
+				} else if (d > 2000) {
+					if (d > 3100)
+						id = 2;
+					else
+						id = 1;
+				} else if (d > 1100)
+					id = 0;
+				else
+					continue;
+				/*if(d>5500){
 					if(d>8950){
 						if(d>11000) continue;
 						else id = 5;
@@ -93,7 +120,7 @@ public class Robot {
 					else id = 1;
 				}
 				else if(d>1500) id = 0;
-				else continue;
+				else continue;*/
 				if((validPoints & (1<<id))==0)
 					validPoints |= 1<<id;
 				else{
@@ -235,11 +262,9 @@ public class Robot {
 		//System.out.printf("(%f,%f,%d)\n",ox,oy,oo);
 		float coso = (float) Math.cos(toFloatAngle(oo));
 		float sino = (float) Math.sin(toFloatAngle(oo));
-		float rx = -ox*coso - oy *sino;
-		float ry = ox*sino - oy *coso;
+		float rx = (-ox*coso - oy *sino)*(115f/768);
+		float ry = (ox*sino - oy *coso)*(115f/768);
 		//System.out.printf("(%f,%f,%d)\n",rx,ry,oo);
-		rx*=10;
-		ry*=10;
 		System.arraycopy(new short[]{(short)rx,(short)ry,(short) -oo}, 0, location, 0, 3);
 
 	}
@@ -279,6 +304,23 @@ public class Robot {
 	
 	public Team getTeam() {
 		return team;
+	}
+	public void receivedDebugMessage(ByteBuffer buffer) {
+		byte id = buffer.get();
+		switch(id){
+			case 0x10:
+				moveTo(new Pose(buffer.getShort(),buffer.getShort(),buffer.getShort()*Math.PI/32768));
+			case 0x11:
+				System.out.print("ADC "+id+": [");
+				for(int i=0;i<8;i++){
+					System.out.print(((0xFF&buffer.get())<<2)+",");
+				}
+			case 0x12:
+				for(int i=0;i<8;i++){
+					System.out.print(((0xFF&buffer.get())<<2)+",");
+				}
+				System.out.print("]");
+		}
 	}
 	
 }

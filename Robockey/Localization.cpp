@@ -149,15 +149,40 @@ Pose localizeRobot(uint16_t* irData){
 	}
 	int8_t validPoints = 0;
 	int8_t errorPoints = 0;
-	int8_t pointCount = 2 + ((irY[2] != 1023)?1:0)+((irY[3] != 1023)?1:0);
-	for(int8_t i = 0; i<pointCount;i++){
-		for(int8_t j = i+1; j<pointCount;j++){
+	//int8_t pointCount = 2 + ((irY[2] != 1023)?1:0)+((irY[3] != 1023)?1:0);
+	for(int8_t i = 0; i<4;i++){
+		if(irY[i]==1023)
+			continue;
+		for(int8_t j = i+1; j<4;j++){
+			if(irY[j]==1023)
+				continue;
 			int16_t dx = irX[i]-irX[j];
 			int16_t dy = irY[i]-irY[j];
 			int16_t d = dx*dx + dy*dy;
 
 			int8_t id;
-			if(d>5500){
+			if(d>4500){
+				if (d > 7500) {
+					if (d > 9000)
+						continue;
+					else
+						id = 5;
+				} else {
+					if (d > 5850)
+						id = 4;
+					else
+						id = 3;
+				}
+			} else if (d > 2000) {
+				if (d > 3100)
+					id = 2;
+				else
+					id = 1;
+			} else if (d > 1100)
+				id = 0;
+			else
+				continue;
+			/*if(d>5500){
 				if(d>8950){
 					if(d>11000) continue;
 					else id = 5;
@@ -172,7 +197,7 @@ Pose localizeRobot(uint16_t* irData){
 				else id = 1;
 			}
 			else if(d>1500) id = 0;
-			else continue;
+			else continue;*/
 			if((validPoints & (1<<id))==0)
 			validPoints |= 1<<id;
 			else{
@@ -328,12 +353,12 @@ Pose localizeRobot(uint16_t* irData){
 	//fprintf(stdout,"(%f,%f,%d)\n",ox,oy,oo);
 	float coso = cos(toFloatAngle(oo));
 	float sino = sin(toFloatAngle(oo));
-	int16_t rx = 10*(-ox*coso - oy *sino);
-	int16_t ry = 10*(ox*sino - oy *coso);
+	int16_t rx = (-ox*coso - oy *sino)*(115.0f/768);
+	int16_t ry = (ox*sino - oy *coso)*(115.0f/768);
 	//fprintf(stdout,"(%f,%f,%d)\n",rx,ry,oo);
 	return Pose(rx, ry, -oo);
 }
-#ifndef _MSC_VER
+#ifdef _MSC_VER
 void localizeRobot2(){
 	uint16_t center[2] = {1024/2,768/2};
 	//constellation center in pixels
@@ -347,12 +372,12 @@ void localizeRobot2(){
 	}
 
 	//calculate distance between every pair
-	float d [6] = {sqrt((datax[1]-datax[0])*(datax[1]-datax[0])+(datay[1]-datay[0])*(datay[1]-datay[0])),
-		sqrt((datax[2]-datax[0])*(datax[2]-datax[0])+(datay[2]-datay[0])*(datay[2]-datay[0])),
-		sqrt((datax[3]-datax[0])*(datax[3]-datax[0])+(datay[3]-datay[0])*(datay[3]-datay[0])),
-		sqrt((datax[2]-datax[1])*(datax[2]-datax[1])+(datay[2]-datay[1])*(datay[2]-datay[1])),
-		sqrt((datax[3]-datax[1])*(datax[3]-datax[1])+(datay[3]-datay[1])*(datay[3]-datay[1])),
-	sqrt((datax[3]-datax[2])*(datax[3]-datax[2])+(datay[3]-datay[2])*(datay[3]-datay[2]))};
+	float d [6] = {sqrt((float)(datax[1]-datax[0])*(datax[1]-datax[0])+(datay[1]-datay[0])*(datay[1]-datay[0])),
+		sqrt((float)(datax[2]-datax[0])*(datax[2]-datax[0])+(datay[2]-datay[0])*(datay[2]-datay[0])),
+		sqrt((float)(datax[3]-datax[0])*(datax[3]-datax[0])+(datay[3]-datay[0])*(datay[3]-datay[0])),
+		sqrt((float)(datax[2]-datax[1])*(datax[2]-datax[1])+(datay[2]-datay[1])*(datay[2]-datay[1])),
+		sqrt((float)(datax[3]-datax[1])*(datax[3]-datax[1])+(datay[3]-datay[1])*(datay[3]-datay[1])),
+	sqrt((float)(datax[3]-datax[2])*(datax[3]-datax[2])+(datay[3]-datay[2])*(datay[3]-datay[2]))};
 
 	//calculate sum of distances from each point (in order 1, 2, 3, 4)
 	float sum[4] = {d[0]+d[1]+d[2],d[0]+d[3]+d[4],d[1]+d[3]+d[5],d[2]+d[4]+d[5]};
@@ -385,7 +410,7 @@ void localizeRobot2(){
 	//find center as midpoint of top and bottom point (relative to constellation)
 	uint16_t offsetcenter[2] = {(datax2[0]+datax2[2])/2,(datay2[0]+datay2[2])/2};
 	//find theta as offset of top from center
-	float offsettheta = -atan2((datax2[0]-datax2[2]),(datay2[0]-datay2[2]));
+	float offsettheta = -atan2((float)(datax2[0]-datax2[2]),(float)(datay2[0]-datay2[2]));
 
 	//put all points in x,y form
 	uint16_t points [4]= {offsetcenter[0],offsetcenter[1], center[0], center[1]};
