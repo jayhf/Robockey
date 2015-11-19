@@ -39,6 +39,7 @@ Pose* getEnemyLocations();
 Pose getPuckLocation();
 Pose* getAllyLocations();
 Pose getRobotPose();
+Pose getRobotPose2();
 
 
 void initLocalization();

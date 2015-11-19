@@ -45,6 +45,9 @@ Pose* getAllyLocations(){
 Pose getRobotPose(){
 	return robotPose;
 }
+Pose getRobotPose2(){
+	return robotPose2;
+}
 
 
 void initLocalization(){
@@ -385,19 +388,13 @@ void localizeRobot2(){
 	float offsettheta = -atan2((datax2[0]-datax2[2]),(datay2[0]-datay2[2]));
 
 	//put all points in x,y form
-	uint16_t points [12]= {datax2[0],datay2[0],datax2[1],datay2[1],datax2[2],datay2[2],datax2[3],datay2[3],
-	offsetcenter[0],offsetcenter[1], center[0], center[1]};
+	uint16_t points [4]= {offsetcenter[0],offsetcenter[1], center[0], center[1]};
 	//rotation matrix based on theta
 	float rotationmatrix[4] = {cos(offsettheta), -sin(offsettheta),sin(offsettheta), cos(offsettheta)};
 	//rotate the matrix
-	float rotated[12] = {points[0]*rotationmatrix[0]+points[1]*rotationmatrix[2],points[0]*rotationmatrix[1]+points[1]*rotationmatrix[3],
-		points[2]*rotationmatrix[0]+points[3]*rotationmatrix[2],points[2]*rotationmatrix[1]+points[3]*rotationmatrix[3],
-		points[4]*rotationmatrix[0]+points[5]*rotationmatrix[2],points[4]*rotationmatrix[1]+points[5]*rotationmatrix[3],
-		points[6]*rotationmatrix[0]+points[7]*rotationmatrix[2],points[6]*rotationmatrix[1]+points[7]*rotationmatrix[3],
-		points[8]*rotationmatrix[0]+points[9]*rotationmatrix[2],points[8]*rotationmatrix[1]+points[9]*rotationmatrix[3],
-	points[10]*rotationmatrix[0]+points[11]*rotationmatrix[2],points[10]*rotationmatrix[1]+points[11]*rotationmatrix[3]};
+	float rotated[4] = {points[0]*rotationmatrix[0] + points[1]*rotationmatrix[2],points[0]*rotationmatrix[1]+points[1]*rotationmatrix[3],
+		points[2]*rotationmatrix[0]+points[3]*rotationmatrix[2],points[2]*rotationmatrix[1]+points[3]*rotationmatrix[3]};
 	//float uvect[2] = {rotationmatrix[0],rotationmatrix[1]};
-	float dvect[2] = {rotated[10]-rotated[8],rotated[11]-rotated[9]};
-	robotPose2 = Pose((short)dvect[0],(short)dvect[1],(short)offsettheta);
-}
-#endif
+	float dvect[2] = {rotated[2]-rotated[0],rotated[3]-rotated[1]};
+	robotPose2 = Pose(dvect[0],dvect[1],toBAMS(offsettheta));
+}#endif

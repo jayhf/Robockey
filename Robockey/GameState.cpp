@@ -14,6 +14,10 @@ uint8_t blueScore;
 GameState gameState = GameState::NONE;
 Team team = Team::UNKNOWN;
 
+GameState getGameState(){
+	return gameState;
+}
+
 uint8_t getRScore(){
 	return redScore;
 }

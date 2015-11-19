@@ -19,20 +19,28 @@ void movement(int leftSpeed, int rightSpeed){
 	if (rightSpeed < -100){
 		rightSpeed = -100;
 	}
-	if (leftSpeed > 0) {
-		set(PINC,6);
+	if (leftSpeed >= 0) {
+		if(!check(PINC,6)){
+			set(PINC,6);
+		}
 		OCR1B = leftSpeed *0.01 * (OCR1A-1);
 	}
 	else if (leftSpeed < 0) {
-		clear(PINC,6);
+		if(check(PINC,6)){
+			clear(PINC,6);
+		}
 		OCR1B = -leftSpeed *0.01 * (OCR1A-1);
 	}
-	if (rightSpeed > 0) {
-		set(PINC,7);
+	if (rightSpeed >= 0) {
+		if(!check(PINC,7)){
+			set(PINC,7);
+		}
 		OCR1C = rightSpeed *0.01 * (OCR1A-1);
 	}
 	else if (rightSpeed < 0) {
-		clear(PINC,7);
+		if(check(PINC,7)){
+			clear(PINC,7);
+		}
 		OCR1C = -rightSpeed *0.01 * (OCR1A-1);
 	}
 }
@@ -59,9 +67,9 @@ void initDigital(){
 
 void setEnabled(bool enabled){
 	if(enabled)
-		PORTE |= 1 << 6;
+	PORTE |= 1 << 6;
 	else
-		PORTE &= ~(1 << 6);
+	PORTE &= ~(1 << 6);
 }
 
 void setMotors(int8_t right, int8_t left){
@@ -78,7 +86,7 @@ void startKick(uint16_t duration){
 
 void updateKick(){
 	if(((int16_t)(getTime() - kickEndTime)) >= 0)
-		PORTD &= ~(1 << 7);
+	PORTD &= ~(1 << 7);
 }
 
 void setLED(enum LEDColor color){
