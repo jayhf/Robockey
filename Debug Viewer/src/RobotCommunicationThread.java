@@ -1,9 +1,12 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import javax.swing.JOptionPane;
 
@@ -13,8 +16,10 @@ import gnu.io.PortInUseException;
 
 public class RobotCommunicationThread extends Thread {
 	private CommPort port;
-	OutputStream out;
-	public RobotCommunicationThread() throws PortInUseException, IOException {
+	private OutputStream out;
+	private Function<Byte,Robot> robotFunction;
+	public RobotCommunicationThread(Function<Byte,Robot> robotFunction) throws PortInUseException, IOException {
+		this.robotFunction = robotFunction;
 		super.setDaemon(true);
 		@SuppressWarnings("unchecked")
 		Enumeration<CommPortIdentifier> ports = CommPortIdentifier.getPortIdentifiers();
@@ -57,9 +62,12 @@ public class RobotCommunicationThread extends Thread {
 						if(in.read() == 0xFF && in.read() == 0x00){
 							byte data[] = new byte[10];
 							in.read(data);
-							switch(data[0]){
-								
-							}
+							Logger.getLogger().write(data);
+							ByteBuffer buffer = ByteBuffer.wrap(data);
+							byte id = buffer.get();
+							Robot robot = robotFunction.apply(id);
+							if(robot!=null)
+								robot.receivedDebugMessage(buffer);
 						}
 					}
 					else

@@ -2,8 +2,11 @@
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.function.Function;
 
 import javax.swing.SwingUtilities;
+
+import gnu.io.PortInUseException;
 
 import static java.awt.event.KeyEvent.*;
 
@@ -12,9 +15,10 @@ import java.awt.event.KeyEvent;
 import java.awt.geom.Path2D;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class Main {
-	public static void main(String[] args) throws InvocationTargetException, InterruptedException, FileNotFoundException{
+	public static void main(String[] args) throws InvocationTargetException, InterruptedException, PortInUseException, IOException{
 		//Robot robot = new Robot(new Pose(60,0,Math.PI),Team.RED);
 		//Robot robot2 = new Robot(new Pose(-60,0,0),Team.BLUE);
 		//System.out.println(robot.getPosition(new int[]{5}));
@@ -32,7 +36,7 @@ public class Main {
 		System.out.println(Arrays.toString(location));
 		//robot.setPose(new Pose(location[0]/10.0*115/1024,location[1]/10.0*115/1024,location[2]/100.0));
 		//System.out.println(robot.getPose().o);
-		File file = new File("../../mWii Data.csv");
+		/*File file = new File("../../mWii Data.csv");
 		Scanner s = new Scanner(file);
 		s.nextLine();
 		while(s.hasNextLine()){
@@ -48,6 +52,31 @@ public class Main {
 			}
 			gui.refresh();
 			//Thread.sleep(10);
+		}*/
+		try{
+			RobotCommunicationThread robotConnection = new RobotCommunicationThread((Byte id)->{
+				switch(id){
+					case 1:
+						return robots[0];
+					default:
+						return null;
+				}
+			});
+			robotConnection.start();
+		}
+		catch(IllegalArgumentException e){
+			System.out.println(e.getMessage());
+		}
+		File file = new File("C:/Users/Jay/Dropbox/Penn/Sophomore Year/Mechatronics/Robockey/Localization/Calibration Data/Full Circle 2.csv");
+		Scanner s = new Scanner(file);
+		while(s.hasNext()){
+			String[] line = s.nextLine().split(",");
+			short[] d = new short[12];
+			for(int i=0;i<12;i++)
+				d[i] = Short.parseShort(line[i]);
+			robots[0].localize(d);
+			gui.refresh();
+			Thread.sleep(100);
 		}
 		gui.refresh();
 		s.close();
