@@ -6,7 +6,7 @@
 
 ///You don't properly handle negative speeds. Floating point math should be avoided.
 ///At the very least never divide by a constant, multiply by 1/constant.
-void movement(int leftSpeed, int rightSpeed){
+void movement(int rightSpeed, int leftSpeed){
 	if (leftSpeed > 100) {
 		leftSpeed = 100;
 	}
@@ -23,25 +23,25 @@ void movement(int leftSpeed, int rightSpeed){
 		if(!check(PINC,6)){
 			set(PINC,6);
 		}
-		OCR1B = leftSpeed *0.01 * (OCR1A-1);
+		OCR1B = leftSpeed *0.01 * (OCR1A-0);
 	}
 	else if (leftSpeed < 0) {
 		if(check(PINC,6)){
 			clear(PINC,6);
 		}
-		OCR1B = -leftSpeed *0.01 * (OCR1A-1);
+		OCR1B = -leftSpeed *0.01 * (OCR1A-0);
 	}
 	if (rightSpeed >= 0) {
 		if(!check(PINC,7)){
 			set(PINC,7);
 		}
-		OCR1C = rightSpeed *0.01 * (OCR1A-1);
+		OCR1C = rightSpeed *0.01 * (OCR1A-0);
 	}
 	else if (rightSpeed < 0) {
 		if(check(PINC,7)){
 			clear(PINC,7);
 		}
-		OCR1C = -rightSpeed *0.01 * (OCR1A-1);
+		OCR1C = -rightSpeed *0.01 * (OCR1A-0);
 	}
 }
 

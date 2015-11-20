@@ -10,6 +10,9 @@
 #include "PathPlanning.h"
 #include "Digital.h"
 #include "BAMSMath.h"
+extern "C"{
+	#include "m_usb.h"
+	};
 
 uint16_t lastDistance = 0;
 uint16_t deltaDistance = 0;
@@ -36,8 +39,8 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 		uint16_t k5 = 1; //distance integral
 		uint16_t k6 = 1; //angle integral
 		
-		integralTheta += deltaTheta-lastTheta;
-		deltaDistance += distance-lastDistance;
+		integralTheta += deltaTheta;
+		deltaDistance += distance;
 
 		uint16_t x = k1 * distance + k2 * deltaTheta + k3 * (distance - lastDistance) + k4 * deltaDistance;
 		uint16_t y = k2*deltaTheta + k5*(targetTheta - lastTheta) + k6*integralTheta;
@@ -125,7 +128,7 @@ bool facingPose(Pose target, Pose current){
 	uint16_t deltaX = current.x - target.x;
 	uint16_t deltaY = current.y - target.y;
 	angle o = atan2b(deltaY,deltaX);
-	return current.o < o + 1 && current.o > o - 1;
+	return current.o < o + 250 && current.o > o - 250;
 }
 
 void facePose(Pose target, Pose current){
@@ -133,12 +136,12 @@ void facePose(Pose target, Pose current){
 		uint16_t deltaX = current.x - target.x;
 		uint16_t deltaY = current.y - target.y;
 		angle o = atan2b(deltaY,deltaX);
-		uint16_t x = 4 * (current.o - o) + 2 * (current.o - lastPose.o);
+		//uint16_t x = 4 * (current.o - o) + 2 * (current.o - lastPose.o);
 		if(current.o > o){
-			movement(x,-x);
+			movement(50,-50);
 		}
 		else if(current.o < o){
-			movement(-x,x);
+			movement(-50,50);
 		}
 	}
 	lastPose = current;

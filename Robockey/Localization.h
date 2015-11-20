@@ -2,11 +2,11 @@
 
 #include <stdint.h>
 
-#define YMAX 768
-#define YMIN -768
-#define XMAX 1024
-#define XMIN -1024
-#define ROBOT_RADIUS 134
+#define YMAX 60
+#define YMIN -60
+#define XMAX 115
+#define XMIN -115
+#define ROBOT_RADIUS 15
 #define PUCK_RADIUS 68
 
 class Pose{

@@ -19,8 +19,10 @@
 #include "GameState.h"
 #include "wireless.h"
 #include "ADC.h"
+#include "PathPlanning.h"
+#include "BAMSMath.h"
 extern "C"{
-	//#include "m_usb.h"
+	#include "m_usb.h"
 	#include "m_wii.h"
 }
 
@@ -28,32 +30,72 @@ int main(void)
 {
 	m_clockdivide(0);
 	sei();
-	//initDigital();
-	//initClock();
+	
+	initDigital();
+	initClock();
 	initADC();
 	initWireless();
-	//initLocalization();
+	initLocalization();
 	
-	//m_usb_init();
-	
-	m_green(ON);
+	m_usb_init();
+
 	//uint8_t batteryLowCount = 0;
-	//setEnabled(true);
+	setEnabled(true);
+	//uint16_t blobs[12]={0,0,0,0,0,0,0,0,0,0,0,0};
 	while (1) {
-		m_red(TOGGLE);
-		beginADC();
-		while(!adcUpdateCompleted());
-		sendIR();
-		_delay_ms(100);
+		//beginADC();
+		
+		localizeRobot();
+		/*if (allowedToMove()){
+			m_usb_tx_int(1);
+		}
+		else m_usb_tx_int(0);*/
+		
+		Pose robot = getRobotPose();
+		uint16_t deltaX = robot.x;
+		uint16_t deltaY = robot.y;
+		float o = atan2(deltaY,deltaX);
+		m_usb_tx_int(o*1000);
+		m_usb_tx_char('\n');
+		if(robot.o>o){
+			m_usb_tx_int(0);
+		}
+		else if (robot.o<o){
+			m_usb_tx_int(1);
+		}
+		m_usb_tx_char('\n');
+		
+		//facePose(Pose(0,0,0),getRobotPose());
+		//m_usb_tx_int(getRobotPose().o-o);
+		//m_usb_tx_char('\n');
+		
+		//m_wait(500);
+		//facePose(Pose(-52,-20,0),robot);
+		//m_usb_tx_int(static_cast<int>(facingPose(Pose(-52,-20,0),robot)));
 		//test code for localize
+		
+		//Pose robot = getRobotPose();
+		
 		/*
-		uint16_t blobs[12];
+		m_usb_tx_int(robot.x);
+		m_usb_tx_char(',');
+		m_usb_tx_int(robot.y);
+		m_usb_tx_char(',');
+		m_usb_tx_int(robot.o);
+		m_usb_tx_char('\n');
+		m_wait(500);
+		*/
+		/*
 		m_wii_read(blobs);
 		for(int i = 0; i<12;i++){
 		m_usb_tx_int(blobs[i]);
 		m_usb_tx_char(',');
 		}
 		m_usb_tx_char('\n');
+		m_wait(1000);
+		*/
+		//m_wait(500);
+		/*
 		localizeRobot2();
 		Pose robot = getRobotPose2();
 		m_usb_tx_int(robot.x);

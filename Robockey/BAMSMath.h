@@ -8,7 +8,7 @@ typedef uint16_t uangle;
 
 #define PI 32768
 #define toBAMS(x) ((x)*10430.37835047045272f)
-#define toFloatAngle(x) ((x*0.0000958737992428525f))
+#define toFloatAngle(x) ((x)*0.0000958737992428525f)
 
 #define cosb(x) (cos(toFloatAngle(x)))
 #define sinb(x) (sin(toFloatAngle(x)))
