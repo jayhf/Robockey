@@ -353,12 +353,14 @@ Pose localizeRobot(uint16_t* irData){
 
 	}
 	//fprintf(stdout,"(%f,%f,%d)\n",ox,oy,oo);
+	
 	float coso = cos(toFloatAngle(oo));
 	float sino = sin(toFloatAngle(oo));
 	int16_t rx = (-ox*coso - oy *sino)*(115.0f/768);
 	int16_t ry = (ox*sino - oy *coso)*(115.0f/768);
+	oo = PI/2-(oo-PI/2);
 	//fprintf(stdout,"(%f,%f,%d)\n",rx,ry,oo);
-	return Pose(rx, ry, -oo);
+	return Pose(-rx, ry, -oo);
 }
 
 void localizeRobot2(){

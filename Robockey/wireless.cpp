@@ -24,7 +24,7 @@ void sendRobotLocation(){
 	buffer[2]=pose.x>>8;
 	buffer[3]=pose.x&0xFF;
 	buffer[4]=pose.y>>8;
-	buffer[5]=pose.x&0xFF;
+	buffer[5]=pose.y&0xFF;
 	buffer[6]=pose.o>>8;
 	buffer[7]=pose.o&0xFF;
 	sendPacket(Robot::CONTROLLER,0x10,buffer);

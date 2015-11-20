@@ -25,34 +25,7 @@ extern "C"{
 	#include "m_usb.h"
 	#include "m_wii.h"
 }
-int main(){
-	m_clockdivide(0);
-	initDigital();
-	#define OFF 0
-	m_green(1);
-	setMotors(800,0);
-	_delay_ms(1000);
-	setMotors(800,800);
-	_delay_ms(1000);
-	setMotors(0,800);
-	_delay_ms(1000);
-	setMotors(0,-800);
-	_delay_ms(1000);
-	setMotors(-800,-800);
-	_delay_ms(1000);
-	setMotors(-800,0);
-	_delay_ms(1000);
-	setMotors(0,0);
-	_delay_ms(1000);
-	setMotors(800,800);
-	_delay_ms(1000);
-	setMotors(-800,-800);
-	_delay_ms(1000);
-	setMotors(800,800);
-	_delay_ms(1000);
-	setMotors(0,0);
-}
-/*int main2(void)
+int main(void)
 {
 	m_clockdivide(0);
 	sei();
@@ -67,7 +40,9 @@ int main(){
 
 	//uint8_t batteryLowCount = 0;
 	setEnabled(true);
-	//uint16_t blobs[12]={0,0,0,0,0,0,0,0,0,0,0,0};
+	int i = 0;
+	uint16_t blobs[12]={0,0,0,0,0,0,0,0,0,0,0,0};
+	#define OFF 0
 	while (1) {
 		//beginADC();
 		
@@ -75,23 +50,25 @@ int main(){
 		/*if (allowedToMove()){
 			m_usb_tx_int(1);
 		}
-		else m_usb_tx_int(0);*/
-		
+		else m_usb_tx_int(0);
+		*/
+		/*
 		Pose robot = getRobotPose();
-		uint16_t deltaX = robot.x;
-		uint16_t deltaY = robot.y;
-		float o = atan2(deltaY,deltaX);
-		m_usb_tx_int(o*1000);
+		m_usb_tx_int(robot.x);
+		m_usb_tx_char(',');
+		m_usb_tx_int(robot.y);
+		m_usb_tx_char(',');
+		m_usb_tx_int(robot.o);
 		m_usb_tx_char('\n');
-		if(robot.o>o){
-			m_usb_tx_int(0);
-		}
-		else if (robot.o<o){
-			m_usb_tx_int(1);
-		}
-		m_usb_tx_char('\n');
+		*/
 		
-		//facePose(Pose(0,0,0),getRobotPose());
+		sendRobotLocation();
+		if(i<200){
+		facePose(Pose(0,0,0),getRobotPose());
+		m_wait(15);
+		i++;
+		}
+		else setMotors(0,0);
 		//m_usb_tx_int(getRobotPose().o-o);
 		//m_usb_tx_char('\n');
 		
@@ -100,17 +77,6 @@ int main(){
 		//m_usb_tx_int(static_cast<int>(facingPose(Pose(-52,-20,0),robot)));
 		//test code for localize
 		
-		//Pose robot = getRobotPose();
-		
-		/*
-		m_usb_tx_int(robot.x);
-		m_usb_tx_char(',');
-		m_usb_tx_int(robot.y);
-		m_usb_tx_char(',');
-		m_usb_tx_int(robot.o);
-		m_usb_tx_char('\n');
-		m_wait(500);
-		*/
 		/*
 		m_wii_read(blobs);
 		for(int i = 0; i<12;i++){
@@ -119,18 +85,6 @@ int main(){
 		}
 		m_usb_tx_char('\n');
 		m_wait(1000);
-		*/
-		//m_wait(500);
-		/*
-		localizeRobot2();
-		Pose robot = getRobotPose2();
-		m_usb_tx_int(robot.x);
-		m_usb_tx_char(',');
-		m_usb_tx_int(robot.y);
-		m_usb_tx_char(',');
-		m_usb_tx_int(robot.o);
-		m_usb_tx_char('\n');
-		m_wait(500);
 		*/
 		
 		//test code for ADC
@@ -169,6 +123,6 @@ int main(){
 		//behavior code
 
 		//move towards desired pose if allowed by game state
-		*//*
+		*/
 	}
-}*/
+}
