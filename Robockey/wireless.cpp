@@ -31,7 +31,7 @@ void sendRobotLocation(){
 
 void sendIR(){
 	uint8_t buffer[10];
-	uint8_t *irData = getIRData();
+	uint16_t *irData = getIRData();
 	for(int i=0;i<8;i++)
 		buffer[i+2] = (irData[i]>>2)&0xFF;
 	sendPacket(Robot::CONTROLLER, 0x11, buffer);

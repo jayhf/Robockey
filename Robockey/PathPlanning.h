@@ -12,4 +12,6 @@
 void goToPosition(Pose target, Pose current, bool faceForward);
 void goToPositionPuck(Pose target, Pose current);
 
-void facePose(Pose pose);
+
+bool facingPose(Pose target, Pose current);
+void facePose(Pose target, Pose current);
