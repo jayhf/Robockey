@@ -10,6 +10,7 @@
 #ifdef _MSC_VER
 #include "../Simulator/m_wii.h"
 #else
+#include <stdlib.h>
 extern "C"{
 	#include "m_wii.h"
 };
@@ -18,6 +19,7 @@ extern "C"{
 #include "ADC.h"
 #include "time.h"
 #include "stdio.h"
+
 
 Pose::Pose(int16_t x, int16_t y, int16_t o):
 x(x), y(y), o(o){
