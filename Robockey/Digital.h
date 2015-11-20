@@ -5,7 +5,7 @@
 void initDigital();
 void setEnabled(bool enabled);
 //Positive is forward. 0 is off and 1600 is 100% duty cycle
-void setMotors(int8_t right, int8_t left);
+void setMotors(int16_t right, int16_t left);
 void startKick(uint16_t duration);
 void updateKick();
 bool switchesPressed();

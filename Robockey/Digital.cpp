@@ -72,10 +72,10 @@ void setEnabled(bool enabled){
 	PORTE &= ~(1 << 6);
 }
 
-void setMotors(int8_t right, int8_t left){
-	TCCR1B = abs(right);
-	TCCR1C = abs(left);
-	PORTC = ((PORTC & ~(0b11 << 6))) | ((right>0) << 6) | ((left>0) << 7);
+void setMotors(int16_t right, int16_t left){
+	OCR1B = abs(right);
+	OCR1C = abs(left);
+	PORTC = ((PORTC & ~(0b11 << 6))) | ((bool)(right>0) << 6) | ((bool)(left>0) << 7);
 }
 
 uint16_t kickEndTime;

@@ -25,8 +25,34 @@ extern "C"{
 	#include "m_usb.h"
 	#include "m_wii.h"
 }
-
-int main(void)
+int main(){
+	m_clockdivide(0);
+	initDigital();
+	#define OFF 0
+	m_green(1);
+	setMotors(800,0);
+	_delay_ms(1000);
+	setMotors(800,800);
+	_delay_ms(1000);
+	setMotors(0,800);
+	_delay_ms(1000);
+	setMotors(0,-800);
+	_delay_ms(1000);
+	setMotors(-800,-800);
+	_delay_ms(1000);
+	setMotors(-800,0);
+	_delay_ms(1000);
+	setMotors(0,0);
+	_delay_ms(1000);
+	setMotors(800,800);
+	_delay_ms(1000);
+	setMotors(-800,-800);
+	_delay_ms(1000);
+	setMotors(800,800);
+	_delay_ms(1000);
+	setMotors(0,0);
+}
+/*int main2(void)
 {
 	m_clockdivide(0);
 	sei();
@@ -143,6 +169,6 @@ int main(void)
 		//behavior code
 
 		//move towards desired pose if allowed by game state
-		*/
+		*//*
 	}
-}
+}*/
