@@ -30,7 +30,8 @@ void goal(uint8_t teamID, uint8_t redScore, uint8_t blueScore);
 #define gameover() sendAllByte(0xA7)
 #define enemyPositions(packet) sendAll(packet)
 
-volatile uint8_t newPacket = 0;
+volatile bool newPacket = 0;
+
 int main(void)
 {
     m_rf_open(1,CONTROLLER_ADDR, 10);
@@ -39,12 +40,28 @@ int main(void)
 	m_green(ON);
 	
 	uint8_t usbIndex = 0;
-	uint8_t usbBuffer[100];
+	uint8_t usbBuffer[13];
 	while (1){
 		if(m_usb_rx_available()){
-			usbBuffer[usbIndex++] = m_usb_rx_char();
-			if(usbIndex>=100)
-				usbIndex=0;
+			uint8_t data = m_usb_rx_char();
+			usbBuffer[usbIndex] = data;
+			if((usbIndex == 0 && data == 0xFF )||(usbIndex == 1 && data == 0x00 ) || usbIndex > 1)
+				usbIndex++;
+			if(usbIndex == 13){
+				usbIndex = 0;
+				switch(usbBuffer[2]){
+					case R1_ADDR:
+					case R2_ADDR:
+					case R3_ADDR:
+						m_rf_send(usbBuffer[2], usbBuffer+3,10);
+						break;
+					case 0xFF:
+						m_rf_send(R1_ADDR, usbBuffer+3,10);
+						m_rf_send(R2_ADDR, usbBuffer+3,10);
+						m_rf_send(R3_ADDR, usbBuffer+3,10);
+						break;
+				}
+			}
 		}
 		else if(newPacket){
 			newPacket = 0;

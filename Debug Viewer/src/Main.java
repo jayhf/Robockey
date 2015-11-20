@@ -63,6 +63,7 @@ public class Main {
 				}
 			});
 			robotConnection.start();
+			gui.addConnection(robotConnection);
 		}
 		catch(IllegalArgumentException e){
 			System.out.println(e.getMessage());

@@ -3,9 +3,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Function;
 
 import javax.swing.JOptionPane;
@@ -18,6 +20,7 @@ public class RobotCommunicationThread extends Thread {
 	private CommPort port;
 	private OutputStream out;
 	private Function<Byte,Robot> robotFunction;
+	private ConcurrentLinkedDeque<byte[]> sendBuffer = new ConcurrentLinkedDeque<>();
 	public RobotCommunicationThread(Function<Byte,Robot> robotFunction) throws PortInUseException, IOException {
 		this.robotFunction = robotFunction;
 		super.setDaemon(true);
@@ -71,6 +74,11 @@ public class RobotCommunicationThread extends Thread {
 								robot.receivedDebugMessage(buffer);
 						}
 					}
+					else if(!sendBuffer.isEmpty()){
+						byte[] buffer = sendBuffer.pop();
+						out.write(buffer);
+						System.out.println("Sent "+Arrays.toString(buffer));
+					}
 					else
 						Thread.yield();
 				}
@@ -78,5 +86,17 @@ public class RobotCommunicationThread extends Thread {
 				e.printStackTrace();
 			}
 		}
+	}
+	public void sendMessage(byte[] buffer) {
+		// TODO Auto-generated method stub
+		
+	}
+	public void sendGameCommand(GameCommand command) {
+		byte data[] = new byte[13];
+		Arrays.fill(data, command.getCommand());
+		data[0] = (byte) 0xFF;
+		data[1] = (byte) 0x00;
+		data[2] = (byte) 0xFF;
+		sendBuffer.push(data);
 	}
 }

@@ -2,9 +2,14 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyListener;
+import java.util.Arrays;
 
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 
 public class GUI {
 	private Rink rink;
@@ -30,5 +35,17 @@ public class GUI {
 
 	public void refresh() {
 		rink.repaint();
+	}
+	public void addConnection(RobotCommunicationThread robotConnection) {
+		JMenuBar menuBar = new JMenuBar();
+		JMenu gameCommands = new JMenu("Game Commands");
+		for(GameCommand command:GameCommand.values()){
+			JMenuItem menuItem = new JMenuItem(command.toString());
+			menuItem.addActionListener((ActionEvent e)->robotConnection.sendGameCommand(GameCommand.COMM_TEST));
+			gameCommands.add(menuItem);
+		}
+		menuBar.add(gameCommands);
+		frame.add(menuBar);
+		frame.pack();
 	}
 }
