@@ -30,14 +30,14 @@ bool allowedToMove(){
 }
 
 Robot getThisRobot(){
-	switch(switchPosition()){
+	/*switch(switchPosition()){
 		case SwitchPosition::DOWN:
 			return Robot::ROBOT1;
 		case SwitchPosition::MIDDLE:
 			return Robot::ROBOT2;
 		case SwitchPosition::UP:
 			return Robot::ROBOT3;
-	}
+	}*/
 	return Robot::ROBOT1;
 }
 
@@ -64,7 +64,6 @@ void determineTeam(){
 		else if(robotPose.x < XMIN/2)
 			team = Team::RED;
 	}
-	
 }
 
 void updateGameState(GameState state){

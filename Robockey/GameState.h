@@ -7,7 +7,7 @@ enum class GameState : uint8_t{
 };
 
 enum class Robot : uint8_t{
-	CONTROLLER = 0, ROBOT1 = 1, ROBOT2 = 2, ROBOT3 = 3
+	CONTROLLER = 84, ROBOT1 = 85, ROBOT2 = 86, ROBOT3 = 87
 };
 
 enum class Team : uint8_t{

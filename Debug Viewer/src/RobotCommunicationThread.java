@@ -32,6 +32,7 @@ public class RobotCommunicationThread extends Thread {
 		}
 		if(serialPorts.size() == 1){
 			this.port = serialPorts.get(0).open("Robockey", 2000);
+			System.out.println("Connected to "+this.port);
 		}
 		else if(serialPorts.size() > 1){
 			Object selection = JOptionPane.showInputDialog(null, "Select a COM port", "COM Port Selection", JOptionPane.QUESTION_MESSAGE, null, serialPorts.toArray(), serialPorts.get(0));

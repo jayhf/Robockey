@@ -40,8 +40,8 @@ public class RobotTest {
 	private static short[] transformStars(double x, double y, double o){
 		double data[][] = {{0,14.5},{0,-14.5},{-11.655,8.741},{10.563,2.483}};
 		for(int i=0;i<data.length;i++){
-			data[i][0]=x+data[i][0]*100/28.3;
-			data[i][1]=y+data[i][1]*100/28.3;
+			data[i][0]=x+data[i][0]*95/28.3;
+			data[i][1]=y+data[i][1]*95/28.3;
 		}
 		short[] result = new short[12];
 		for(int i=0;i<4;i++){

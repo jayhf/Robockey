@@ -14,7 +14,8 @@ void initWireless(){
 
 void sendPacket(Robot robot, uint8_t messageID, uint8_t *packet){
 	packet[0]=static_cast<uint8_t>(getThisRobot());
-	m_rf_send(84 + static_cast<uint8_t>(robot), (char*)packet, 10);
+	packet[1]=messageID;
+	m_rf_send(static_cast<uint8_t>(robot), (char*)packet, 10);
 }
 
 void sendRobotLocation(){

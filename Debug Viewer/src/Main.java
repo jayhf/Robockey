@@ -56,7 +56,7 @@ public class Main {
 		try{
 			RobotCommunicationThread robotConnection = new RobotCommunicationThread((Byte id)->{
 				switch(id){
-					case 1:
+					case 85:
 						return robots[0];
 					default:
 						return null;
@@ -67,7 +67,7 @@ public class Main {
 		catch(IllegalArgumentException e){
 			System.out.println(e.getMessage());
 		}
-		File file = new File("C:/Users/Jay/Dropbox/Penn/Sophomore Year/Mechatronics/Robockey/Localization/Calibration Data/Full Circle 2.csv");
+		/*File file = new File("C:/Users/Jay/Dropbox/Penn/Sophomore Year/Mechatronics/Robockey/Localization/Calibration Data/Full Circle 2.csv");
 		Scanner s = new Scanner(file);
 		while(s.hasNext()){
 			String[] line = s.nextLine().split(",");
@@ -79,7 +79,7 @@ public class Main {
 			Thread.sleep(100);
 		}
 		gui.refresh();
-		s.close();
+		s.close();*/
 		/*KeyboardController controller = new KeyboardController(VK_UP,VK_DOWN,VK_LEFT,VK_RIGHT);
 		robot.addController(controller);
 
@@ -108,6 +108,10 @@ public class Main {
 			Thread.sleep(sleep);
 		}*/
 		//System.out.printf("(%d,%d)", location[0],location[1]);
+		while(true){
+			gui.refresh();
+			Thread.sleep(100);
+		}
 	}
 
 	public static short[] reformatIRData(short[] s) {

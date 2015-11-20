@@ -5,11 +5,13 @@
  * Author : Jay
  */ 
 
+#define F_CPU 16000000
 #define CONTROLLER_ADDR 84
 #define R1_ADDR 85
 #define R2_ADDR 86
 #define R3_ADDR 87
 
+#include <util/delay.h>
 extern "C"{
 	#include "m_general.h"
 	#include "m_rf.h"
@@ -31,22 +33,26 @@ void goal(uint8_t teamID, uint8_t redScore, uint8_t blueScore);
 volatile uint8_t newPacket = 0;
 int main(void)
 {
-    m_rf_open(1,CONTROLLER_ADDR, 32);
+    m_rf_open(1,CONTROLLER_ADDR, 10);
 	m_usb_init();
 	
-	m_green();
+	m_green(ON);
 	
 	uint8_t usbIndex = 0;
 	uint8_t usbBuffer[100];
 	while (1){
 		if(m_usb_rx_available()){
 			usbBuffer[usbIndex++] = m_usb_rx_char();
-			
+			if(usbIndex>=100)
+				usbIndex=0;
 		}
 		else if(newPacket){
 			newPacket = 0;
-			uint8_t rfBuffer[32];
-			for(int i=0;i<32;i++)
+			uint8_t rfBuffer[10];
+			m_rf_read((char*)rfBuffer,10);
+			m_usb_tx_char(0xFF);
+			m_usb_tx_char(0x00);
+			for(int i=0;i<10;i++)
 				m_usb_tx_char(rfBuffer[i]);
 			m_usb_tx_push();
 		}
@@ -55,7 +61,7 @@ int main(void)
 
 void sendAll(uint8_t *packet){
 	for(int i=0;i<3;i++)
-		m_rf_send(R1_ADDR+i, packet, 10);
+		m_rf_send(R1_ADDR+i, (char*)packet, 10);
 }
 void sendAllByte(uint8_t value){
 	uint8_t packet[10] = {value, value, value, value, value, value, value, value, value, value};
@@ -68,5 +74,6 @@ void goal(uint8_t teamID, uint8_t redScore, uint8_t blueScore){
 }
 
 ISR(INT2_vect){
+	m_red(TOGGLE);
 	newPacket = 1;
 }

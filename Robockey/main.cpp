@@ -9,6 +9,7 @@
 #include "../Simulator/m_general.h"
 #else
 #define F_CPU 16000000
+#include <util/delay.h>
 #include "m_general.h"
 #endif
 
@@ -19,7 +20,7 @@
 #include "wireless.h"
 #include "ADC.h"
 extern "C"{
-	#include "m_usb.h"
+	//#include "m_usb.h"
 	#include "m_wii.h"
 }
 
@@ -27,18 +28,23 @@ int main(void)
 {
 	m_clockdivide(0);
 	sei();
-	initDigital();
-	initClock();
+	//initDigital();
+	//initClock();
 	initADC();
 	initWireless();
-	initLocalization();
+	//initLocalization();
 	
-	m_usb_init();
+	//m_usb_init();
 	
-	uint8_t batteryLowCount = 0;
-	setEnabled(true);
+	m_green(ON);
+	//uint8_t batteryLowCount = 0;
+	//setEnabled(true);
 	while (1) {
+		m_red(TOGGLE);
 		beginADC();
+		while(!adcUpdateCompleted());
+		sendIR();
+		_delay_ms(100);
 		//test code for localize
 		/*
 		uint16_t blobs[12];
