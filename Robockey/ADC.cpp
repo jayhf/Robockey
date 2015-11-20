@@ -1,7 +1,7 @@
 ﻿#include "ADC.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
-
+#include "m_general.h"
 volatile bool updateCompleted;
 
 Resistor irResistor;
@@ -26,9 +26,13 @@ void initADC(){
 	DDRB |= 0b111111;
 	//Enable ADC interrupts
 	ADCSRA |= 1 << ADIE;
+	//Enable the ADC
+	ADCSRA |= 1 << ADEN;
 	
 	beginADC();
-	//while(!updateCompleted);
+	while(!updateCompleted){
+		
+	}
 }
 
 void beginADC(){
@@ -53,13 +57,17 @@ ISR(ADC_vect){
 	ADMUX &= ~(0b111 << MUX0);
 	switch(currentIndex){
 		case 0:
-			irValues[selectedIR++] = ADC;
+			irValues[selectedIR] = ADC;
+			selectedIR = (selectedIR+1) & 0b1111;
 			if(selectedIR != 0){
+				m_green(ON);
 				PORTB = (PORTB & (~0b1111)) | selectedIR;
-				selectedIR &= 0xF;
 				break;
 			}
-			else goto defaultCase;
+			else {
+				m_red(ON);
+				goto defaultCase;
+			}
 		case 1:
 			switchValue = ADC;
 			ADMUX |= 0 << MUX0;
@@ -82,6 +90,7 @@ ISR(ADC_vect){
 			break;
 		defaultCase:
 		default:
+			m_red(OFF);
 			updateCompleted = true;
 			ADMUX |= 7 << MUX0;
 			return;
