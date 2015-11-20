@@ -63,8 +63,9 @@ int main(void)
 		*/
 		
 		sendRobotLocation();
-		if(i<200){
-		facePose(Pose(0,0,0),getRobotPose());
+		if(i<400){
+			goToPositionSpin(Pose(0,0,0),getRobotPose());
+		//facePose(Pose(0,0,0),getRobotPose());
 		m_wait(15);
 		i++;
 		}

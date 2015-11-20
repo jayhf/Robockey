@@ -10,6 +10,7 @@
 #include "PathPlanning.h"
 #include "Digital.h"
 #include "BAMSMath.h"
+#include "time.h"
 extern "C"{
 	#include "m_usb.h"
 	};
@@ -19,6 +20,7 @@ int16_t deltaDistance = 0;
 int16_t lastTheta = 0;
 angle integralTheta = 0;
 Pose lastPose = getRobotPose();
+uint16_t time2=0;
 
 void goToPosition(Pose target, Pose current, bool faceForward);
 void goToPositionSpin(Pose target, Pose current);
@@ -102,14 +104,19 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 
 void goToPositionSpin(Pose target, Pose current){
 	if(!facingPose(target, current)){
+		m_green(0);
 		facePose(target,current);
 	}
 	else{
+		m_green(1);
+		//setMotors(800,800);
+	/*
 		if((current.x > target.x + 5 || current.x < target.x - 5) && (current.y > target.y + 5 || current.y < target.y - 5)){
 			int16_t deltaX = current.x - target.x;
 			int16_t deltaY = current.y - target.y;
 			int16_t distance = sqrt(deltaX*deltaX + deltaY*deltaY);
-			int16_t x = 5 * distance + 1 * distance - lastDistance;
+			int16_t x = MIN(800,3 * distance - 1 * distance - lastDistance);
+			setMotors(x,x);
 		}
 		else{//reset PID terms
 			lastDistance = 0;
@@ -117,6 +124,7 @@ void goToPositionSpin(Pose target, Pose current){
 			lastTheta = 0;
 			integralTheta = 0;
 		}
+		*/
 	}
 }
 
@@ -132,17 +140,20 @@ bool facingPose(Pose target, Pose current){
 }
 
 void facePose(Pose target, Pose current){
-	//if(!facingPose(target,current)){
+	uint16_t time1 = getTime();
+	if(!facingPose(target,current)){
 		int16_t deltaX = current.x - target.x;
 		int16_t deltaY = current.y - target.y;
 		angle o = atan2b(-deltaY,-deltaX);
-		uint16_t x = 10 * abs((current.o - o)) + 2 * abs((current.o - lastPose.o));
-		if(current.o > o){
+		uint16_t deltaTime = time1-time2;
+		uint16_t x = MIN(800,0.5 * abs((current.o - o)) - 0.5 * abs((current.o - lastPose.o)/deltaTime));
+		if(current.o - o > 0){
 			setMotors(-x,x);
 		}
-		else if(current.o < o){
+		else if(current.o - o < 0){
 			setMotors(x,-x);
 		}
-	//}
+	}
 	lastPose = current;
+	time2=time1;
 }

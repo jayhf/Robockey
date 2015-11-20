@@ -10,6 +10,7 @@
 #include "Localization.h"
 
 void goToPosition(Pose target, Pose current, bool faceForward);
+void goToPositionSpin(Pose target, Pose current);
 void goToPositionPuck(Pose target, Pose current);
 
 
