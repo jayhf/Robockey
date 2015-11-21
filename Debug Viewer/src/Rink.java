@@ -162,4 +162,10 @@ public class Rink extends JComponent{
 	public void addRobot(Robot robot) {
 		robots.add(robot);
 	}
+
+	public void clean() {
+		for(Robot robot:robots){
+			robot.clean();
+		}
+	}
 }

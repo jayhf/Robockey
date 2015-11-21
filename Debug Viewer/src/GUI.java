@@ -45,7 +45,12 @@ public class GUI {
 			gameCommands.add(menuItem);
 		}
 		menuBar.add(gameCommands);
-		frame.add(menuBar);
+		JMenu viewerOptions = new JMenu("Viewer Options");
+		JMenuItem clearPaths = new JMenuItem("Clear Paths");
+		clearPaths.addActionListener((ActionEvent e)->rink.clean());
+		viewerOptions.add(clearPaths);
+		menuBar.add(viewerOptions);
+		frame.add(menuBar,BorderLayout.NORTH);
 		frame.pack();
 	}
 }

@@ -15,7 +15,7 @@ public class Robot {
 	private Pose pose;
 	private RobotController controller = null;
 	private Team team;
-	private Path2D path = new Path2D.Double();
+	private volatile Path2D path = new Path2D.Double();
 	private List<Line2D> directions = new ArrayList<>();
 	public Robot(Pose pose, Team team) {
 		this.pose = pose;
@@ -32,7 +32,9 @@ public class Robot {
 			g.draw(line);
 		}
 		g.setColor(color);
-		g.draw(path);
+		synchronized(path){
+			g.draw(path);
+		}
 	}
 	
 	private RobotController.ControlParameters controls = new RobotController.ControlParameters(0,0);
@@ -269,11 +271,13 @@ public class Robot {
 
 	}
 	public void moveTo(Pose pose){
-		this.pose = pose;
-		if(path.getCurrentPoint()==null)
-			path.moveTo(pose.x, pose.y);
-		else
-			path.lineTo(pose.x, pose.y);
+		synchronized(path){
+			this.pose = pose;
+			if(path.getCurrentPoint()==null)
+				path.moveTo(pose.x, pose.y);
+			else
+				path.lineTo(pose.x, pose.y);
+			}
 		synchronized (directions) {
 			directions.add(new Line2D.Double(pose.x, pose.y, pose.x+7.5*Math.cos(pose.o), pose.y+7.5*Math.sin(pose.o)));
 		}
@@ -310,16 +314,29 @@ public class Robot {
 		switch(id){
 			case 0x10:
 				moveTo(new Pose(buffer.getShort(),buffer.getShort(),buffer.getShort()*Math.PI/32768));
+				break;
 			case 0x11:
 				System.out.print("ADC "+id+": [");
 				for(int i=0;i<8;i++){
 					System.out.print(((0xFF&buffer.get())<<2)+",");
 				}
+				break;
 			case 0x12:
 				for(int i=0;i<8;i++){
 					System.out.print(((0xFF&buffer.get())<<2)+",");
 				}
 				System.out.print("]");
+				break;
+		}
+	}
+	public void clean() {
+		synchronized(path){
+			Path2D newPath = new Path2D.Double();
+			newPath.moveTo(pose.x, pose.y);
+			path = newPath;
+		}
+		synchronized(directions){
+			directions.clear();
 		}
 	}
 	

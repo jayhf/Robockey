@@ -53,12 +53,12 @@ int main(void)
 					case R1_ADDR:
 					case R2_ADDR:
 					case R3_ADDR:
-						m_rf_send(usbBuffer[2], usbBuffer+3,10);
+						m_rf_send(usbBuffer[2], (char*)(usbBuffer+3),10);
 						break;
 					case 0xFF:
-						m_rf_send(R1_ADDR, usbBuffer+3,10);
-						m_rf_send(R2_ADDR, usbBuffer+3,10);
-						m_rf_send(R3_ADDR, usbBuffer+3,10);
+						m_rf_send(R1_ADDR, (char*)(usbBuffer+3),10);
+						m_rf_send(R2_ADDR, (char*)(usbBuffer+3),10);
+						m_rf_send(R3_ADDR, (char*)(usbBuffer+3),10);
 						break;
 				}
 			}

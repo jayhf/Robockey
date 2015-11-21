@@ -17,7 +17,7 @@ public class Logger {
 	private PrintStream log;
 	public Logger(){
 		Date date = new Date(System.currentTimeMillis());
-		DateFormat format = new SimpleDateFormat("mm-dd-yy HH.mm.ss");
+		DateFormat format = new SimpleDateFormat("MM-dd-yy HH.mm.ss");
 		logFile = new File("../../Logs/log "+format.format(date)+".csv");
 		try {
 			logFile.createNewFile();
