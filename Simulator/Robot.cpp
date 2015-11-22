@@ -10,6 +10,10 @@
 #include "../Robockey/Localization.h"
 #include <math.h>
 #include <stdio.h>
+#include "../Robockey/Digital.h"
+#include "jni_utils.h"
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
 JNIEXPORT void JNICALL Java_Robot_mWiiUpdate
   (JNIEnv *env, jclass, jshortArray data, jshortArray location){
@@ -37,7 +41,15 @@ JNIEXPORT void JNICALL Java_Robot_mWiiUpdate
 	env->ReleaseShortArrayElements(location,result,NULL);*/
 }
 
-/*JNIEXPORT void JNICALL Java_Robot_run
-  (JNIEnv *, jobject){
-	main();
-}*/
+JNIEXPORT void JNICALL Java_Robot_run
+  (JNIEnv *env, jobject robot){
+	setJNIEnv(env);
+	setRobot(robot);
+	LEDColor color = LEDColor::BLUE;
+	while(1){
+		setLED(color);
+		Sleep(1000);
+		//color = static_cast<LEDColor>((1+static_cast<uint8_t>(color))%4);
+	}
+	//main();
+}

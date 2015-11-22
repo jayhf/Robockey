@@ -16,6 +16,7 @@ void sendPacket(Robot robot, uint8_t messageID, uint8_t *packet){
 	packet[0]=static_cast<uint8_t>(getThisRobot());
 	packet[1]=messageID;
 	m_rf_send(static_cast<uint8_t>(robot), (char*)packet, 10);
+	_delay_us(50000);
 }
 
 void sendRobotLocation(){
@@ -41,6 +42,12 @@ void sendIR(){
 	sendPacket(Robot::CONTROLLER, 0x12, buffer);
 }
 
+void sendBattery(){
+	uint8_t buffer[10];
+	buffer[2] = getBattery() >> 8;
+	buffer[3] = getBattery() & 0xFF;
+	sendPacket(Robot::CONTROLLER, 0x13, buffer);
+}
 ISR(INT2_vect){
 	uint8_t buffer[10];
 	m_rf_read((char*)buffer,10);

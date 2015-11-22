@@ -41,7 +41,7 @@ public class GUI {
 		JMenu gameCommands = new JMenu("Game Commands");
 		for(GameCommand command:GameCommand.values()){
 			JMenuItem menuItem = new JMenuItem(command.toString());
-			menuItem.addActionListener((ActionEvent e)->robotConnection.sendGameCommand(GameCommand.COMM_TEST));
+			menuItem.addActionListener((ActionEvent e)->robotConnection.sendGameCommand(command));
 			gameCommands.add(menuItem);
 		}
 		menuBar.add(gameCommands);

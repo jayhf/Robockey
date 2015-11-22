@@ -8,4 +8,10 @@ public class Pose {
 		this.y = y;
 		this.o = o;
 	}
+
+	@Override
+	public String toString() {
+		return "Pose [x=" + x + ", y=" + y + ", o=" + o + "]";
+	}
+	
 }

@@ -17,9 +17,13 @@ public class Robot {
 	private Team team;
 	private volatile Path2D path = new Path2D.Double();
 	private List<Line2D> directions = new ArrayList<>();
+	private int[] lastIRData = new int[16];
+	private volatile Color ledColor = new Color(0, true);
 	public Robot(Pose pose, Team team) {
 		this.pose = pose;
 		this.team = team;
+		Thread robotThread = new Thread(()->run());
+		robotThread.start();
 	}
 	private Color color = Color.getHSBColor((float) Math.random(), 1, 1);
 	public void paint(Graphics2D g){
@@ -29,12 +33,20 @@ public class Robot {
 		g.draw(new Line2D.Double(pose.x, pose.y, pose.x+7.5*Math.cos(pose.o), pose.y+7.5*Math.sin(pose.o)));
 		synchronized (directions) {
 			for(Line2D line:directions)
-			g.draw(line);
+				g.draw(line);
 		}
 		g.setColor(color);
 		synchronized(path){
 			g.draw(path);
 		}
+		for(int i=0;i<16;i++){
+			g.setColor(new Color((Color.ORANGE.getRGB()&0xFFFFFF)|(((lastIRData[i]>>2)&0xFF)<<24),true));
+			double x = pose.x + 7.5*Math.cos(pose.o+Math.PI*(i-7.5)/8);
+			double y = pose.y + 7.5*Math.sin(pose.o+Math.PI*(i-7.5)/8);
+			g.fill(new Ellipse2D.Double(x-1.5, y-1.5, 3, 3));
+		}
+		g.setColor(ledColor);
+		g.fill(new Ellipse2D.Double(pose.x-2, pose.y-2, 4, 4));
 	}
 	
 	private RobotController.ControlParameters controls = new RobotController.ControlParameters(0,0);
@@ -303,9 +315,28 @@ public class Robot {
 	}
 	
 	public void updateCommands() {
+		System.out.println("A"+controller);
 		controls = controller.getControlParameters();
 	}
-	
+	public void setLED(int value){
+		if(Math.random()>0)
+			return;
+		switch(value){
+			case 1:
+				ledColor = new Color(255, 128, 128);
+				break;
+			case 2:
+				ledColor = new Color(0, 255, 255);
+				break;
+			case 3:
+				ledColor = new Color(255, 0, 255);
+				break;
+			case 0:
+			default:
+				ledColor = new Color(0,true);
+				break;
+		}
+	}
 	public Team getTeam() {
 		return team;
 	}
@@ -314,18 +345,30 @@ public class Robot {
 		switch(id){
 			case 0x10:
 				moveTo(new Pose(buffer.getShort(),buffer.getShort(),buffer.getShort()*Math.PI/32768));
+				//System.out.println(getPose());
 				break;
 			case 0x11:
 				System.out.print("ADC "+id+": [");
 				for(int i=0;i<8;i++){
-					System.out.print(((0xFF&buffer.get())<<2)+",");
+					lastIRData[i]=((0xFF&buffer.get())<<2);
+					System.out.print(lastIRData[i]+",");
 				}
 				break;
 			case 0x12:
 				for(int i=0;i<8;i++){
-					System.out.print(((0xFF&buffer.get())<<2)+",");
+					lastIRData[i+8]=((0xFF&buffer.get())<<2);
+					System.out.print(lastIRData[i+8]+",");
 				}
-				System.out.print("]");
+				System.out.print("]\n");
+				break;
+			case 0x13:
+				System.out.println("Battery: "+buffer.getShort());
+				break;
+			case 0x20:
+				System.out.print("Angle: "+(buffer.getShort()*180/32768+'\t'));
+				System.out.print(" Distance: "+buffer.getShort()+'\t');
+				System.out.print("("+((buffer.get())<<3)+","+((buffer.get())<<3)+")");
+				System.out.println(" ("+buffer.get()+","+buffer.get()+")");
 				break;
 		}
 	}

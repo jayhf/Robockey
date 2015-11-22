@@ -31,3 +31,4 @@ Resistor operator--(Resistor &r, int);
 
 Resistor getSelectedResistor();
 uint16_t* getIRData();
+uint16_t getBattery();

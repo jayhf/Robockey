@@ -15,6 +15,10 @@ extern "C"{
 	#include "m_usb.h"
 	};
 
+
+//TODO get rid of this:
+#include "GameState.h"
+#include "wireless.h"
 int16_t lastDistance = 0;
 int16_t deltaDistance = 0;
 int16_t lastTheta = 0;
@@ -24,7 +28,33 @@ uint16_t time2=0;
 
 void goToPosition(Pose target, Pose current, bool faceForward);
 void goToPositionSpin(Pose target, Pose current);
-
+void goTo(Pose target, Pose current){
+	Pose relativeTarget = target - current;
+	angle targetAngle = atan2b(relativeTarget.y, relativeTarget.x) - current.o;
+	int16_t d = relativeTarget.x * relativeTarget.x + relativeTarget.y * relativeTarget.y;
+	//if(d<36){
+		//setMotors(0,0);
+	//	return;
+	//}
+	bool flipControls = targetAngle >= 0;
+	targetAngle = abs(targetAngle);
+	int16_t left = MIN(400,d);
+	int16_t right = left*cosb(targetAngle);
+	//if(flipControls)
+		//setMotors(left,right);
+	//else
+		//setMotors(right,left);
+	uint8_t packet[10];
+	packet[2] = targetAngle >> 8;
+	packet[3] = targetAngle &0xFF;
+	packet[4] = d >> 8;
+	packet[5] = d &0xFF;
+	packet[6] = right>>3;//(flipControls?right:left) >> 3;
+	packet[7] = left>>3;//(flipControls?left:right) >> 3;
+	packet[8] = relativeTarget.x&0xFF;
+	packet[9] = relativeTarget.y&0xFF;
+	sendPacket(Robot::CONTROLLER, 0x20, packet);
+}
 ///Switch to using the Pose class (see Localization.h)
 void goToPosition(Pose target, Pose current, bool faceForward){
 	if((current.x > target.x + 5 || current.x < target.x - 5) && (current.y > target.y + 5 || current.y < target.y - 5)){ //if not within 5 pixels in both x and y

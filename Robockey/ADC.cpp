@@ -1,6 +1,7 @@
 ﻿#include "ADC.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#define F_CPU 16000000
 #include "m_general.h"
 volatile bool updateCompleted;
 
@@ -20,8 +21,12 @@ bool adcUpdateCompleted(){
 void initADC(){
 	//Set the ADC clock prescaler
 	ADCSRA |= 0b111 << ADPS0;
+	//Set the analog reference
+	ADMUX |= 0b01 << REFS0;
 	//Disable the digital inputs on the analog pins
 	DIDR0 = 0b10110011;
+	//Disable pull up resistors
+	PORTF &= 0b00001100;
 	//Enable the mux pins
 	DDRB |= 0b111111;
 	//Enable ADC interrupts
@@ -44,57 +49,58 @@ void beginADC(){
 	uint16_t maxValue = 0;
 	for(uint8_t i=0;i<16;i++)
 		maxValue = maxValue > irValues[i] ? maxValue : irValues[i];
-	if(maxValue>800)
+	if(maxValue>900)
 		irResistor--;
-	else if(maxValue<200)
+	else if(maxValue<175)
 		irResistor++;
 	PORTB = (PORTB & (~0b11 << 4)) | (static_cast<uint8_t>(irResistor) << 4);
 }
 
 ISR(ADC_vect){
 	static uint8_t selectedIR = 0;
-	uint8_t currentIndex = (ADMUX >> MUX0) & 0b111;
-	ADMUX &= ~(0b111 << MUX0);
-	switch(currentIndex){
-		case 0:
-			irValues[selectedIR] = ADC;
-			selectedIR = (selectedIR+1) & 0b1111;
-			if(selectedIR != 0){
-				m_green(ON);
-				PORTB = (PORTB & (~0b1111)) | selectedIR;
+	static bool badReading = 1;
+	if(!badReading){
+		uint8_t currentIndex = (ADMUX >> MUX0) & 0b111;
+		ADMUX &= ~(0b111 << MUX0);
+		switch(currentIndex){
+			case 0:
+				irValues[selectedIR] = ADC;
+				selectedIR = (selectedIR+1) & 0b1111;
+				if(selectedIR != 0){
+					PORTB = (PORTB & (~0b1111)) | selectedIR;
+					break;
+				}
+				else
+					goto defaultCase;
+			case 1:
+				switchValue = ADC;
+				ADMUX |= 0 << MUX0;
 				break;
-			}
-			else {
-				m_red(ON);
-				goto defaultCase;
-			}
-		case 1:
-			switchValue = ADC;
-			ADMUX |= 0 << MUX0;
-			break;
-		case 4:
-			rightMotor = ADC;
-			ADMUX |= 1 << MUX0;
-			break;
-		case 5:
-			leftMotor = ADC;
-			ADMUX |= 4 << MUX0;
-			break;
-		case 6:
-			battery = ADC;
-			ADMUX |= 5 << MUX0;
-			break;
-		case 7:
-			boost = ADC;
-			ADMUX |= 6 << MUX0;
-			break;
-		defaultCase:
-		default:
-			m_red(OFF);
-			updateCompleted = true;
-			ADMUX |= 7 << MUX0;
-			return;
+			case 4:
+				rightMotor = ADC;
+				ADMUX |= 1 << MUX0;
+				break;
+			case 5:
+				leftMotor = ADC;
+				ADMUX |= 4 << MUX0;
+				break;
+			case 6:
+				battery = ADC;
+				ADMUX |= 5 << MUX0;
+				break;
+			case 7:
+				boost = ADC;
+				ADMUX |= 6 << MUX0;
+				break;
+			defaultCase:
+			default:
+				m_red(OFF);
+				updateCompleted = true;
+				ADMUX |= 7 << MUX0;
+				return;
+		}
 	}
+	badReading = !badReading;
 	//Start next conversion
 	ADCSRA |= 1 << ADSC;
 }
@@ -134,7 +140,7 @@ uint16_t* getIRData(){
 
 Resistor& operator++(Resistor &r){
 	if(r==Resistor::R330K)
-	return r;
+		return r;
 	return r = static_cast<Resistor>(static_cast<uint8_t>(r)+1);
 }
 Resistor operator++(Resistor &r, int){
@@ -144,11 +150,15 @@ Resistor operator++(Resistor &r, int){
 }
 Resistor& operator--(Resistor &r){
 	if(r==Resistor::R1K)
-	return r;
+		return r;
 	return r = static_cast<Resistor>(static_cast<uint8_t>(r)-1);
 }
 Resistor operator--(Resistor &r, int){
 	Resistor result = r;
 	--r;
 	return result;
+}
+
+uint16_t getBattery(){
+	return battery;
 }

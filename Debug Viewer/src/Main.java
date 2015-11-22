@@ -82,13 +82,13 @@ public class Main {
 		gui.refresh();
 		s.close();*/
 		/*KeyboardController controller = new KeyboardController(VK_UP,VK_DOWN,VK_LEFT,VK_RIGHT);
-		robot.addController(controller);
+		robots[0].addController(controller);
 
-		KeyboardController controller2 = new KeyboardController(VK_W,VK_S,VK_A,VK_D);
-		robot2.addController(controller2);
+		//KeyboardController controller2 = new KeyboardController(VK_W,VK_S,VK_A,VK_D);
+		//robot2.addController(controller2);
 		
 		gui.addKeyListener(controller);
-		gui.addKeyListener(controller2);
+		//gui.addKeyListener(controller2);
 		gui.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e){

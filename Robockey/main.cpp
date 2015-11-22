@@ -22,12 +22,13 @@
 #include "PathPlanning.h"
 #include "BAMSMath.h"
 extern "C"{
-	#include "m_usb.h"
+	//#include "m_usb.h"
 	#include "m_wii.h"
 }
 int main(void)
 {
 	m_clockdivide(0);
+	m_disableJTAG();
 	sei();
 	
 	initDigital();
@@ -36,16 +37,18 @@ int main(void)
 	initWireless();
 	initLocalization();
 	
-	m_usb_init();
+	//m_usb_init();
 
 	//uint8_t batteryLowCount = 0;
 	setEnabled(true);
 	int i = 0;
-	uint16_t blobs[12]={0,0,0,0,0,0,0,0,0,0,0,0};
+	//uint16_t blobs[12]={0,0,0,0,0,0,0,0,0,0,0,0};
 	#define OFF 0
 	while (1) {
 		//beginADC();
-		
+		//while(!adcUpdateCompleted());
+		m_red(TOGGLE);
+		_delay_ms(100);
 		localizeRobot();
 		/*if (allowedToMove()){
 			m_usb_tx_int(1);
@@ -61,18 +64,21 @@ int main(void)
 		m_usb_tx_int(robot.o);
 		m_usb_tx_char('\n');
 		*/
-		
+		//sendIR();
+		//sendBattery();
 		sendRobotLocation();
+		goTo(Pose(0,0,0),getRobotPose());
 		if(i<400){
-			goToPositionSpin(Pose(0,0,0),getRobotPose());
-		//facePose(Pose(0,0,0),getRobotPose());
-		m_wait(15);
-		i++;
+			
+			//goToPositionSpin(Pose(0,0,0),getRobotPose());
+			//facePose(Pose(0,0,0),getRobotPose());
+			m_wait(15);
+			i++;
 		}
 		else setMotors(0,0);
+		m_green(allowedToMove());
 		//m_usb_tx_int(getRobotPose().o-o);
 		//m_usb_tx_char('\n');
-		
 		//m_wait(500);
 		//facePose(Pose(-52,-20,0),robot);
 		//m_usb_tx_int(static_cast<int>(facingPose(Pose(-52,-20,0),robot)));

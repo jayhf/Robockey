@@ -144,8 +144,8 @@ Pose localizeRobot(uint16_t* irData){
 	int16_t possiblePointsY[12];
 	int16_t possiblePointsO[12];
 	uint8_t possiblePointCount = 0;
-	int16_t irX[4] = {irData[0], irData[3], irData[6], irData[9]};
-	int16_t irY[4] = {irData[1], irData[4], irData[7], irData[10]};
+	uint16_t irX[4] = {irData[0], irData[3], irData[6], irData[9]};
+	uint16_t irY[4] = {irData[1], irData[4], irData[7], irData[10]};
 	if(irY[1] == 1023){
 		return Pose(1023,1023,0);
 	}
