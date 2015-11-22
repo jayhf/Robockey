@@ -25,11 +25,12 @@ int16_t lastTheta = 0;
 angle integralTheta = 0;
 Pose lastPose = getRobotPose();
 uint16_t time2=0;
+int i =0;
 
 void goToPosition(Pose target, Pose current, bool faceForward);
 void goToPositionSpin(Pose target, Pose current);
 void goTo(Pose target, Pose current){
-	Pose relativeTarget = target - current;
+	Pose relativeTarget = Pose(target.x - current.x,target.y - current.y,target.o - current.o);
 	angle targetAngle = atan2b(relativeTarget.y, relativeTarget.x) - current.o;
 	int16_t d = relativeTarget.x * relativeTarget.x + relativeTarget.y * relativeTarget.y;
 	if(d<36){
@@ -44,6 +45,7 @@ void goTo(Pose target, Pose current){
 		setMotors(left,right);
 	else
 		setMotors(right,left);
+		/*
 	uint8_t packet[10];
 	packet[2] = targetAngle >> 8;
 	packet[3] = targetAngle &0xFF;
@@ -54,6 +56,7 @@ void goTo(Pose target, Pose current){
 	packet[8] = relativeTarget.x&0xFF;
 	packet[9] = relativeTarget.y&0xFF;
 	sendPacket(Robot::CONTROLLER, 0x20, packet);
+	*/
 }
 ///Switch to using the Pose class (see Localization.h)
 void goToPosition(Pose target, Pose current, bool faceForward){
@@ -134,27 +137,25 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 
 void goToPositionSpin(Pose target, Pose current){
 	if(!facingPose(target, current)){
-		m_green(0);
 		facePose(target,current);
 	}
 	else{
-		m_green(1);
-		//setMotors(800,800);
-	/*
-		if((current.x > target.x + 5 || current.x < target.x - 5) && (current.y > target.y + 5 || current.y < target.y - 5)){
+		
+		if((current.x - target.x > 5 || current.x - target.x < -5) && (current.y - target.y > 5 || current.y - target.y < 5)){
 			int16_t deltaX = current.x - target.x;
 			int16_t deltaY = current.y - target.y;
 			int16_t distance = sqrt(deltaX*deltaX + deltaY*deltaY);
-			int16_t x = MIN(800,3 * distance - 1 * distance - lastDistance);
+			int16_t x = MAX(0,MIN(800,20 * distance - 1 * (distance - lastDistance)));
 			setMotors(x,x);
 		}
 		else{//reset PID terms
+			setMotors(0,0);
 			lastDistance = 0;
 			deltaDistance = 0;
 			lastTheta = 0;
 			integralTheta = 0;
 		}
-		*/
+		
 	}
 }
 
@@ -166,17 +167,27 @@ bool facingPose(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	angle o = atan2b(-deltaY,-deltaX);
-	return current.o < o + 250 && current.o > o - 250;
+	return current.o < o + 3000 && current.o > o - 3000;
 }
 
 void facePose(Pose target, Pose current){
+	if(i==0){
+	m_usb_init();
+	}
+	i++;
 	uint16_t time1 = getTime();
 	if(!facingPose(target,current)){
 		int16_t deltaX = current.x - target.x;
 		int16_t deltaY = current.y - target.y;
 		angle o = atan2b(-deltaY,-deltaX);
-		uint16_t deltaTime = time1-time2;
-		uint16_t x = MIN(800,0.5 * abs((current.o - o)) - 0.5 * abs((current.o - lastPose.o)/deltaTime));
+		float deltaTime = 1/(time1-time2);
+		//uint8_t buffer[10] = {0,0,(current.o-o)>>8,(current.o-o)&0xFF,(current.o-lastPose.o)>>8,(current.o-lastPose.o)&0xFF,0,0,0,0};
+		//sendPacket(Robot::CONTROLLER,0x21,buffer);
+		uint16_t x = MAX(0,MIN(800,1 * abs((current.o - o)) - 20 * abs((current.o - lastPose.o)*deltaTime)));
+		m_usb_tx_int((current.o - o));
+		m_usb_tx_char(',');
+		m_usb_tx_int((current.o - lastPose.o));
+		m_usb_tx_char('\n');
 		if(current.o - o > 0){
 			setMotors(-x,x);
 		}

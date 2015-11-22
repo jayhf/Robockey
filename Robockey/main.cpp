@@ -21,33 +21,41 @@
 #include "ADC.h"
 #include "PathPlanning.h"
 #include "BAMSMath.h"
+#define OFF 0
 extern "C"{
-	//#include "m_usb.h"
+	#include "m_usb.h"
 	#include "m_wii.h"
 }
+void qualify();
+bool startPos;
 int main(void)
 {
 	m_clockdivide(0);
 	m_disableJTAG();
 	sei();
 	
+	//m_usb_init();
+	
 	initDigital();
 	initClock();
-	initADC();
+	//initADC();
 	initWireless();
 	initLocalization();
+	m_wait(100);
+	localizeRobot();
+	startPos = getRobotPose().x >= 0;
 	
-	//m_usb_init();
+	
+	
 
 	//uint8_t batteryLowCount = 0;
 	setEnabled(true);
 	int i = 0;
-	//uint16_t blobs[12]={0,0,0,0,0,0,0,0,0,0,0,0};
-	#define OFF 0
+	//uint16_t blobs[12]={0,0,0,0,0,0,0,0,0,0,0,0
 	while (1) {
+		//m_usb_tx_int(srobot.x);
 		//beginADC();
 		//while(!adcUpdateCompleted());
-		m_red(TOGGLE);
 		//_delay_ms(100);
 		localizeRobot();
 		/*if (allowedToMove()){
@@ -66,16 +74,21 @@ int main(void)
 		*/
 		//sendIR();
 		//sendBattery();
-		sendRobotLocation();
-		if(i<400){
-			goTo(Pose(0,0,0),getRobotPose());
-			//goToPositionSpin(Pose(0,0,0),getRobotPose());
-			//facePose(Pose(0,0,0),getRobotPose());
-			//m_wait(15);
+		//m_green(TOGGLE);
+		//sendRobotLocation();
+		
+		//qualify();
+		
+		//m_wait(500);
+		
+		if(i<500){
+			goToPositionSpin(Pose(0,0,0),getRobotPose());
+			m_wait(15);
 			i++;
 		}
 		else setMotors(0,0);
-		m_green(allowedToMove());
+		
+		//m_green(allowedToMove());
 		//m_usb_tx_int(getRobotPose().o-o);
 		//m_usb_tx_char('\n');
 		//m_wait(500);
@@ -131,4 +144,12 @@ int main(void)
 		//move towards desired pose if allowed by game state
 		*/
 	}
+}
+
+void qualify(){
+	Pose robot = getRobotPose();
+	if (startPos){
+		goTo(Pose(-110,0,0),robot);
+	}
+	else goTo(Pose(110,0,0),robot);
 }
