@@ -48,7 +48,7 @@ int main(void)
 		//beginADC();
 		//while(!adcUpdateCompleted());
 		m_red(TOGGLE);
-		_delay_ms(100);
+		//_delay_ms(100);
 		localizeRobot();
 		/*if (allowedToMove()){
 			m_usb_tx_int(1);
@@ -67,12 +67,11 @@ int main(void)
 		//sendIR();
 		//sendBattery();
 		sendRobotLocation();
-		goTo(Pose(0,0,0),getRobotPose());
 		if(i<400){
-			
+			goTo(Pose(0,0,0),getRobotPose());
 			//goToPositionSpin(Pose(0,0,0),getRobotPose());
 			//facePose(Pose(0,0,0),getRobotPose());
-			m_wait(15);
+			//m_wait(15);
 			i++;
 		}
 		else setMotors(0,0);

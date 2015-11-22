@@ -38,7 +38,7 @@ void goTo(Pose target, Pose current){
 	//}
 	bool flipControls = targetAngle >= 0;
 	targetAngle = abs(targetAngle);
-	int16_t left = MIN(400,d);
+	int16_t left = MIN(800,d);
 	int16_t right = left*cosb(targetAngle);
 	//if(flipControls)
 		//setMotors(left,right);
