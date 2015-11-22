@@ -32,18 +32,18 @@ void goTo(Pose target, Pose current){
 	Pose relativeTarget = target - current;
 	angle targetAngle = atan2b(relativeTarget.y, relativeTarget.x) - current.o;
 	int16_t d = relativeTarget.x * relativeTarget.x + relativeTarget.y * relativeTarget.y;
-	//if(d<36){
-		//setMotors(0,0);
-	//	return;
-	//}
+	if(d<36){
+		setMotors(0,0);
+		return;
+	}
 	bool flipControls = targetAngle >= 0;
 	targetAngle = abs(targetAngle);
 	int16_t left = MIN(800,d);
 	int16_t right = left*cosb(targetAngle);
-	//if(flipControls)
-		//setMotors(left,right);
-	//else
-		//setMotors(right,left);
+	if(flipControls)
+		setMotors(left,right);
+	else
+		setMotors(right,left);
 	uint8_t packet[10];
 	packet[2] = targetAngle >> 8;
 	packet[3] = targetAngle &0xFF;
