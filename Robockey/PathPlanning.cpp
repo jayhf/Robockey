@@ -58,26 +58,26 @@ void goTo(Pose target, Pose current){
 }
 ///Switch to using the Pose class (see Localization.h)
 void goToPosition(Pose target, Pose current, bool faceForward){
-	if((current.x - target.x > 5 || current.x - target.x < - 5) && (current.y - target.y > 5 || current.y- target.y < - 5)){ //if not within 5 pixels in both x and y
-		int16_t deltaX = current.x - target.x;
-		int16_t deltaY = current.y - target.y;
-		int16_t distance = sqrt(deltaX*deltaX + deltaY*deltaY);
-		int16_t targetTheta = atan2b(deltaY,deltaX); //find angle towards target
+	int16_t deltaX = current.x - target.x;
+	int16_t deltaY = current.y - target.y;
+	int16_t distance = sqrt(deltaX*deltaX + deltaY*deltaY);
+	if(distance>10){ //if not within 5 pixels in both x and y
+		int16_t targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
 		angle deltaTheta = current.o - targetTheta;
 
 		uint16_t k1 = 10; //distance proportional
 		uint16_t k2 = 1; //angle proportional
-		uint16_t k3 = 1; //distance derivative
+		uint16_t k3 = 2; //distance derivative
 		uint16_t k4 = 20; //angle derivative
 		
 
 		uint16_t x = MIN(800,k1 * distance - k3 * (distance - lastDistance));
-		uint16_t y = MIN(800,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
+		uint16_t y = MIN(300,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
 		if (!faceForward){
 			if (deltaTheta < 3500 && deltaTheta > -3500){
 				setMotors(x,x); //forwards
 			}
-			else if (deltaTheta < - 3500 && deltaTheta > - 3500) {
+			else if (-deltaTheta < 3500 && -deltaTheta > 3500) {
 				setMotors(-x,-x); //backwards
 			}
 			else {
@@ -110,11 +110,11 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 				}
 				else
 				{
-					if(deltaTheta < PI && deltaTheta > 0) {
+					if(deltaTheta >0) {
 						setMotors(x-y,x); //spin cw, forwards
 					}
 					else {
-						setMotors(x,x+y); //spin ccw, forwards
+						setMotors(x,x-y); //spin ccw, forwards
 					}
 				}
 			}
@@ -137,7 +137,7 @@ void goToPositionSpin(Pose target, Pose current){
 			int16_t deltaX = current.x - target.x;
 			int16_t deltaY = current.y - target.y;
 			int16_t distance = sqrt(deltaX*deltaX + deltaY*deltaY);
-			int16_t x = MAX(0,MIN(800,10 * distance - 1 * (distance - lastDistance)));
+			int16_t x = MAX(0,MIN(800,7 * distance - 1 * (distance - lastDistance)));
 			setMotors(x,x);
 		}
 		else{//reset PID terms
@@ -153,30 +153,44 @@ void goToPositionPuck(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	int16_t distance = sqrt(deltaX*deltaX + deltaY*deltaY);
-	int16_t targetTheta = atan2b(deltaY,deltaX); //find angle towards target
-	angle deltaTheta = current.o - targetTheta;
+	if(distance>10){ //if not within 5 pixels in both x and y
+		int16_t targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
+		angle deltaTheta = current.o - targetTheta;
 
-	uint16_t k1 = 10; //distance proportional
-	uint16_t k2 = 1; //angle proportional
-	uint16_t k3 = 1; //distance derivative
-	uint16_t k4 = 20; //angle derivative
-	
+		uint16_t k1 = 5; //distance proportional
+		uint16_t k2 = 0.5; //angle proportional
+		uint16_t k3 = 1; //distance derivative
+		uint16_t k4 = 15; //angle derivative
+		
 
-	uint16_t x = MIN(800,k1 * distance - k3 * (distance - lastDistance));
-	uint16_t y = MIN(800,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
-	
-	if (distance < 40){
-		setMotors(0,0);
-	}
-	else {
-		if (deltaTheta >= 0){
-			setMotors(y,y-200);
+		uint16_t x = MIN(800,k1 * distance - k3 * (distance - lastDistance));
+		uint16_t y = MIN(100,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
+		
+		if (deltaTheta < 3500 && deltaTheta > -3500){ //if within 0.1 radians ~5* of target angle,
+			setMotors(x,x); //forwards
 		}
 		else {
-			setMotors(y-200,y);
+			if (nearWall(current)) {
+				goToPositionSpin(Pose(current.x, 0.8*current.y,current.o),current);
+			}
+			else
+			{
+				if(deltaTheta >0) {
+					setMotors(x-y,x); //spin cw, forwards
+				}
+				else {
+					setMotors(x,x-y); //spin ccw, forwards
+				}
+			}
 		}
 	}
+	else {
+		setMotors(0,0);
+		lastDistance = 0;
+		lastTheta = 0;
+	}
 }
+
 
 bool facingPose(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
