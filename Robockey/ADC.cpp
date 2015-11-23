@@ -58,8 +58,8 @@ void beginADC(){
 
 ISR(ADC_vect){
 	static uint8_t selectedIR = 0;
-	static bool badReading = 1;
-	if(!badReading){
+	//static bool badReading = 1;
+	//if(!badReading){
 		uint8_t currentIndex = (ADMUX >> MUX0) & 0b111;
 		ADMUX &= ~(0b111 << MUX0);
 		switch(currentIndex){
@@ -99,9 +99,10 @@ ISR(ADC_vect){
 				ADMUX |= 7 << MUX0;
 				return;
 		}
-	}
-	badReading = !badReading;
+	//}
+	//badReading = !badReading;
 	//Start next conversion
+	_delay_us(50);
 	ADCSRA |= 1 << ADSC;
 }
 
