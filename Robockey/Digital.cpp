@@ -3,6 +3,8 @@
 #include "avr/io.h"
 #include "stdlib.h"
 #include "m_general.h"
+int16_t previousLeft = 0;
+int16_t previousRight = 0;
 
 ///You don't properly handle negative speeds. Floating point math should be avoided.
 ///At the very least never divide by a constant, multiply by 1/constant.
@@ -73,9 +75,12 @@ void setEnabled(bool enabled){
 }
 
 void setMotors(int16_t right, int16_t left){
-	OCR1B = abs(right)+(right==0?0:400);
-	OCR1C = abs(left)+(right==0?0:400);
+	
+	OCR1B = abs(0.05*right + 0.95*previousRight)+(right==0?0:400);
+	OCR1C = abs(0.05*left + 0.95*previousLeft)+(left==0?0:400);
 	PORTC = ((PORTC & ~(0b11 << 6))) | ((bool)(right>0) << 6) | ((bool)(left>0) << 7);
+	previousLeft = left;
+	previousRight = right;
 }
 
 uint16_t kickEndTime;
