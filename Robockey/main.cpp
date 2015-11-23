@@ -53,10 +53,19 @@ int main(void)
 	int i = 0;
 	//uint16_t blobs[12]={0,0,0,0,0,0,0,0,0,0,0,0};
 	uint16_t* values;
+	Pose robot;
+	Pose puck;
 	while (1) {
 		beginADC();
 		localizeRobot();
-		Pose robot = getRobotPose();
+		if(i<300){
+		goToPositionPuck(Pose(-120,0,0),getRobotPose());
+		m_wait(15);
+		i++;
+		}
+		else setMotors(0,0);
+		/*
+		robot = getRobotPose();
 		m_usb_tx_int(robot.x);
 		m_usb_tx_char(',');
 		m_usb_tx_int(robot.y);
@@ -65,14 +74,31 @@ int main(void)
 		m_usb_tx_char('\n');
 		
 		findPuck(robot);
+		
+		puck = getPuckLocation();
+		m_usb_tx_int(puck.x);
+		m_usb_tx_char(',');
+		m_usb_tx_int(puck.y);
+		m_usb_tx_char(',');
+		m_usb_tx_int(puck.o);
+		m_usb_tx_char('\n');
+		
 		values = getIRData();
 		for (int i = 0; i<16; i++){
 			m_usb_tx_int(values[i]);
 			m_usb_tx_char(',');
 		}
 		m_usb_tx_char('\n');
-		m_wait(1000);
-	
+		
+		
+		if(i<100){
+			faceAngle(getPuckLocation().o,robot);
+		//faceAngle(0,robot);
+		m_wait(15);
+		i++;
+		}
+		else setMotors(0,0);
+	*/
 	//real code
 		/*
 		beginADC();

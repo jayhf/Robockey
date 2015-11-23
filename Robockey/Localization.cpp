@@ -97,16 +97,16 @@ void findPuck(Pose current){
 			}
 		}
 	}
-	m_usb_tx_int(val1);
+	m_usb_tx_int(photo1);
 	m_usb_tx_char(',');
-	m_usb_tx_int(val2);
+	m_usb_tx_int(photo2);
 	m_usb_tx_char(',');
-	m_usb_tx_int(val3);
+	m_usb_tx_int(photo3);
 	m_usb_tx_char('\n');
 	
-	uint16_t heading;
-	if (((photo2 == photo1 + 1 && photo3 == photo1 - 1)
-	|| (photo2 == photo1 - 1 && photo3 == photo1 + 1))){
+	int16_t heading;
+	if (((photo2 == photo1 + 15 && photo3 == photo1 - 15)
+	|| (photo2 == photo1 - 15 && photo3 == photo1 + 15))){
 		//if largest reading is in betweeen next two and the next two are within +/- 5, assume that middle is pointing directly at it
 		heading = -(2*PI/16 * photo1 - 1) + PI;
 
@@ -115,10 +115,17 @@ void findPuck(Pose current){
 		///You never rotate by the offset by which phototransistor is selected.
 		heading = -(2*PI/16 * (photo1 * val1 + photo2 * val2) / (val1+val2) - 1) + PI; //compute weighted average and multiply by degrees per transistor
 	}
-	heading = current.o + heading;
+	m_usb_tx_int(heading);
+	m_usb_tx_char('\n');
+	int avg = 0;
+	for (int i = 0; i < 5; i++){
+		avg += puckPose[i].o;
+	}
+	avg = avg/5;
+	heading = 0.3*(current.o + heading) + 0.7*avg;
 	///Don't see the point of multiplying and dividing by 3. Doesn't really matter, because we need a lookup table based system
 	///to get a decent distance measurement. You also will need to consider that the resistor changes and you need to check which is used.
-	uint16_t distance = 5*(val1 + val2 + val3)/3; //need to scale accordingly
+	uint16_t distance = 0.1*(val1 + val2 + val3)/3; //need to scale accordingly
 	for(int i = 0; i<4; i++) {
 		puckPose[i+1] = puckPose[i];
 		puckTime[i+1] = puckTime[i];

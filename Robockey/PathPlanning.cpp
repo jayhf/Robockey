@@ -72,7 +72,7 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 		
 
 		uint16_t x = MIN(800,k1 * distance - k3 * (distance - lastDistance));
-		uint16_t y = MIN(300,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
+		uint16_t y = MIN(400,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
 		if (!faceForward){
 			if (deltaTheta < 3500 && deltaTheta > -3500){
 				setMotors(x,x); //forwards
@@ -164,7 +164,7 @@ void goToPositionPuck(Pose target, Pose current){
 		
 
 		uint16_t x = MIN(800,k1 * distance - k3 * (distance - lastDistance));
-		uint16_t y = MIN(100,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
+		uint16_t y = MIN(200,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
 		
 		if (deltaTheta < 3500 && deltaTheta > -3500){ //if within 0.1 radians ~5* of target angle,
 			setMotors(x,x); //forwards
@@ -215,6 +215,28 @@ void facePose(Pose target, Pose current){
 		else if(current.o - o < 0){
 			setMotors(x,-x);
 		}
+	}
+	lastPose = current;
+	time2=time1;
+}
+
+void faceAngle(angle o,Pose current){
+	uint16_t time1 = getTime();
+	float deltaTime = 1/(time1-time2);
+	uint16_t x = MAX(0,MIN(800,1 * abs((current.o - o)) - 20 * abs((current.o - lastPose.o)*deltaTime)));
+	
+	if(current.o - o < -3500 || current.o - o > 3500){
+		
+		if(current.o - o > 0){
+			setMotors(-x,x);
+		}
+		else if(current.o - o < 0){
+			setMotors(x,-x);
+		}
+	}
+	else{
+	
+		setMotors(0,0);
 	}
 	lastPose = current;
 	time2=time1;
