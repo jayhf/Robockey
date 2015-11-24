@@ -56,3 +56,16 @@ Makefile
 
 #java
 *.class
+
+#SOLIDWORKS
+*.dwg
+*.sldprt
+*.sldasm
+*.slddrw
+*.zip
+*.mat
+*.stl
+*.geom
+*.x3g
+*.xlsx
+*.pdf
