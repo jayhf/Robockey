@@ -132,10 +132,9 @@ void goToPositionSpin(Pose target, Pose current){
 		facePose(target,current);
 	}
 	else{
-		
-		if((current.x - target.x > 5 || current.x - target.x < -5) && (current.y - target.y > 5 || current.y - target.y < 5)){
-			int16_t deltaX = current.x - target.x;
-			int16_t deltaY = current.y - target.y;
+		int16_t deltaX = current.x - target.x;
+		int16_t deltaY = current.y - target.y;
+		if((deltaX > 5 || deltaX < -5) || (deltaY > 5 || deltaY < -5)){
 			int16_t distance = sqrt(deltaX*deltaX + deltaY*deltaY);
 			int16_t x = MAX(0,MIN(800,7 * distance - 1 * (distance - lastDistance)));
 			setMotors(x,x);
@@ -147,6 +146,46 @@ void goToPositionSpin(Pose target, Pose current){
 		}
 		
 	}
+}
+
+bool goToPuck(Pose target, Pose current){
+	int16_t deltaX = current.x - target.x;
+	int16_t deltaY = current.y - target.y;
+	int16_t distance =  sqrt(deltaX*deltaX + deltaY*deltaY);
+	if(distance<5){
+	if (getStartPositive()) {
+		if (target.x > current.x){
+			if(target.y>0){
+				goToPosition(Pose(target.x + ROBOT_RADIUS, target.y + ROBOT_RADIUS, target.o),current,true);
+			}
+			else {
+				goToPosition(Pose(target.x + ROBOT_RADIUS, target.y - ROBOT_RADIUS, target.o),current,true);
+			}
+		}
+		else {
+			goToPosition(target, current,true);
+		}
+	}
+	else {
+		if (target.x < current.x){
+			if(target.y>0){
+				goToPosition(Pose(target.x - ROBOT_RADIUS, target.y + ROBOT_RADIUS, target.o),current,true);
+			}
+			else {
+				goToPosition(Pose(target.x - ROBOT_RADIUS, target.y - ROBOT_RADIUS, target.o),current,true);
+			}
+		}
+		else {
+			goToPosition(target, current,true);
+		}
+	}
+	return false;
+	}
+	else 
+	{
+		setMotors(0,0);
+		return true;
+		}
 }
 
 void goToPositionPuck(Pose target, Pose current){
