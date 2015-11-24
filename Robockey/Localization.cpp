@@ -118,16 +118,16 @@ void findPuck(Pose current){
 	m_usb_tx_char('\n');
 	
 	int16_t heading;
-	/*if (((photo2 == photo1 + 15 && photo3 == photo1 - 15)
+	if (((photo2 == photo1 + 15 && photo3 == photo1 - 15)
 	|| (photo2 == photo1 - 15 && photo3 == photo1 + 15))){
 		//if largest reading is in betweeen next two and the next two are within +/- 5, assume that middle is pointing directly at it
-		heading = -PI/8 * ((float)photo1 - 7.5);
+		heading = -2*PI/16 * ((float)photo1 - 1)+PI;
 
 	}
-	else {*/
+	else {
 		///You never rotate by the offset by which phototransistor is selected.
-		heading = -PI/8 * ((photo1 * val1 + photo2 * val2) / ((float)(val1+val2)) - 7.5); //compute weighted average and multiply by degrees per transistor
-	//}
+		heading = -2*PI/16 * ((photo1 * val1 + photo2 * val2) / (float)(val1+val2) - 1)+PI; //compute weighted average and multiply by degrees per transistor
+	}
 	m_usb_tx_int(heading);
 	m_usb_tx_char('\n');
 	int avg = 0;
