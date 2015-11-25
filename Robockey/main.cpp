@@ -30,7 +30,9 @@ extern "C"{
 
 void qualify();
 void puckLocalizationTest();
-bool startPos;
+bool startPos = getStartPositive();
+Pose getEnemyGoal();
+
 int main(void)
 {
 	m_clockdivide(0);
@@ -67,13 +69,14 @@ void oldMain(){
 	while (1) {
 		beginADC();
 		localizeRobot();
-		if(i<300){
-		goToPositionPuck(Pose(-120,0,0),getRobotPose());
+		/*if(i<300){
+		//goToPuck(Pose(0,0,0),getRobotPose());
 		m_wait(15);
 		i++;
 		}
 		else setMotors(0,0);
-		/*
+		*/
+		
 		robot = getRobotPose();
 		m_usb_tx_int(robot.x);
 		m_usb_tx_char(',');
@@ -98,8 +101,9 @@ void oldMain(){
 			m_usb_tx_char(',');
 		}
 		m_usb_tx_char('\n');
+		m_wait(1000);
 		
-		
+		/*
 		if(i<100){
 			faceAngle(getPuckLocation().o,robot);
 		//faceAngle(0,robot);
@@ -140,3 +144,4 @@ void qualify(){
 	}
 	else goTo(Pose(110,0,0),robot);
 }
+

@@ -9,8 +9,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Robot {
+	private static boolean nativesLoaded = false;
 	static{
-		System.loadLibrary("simulator");
+		try{
+			System.loadLibrary("simulator");
+			nativesLoaded = true;
+		} catch (UnsatisfiedLinkError e){
+			System.out.println("dll not found");
+		}
 	}
 	private Pose pose;
 	private RobotController controller = null;
@@ -24,8 +30,10 @@ public class Robot {
 	public Robot(Pose pose, Team team) {
 		this.pose = pose;
 		this.team = team;
-		Thread robotThread = new Thread(()->run());
-		//robotThread.start();
+		if(nativesLoaded){
+			Thread robotThread = new Thread(()->run());
+			robotThread.start();
+		}
 	}
 	private Color color = Color.getHSBColor((float) Math.random(), 1, 1);
 	public void paint(Graphics2D g){

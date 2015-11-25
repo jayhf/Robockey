@@ -56,3 +56,6 @@ void localizeRobot();
 void localizeRobot2();
 
 void updateEnemyLocations(int8_t *locations);
+
+bool getStartPositive();
+Pose getEnemyGoal();

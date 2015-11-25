@@ -56,4 +56,20 @@ Makefile
 
 #java
 *.class
+<<<<<<< HEAD
 Debug Viewer/Robockey Debug Viewer.jar
+=======
+
+#SOLIDWORKS
+*.dwg
+*.sldprt
+*.sldasm
+*.slddrw
+*.zip
+*.mat
+*.stl
+*.geom
+*.x3g
+*.xlsx
+*.pdf
+>>>>>>> origin/master

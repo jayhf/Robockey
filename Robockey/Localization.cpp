@@ -32,6 +32,7 @@ Pose enemyPoses[3];
 Pose robotPose;
 Pose allyPoses[2];
 Pose robotPose2;
+bool startPositive;
 
 Pose puckPose[5];
 uint16_t puckTime[5];
@@ -59,11 +60,23 @@ Pose getRobotPose2(){
 	return robotPose2;
 }
 
+bool getStartPositive(){
+	return startPositive;
+}
+
+Pose getEnemyGoal(){
+	if (startPositive){
+		return Pose(0,-120,0);
+	}
+	else return Pose(0,120,0);
+}
 
 void initLocalization(){
 	m_wii_open();
 	//m_usb_init();
 	localizeRobot();
+	m_wait(100);
+	startPositive = getRobotPose().x >= 0;
 }
 
 void updateEnemyLocations(int8_t *locations){
@@ -113,12 +126,12 @@ void findPuck(Pose current){
 	if (((photo2 == photo1 + 15 && photo3 == photo1 - 15)
 	|| (photo2 == photo1 - 15 && photo3 == photo1 + 15))){
 		//if largest reading is in betweeen next two and the next two are within +/- 5, assume that middle is pointing directly at it
-		heading = -(2*PI/16 * photo1 - 1) + PI;
+		heading = -2*PI/16 * ((float)photo1 - 1)+PI;
 
 	}
 	else {
 		///You never rotate by the offset by which phototransistor is selected.
-		heading = -(2*PI/16 * (photo1 * val1 + photo2 * val2) / (val1+val2) - 1) + PI; //compute weighted average and multiply by degrees per transistor
+		heading = -2*PI/16 * ((photo1 * val1 + photo2 * val2) / (float)(val1+val2) - 1)+PI; //compute weighted average and multiply by degrees per transistor
 	}
 	m_usb_tx_int(heading);
 	m_usb_tx_char('\n');

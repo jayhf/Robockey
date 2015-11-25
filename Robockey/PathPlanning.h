@@ -9,3 +9,4 @@ void goToPositionPuck(Pose target, Pose current);
 bool facingPose(Pose target, Pose current);
 void facePose(Pose target, Pose current);
 void faceAngle(angle o, Pose current);
+bool goToPuck(Pose target, Pose current);
