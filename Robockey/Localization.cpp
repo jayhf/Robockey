@@ -35,6 +35,11 @@ Pose robotPose2;
 
 Pose puckPose[5];
 uint16_t puckTime[5];
+angle puckHeading = 0;
+
+angle getPuckHeading(){
+	return puckHeading;
+}
 
 Pose* getEnemyLocations(){
 	return enemyPoses;
@@ -57,7 +62,7 @@ Pose getRobotPose2(){
 
 void initLocalization(){
 	m_wii_open();
-	m_usb_init();
+	//m_usb_init();
 	localizeRobot();
 }
 
@@ -132,6 +137,7 @@ void findPuck(Pose current){
 	}
 	puckPose[0] = Pose(distance*cosb(heading) + current.x,distance*sinb(heading)+current.y,heading);
 	puckTime[0] = getTime();
+	puckHeading = heading;
 }
 
 Pose predictPuck(){

@@ -14,6 +14,10 @@ enum class Team : uint8_t{
 	UNKNOWN, RED, BLUE
 };
 
+enum class RobotStrategy : uint8_t{
+	GOALIE = 0, DEFENSE = 1, OFFENSE = 2, SCORER =3
+};
+
 uint8_t getRScore();
 uint8_t getBScore();
 Robot getThisRobot();

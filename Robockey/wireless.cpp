@@ -48,6 +48,17 @@ void sendBattery(){
 	buffer[3] = getBattery() & 0xFF;
 	sendPacket(Robot::CONTROLLER, 0x13, buffer);
 }
+
+void sendPuckPose(){
+	uint8_t buffer[10];
+	buffer[2] = getPuckHeading() >> 8;
+	buffer[3] = getPuckHeading() & 0xFF;
+	buffer[4] = getPuckLocation().x;
+	buffer[5] = getPuckLocation().y;
+	buffer[6] = static_cast<uint8_t>(getSelectedResistor());
+	sendPacket(Robot::CONTROLLER, 0x14, buffer);
+}
+
 ISR(INT2_vect){
 	uint8_t buffer[10];
 	m_rf_read((char*)buffer,10);
@@ -58,9 +69,9 @@ ISR(INT2_vect){
 		case 0x21:
 			//Send back requested variable
 			break;
-		case 0x41:
-		case 0x42:
-		case 0x43:
+		case static_cast<uint8_t>(Robot::ROBOT1):
+		case static_cast<uint8_t>(Robot::ROBOT2):
+		case static_cast<uint8_t>(Robot::ROBOT3):
 			{
 				//Received a message from another team robot
 				Robot robot = static_cast<Robot>(buffer[0]);

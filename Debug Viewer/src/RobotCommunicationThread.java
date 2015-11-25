@@ -78,7 +78,10 @@ public class RobotCommunicationThread extends Thread {
 					else if(!sendBuffer.isEmpty()){
 						byte[] buffer = sendBuffer.pop();
 						out.write(buffer);
-						System.out.println("Sent "+Arrays.toString(buffer));
+						System.out.print("Sent "+Integer.toHexString((buffer[2]&0xFF)).toUpperCase()+": ");
+						for(int i=3;i<13;i++)
+							System.out.print(Integer.toHexString((buffer[i]&0xFF)).toUpperCase()+" ");
+						System.out.println();
 					}
 					else
 						Thread.yield();

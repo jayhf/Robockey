@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "BAMSMath.h"
 
 #define YMAX 60
 #define YMIN -60
@@ -41,6 +42,7 @@ Pose* getAllyLocations();
 Pose getRobotPose();
 Pose getRobotPose2();
 
+angle getPuckHeading();
 
 void initLocalization();
 void findPuck(Pose current);

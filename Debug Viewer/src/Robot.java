@@ -19,11 +19,13 @@ public class Robot {
 	private List<Line2D> directions = new ArrayList<>();
 	private int[] lastIRData = new int[16];
 	private volatile Color ledColor = new Color(0, true);
+	private Pose puckEstimate = null;
+	private double puckAngle = 0;
 	public Robot(Pose pose, Team team) {
 		this.pose = pose;
 		this.team = team;
 		Thread robotThread = new Thread(()->run());
-		robotThread.start();
+		//robotThread.start();
 	}
 	private Color color = Color.getHSBColor((float) Math.random(), 1, 1);
 	public void paint(Graphics2D g){
@@ -47,6 +49,12 @@ public class Robot {
 		}
 		g.setColor(ledColor);
 		g.fill(new Ellipse2D.Double(pose.x-2, pose.y-2, 4, 4));
+		if(puckEstimate!=null){
+			g.setColor(Color.GRAY);
+			g.fill(new Ellipse2D.Double(puckEstimate.x-3.81, puckEstimate.y-3.81, 7.62, 7.62));
+			g.setColor(Color.DARK_GRAY);
+			g.draw(new Line2D.Double(pose.x, pose.y, pose.x+100*Math.cos(puckAngle), pose.y+100*Math.sin(puckAngle)));
+		}
 	}
 	
 	private RobotController.ControlParameters controls = new RobotController.ControlParameters(0,0);
@@ -364,11 +372,20 @@ public class Robot {
 			case 0x13:
 				System.out.println("Battery: "+buffer.getShort());
 				break;
+			case 0x14:
+				puckAngle = buffer.getShort()*Math.PI/32768;
+				puckEstimate = new Pose(buffer.get(),buffer.get(),0);
+				System.out.println("Resistor: "+buffer.get());
+				break;
 			case 0x20:
 				System.out.print("Angle: "+(buffer.getShort()*180/32768+'\t'));
 				System.out.print(" Distance: "+buffer.getShort()+'\t');
 				System.out.print("("+((buffer.get())<<3)+","+((buffer.get())<<3)+")");
 				System.out.println(" ("+buffer.get()+","+buffer.get()+")");
+				break;
+			case 0x21:
+				System.out.print("Proportional: "+buffer.getShort());
+				System.out.println("Derivative: "+buffer.getShort());
 				break;
 		}
 	}

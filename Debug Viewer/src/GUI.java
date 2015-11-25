@@ -3,6 +3,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Arrays;
 
@@ -42,8 +43,10 @@ public class GUI {
 		for(GameCommand command:GameCommand.values()){
 			JMenuItem menuItem = new JMenuItem(command.toString());
 			menuItem.addActionListener((ActionEvent e)->robotConnection.sendGameCommand(command));
+			menuItem.setMnemonic(command.getMnemonic());
 			gameCommands.add(menuItem);
 		}
+		gameCommands.setMnemonic(KeyEvent.VK_G);
 		menuBar.add(gameCommands);
 		JMenu viewerOptions = new JMenu("Viewer Options");
 		JMenuItem clearPaths = new JMenuItem("Clear Paths");

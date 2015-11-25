@@ -22,11 +22,14 @@
 #include "PathPlanning.h"
 #include "BAMSMath.h"
 #define OFF 0
+
 extern "C"{
 	#include "m_usb.h"
 	#include "m_wii.h"
 }
+
 void qualify();
+void puckLocalizationTest();
 bool startPos;
 int main(void)
 {
@@ -34,7 +37,7 @@ int main(void)
 	m_disableJTAG();
 	sei();
 	
-	m_usb_init();
+	//m_usb_init();
 	
 	initDigital();
 	initClock();
@@ -43,13 +46,19 @@ int main(void)
 	initLocalization();
 	m_wait(100);
 	localizeRobot();
+	
+	puckLocalizationTest();
+}
+void puckLocalizationTest(){
+	while(1){
+		sendRobotLocation();
+		sendIR();
+		sendPuckPose();
+	}
+}
+void oldMain(){
 	startPos = getRobotPose().x >= 0;
-	
-	
-	
-
-	//uint8_t batteryLowCount = 0;
-	setEnabled(true);
+		//uint8_t batteryLowCount = 0;
 	int i = 0;
 	//uint16_t blobs[12]={0,0,0,0,0,0,0,0,0,0,0,0};
 	uint16_t* values;
@@ -124,7 +133,6 @@ int main(void)
 		*/
 	}
 }
-
 void qualify(){
 	Pose robot = getRobotPose();
 	if (startPos){
