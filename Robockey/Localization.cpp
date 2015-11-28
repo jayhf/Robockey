@@ -115,12 +115,12 @@ void findPuck(Pose current){
 			}
 		}
 	}
-	m_usb_tx_int(photo1);
+	/*m_usb_tx_int(photo1);
 	m_usb_tx_char(',');
 	m_usb_tx_int(photo2);
 	m_usb_tx_char(',');
 	m_usb_tx_int(photo3);
-	m_usb_tx_char('\n');
+	m_usb_tx_char('\n');*/
 	
 	int16_t heading;
 	if (((photo2 == photo1 + 15 && photo3 == photo1 - 15)
@@ -133,8 +133,8 @@ void findPuck(Pose current){
 		///You never rotate by the offset by which phototransistor is selected.
 		heading = -2*PI/16 * ((photo1 * val1 + photo2 * val2) / (float)(val1+val2) - 1)+PI; //compute weighted average and multiply by degrees per transistor
 	}
-	m_usb_tx_int(heading);
-	m_usb_tx_char('\n');
+	//m_usb_tx_int(heading);
+	//m_usb_tx_char('\n');
 	int avg = 0;
 	for (int i = 0; i < 5; i++){
 		avg += puckPose[i].o;
@@ -171,7 +171,8 @@ bool nearWall(Pose current){
 void localizeRobot(){
 	uint16_t irData[12];
 	m_wii_read(irData);
-	robotPose = localizeRobot(irData);
+	//robotPose = localizeRobot(irData);
+	robotPose = Pose(0,0,0);
 }
 
 Pose localizeRobot(uint16_t* irData){

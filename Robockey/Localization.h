@@ -10,13 +10,14 @@
 #define ROBOT_RADIUS 15
 #define PUCK_RADIUS 68
 
+class Location;
 class Pose{
 public:
-	Pose(int16_t x, int16_t y, int16_t o);
+	Pose(int16_t x, int16_t y, angle o);
 	Pose() : Pose(0,0,0){};
 	int16_t x;
 	int16_t y;
-	int16_t o;
+	angle o;
 	inline Pose operator-(Pose b){
 		return Pose(x-b.x, y-b.y, o-b.o);
 	}
@@ -31,7 +32,40 @@ public:
 	inline bool operator != (const Pose &p){
 		return !(*this == p);
 	}
+	inline Location getLocation();
 };
+
+class Location{
+	public:
+	Location(int8_t x, int8_t y);
+	Location() : Location(0,0){};
+	int8_t x;
+	int8_t y;
+	inline Location operator-(Location b){
+		return Location(x-b.x, y-b.y);
+	}
+	inline Location operator+(Location b){
+		return Location(x+b.x, y+b.y);
+	}
+	
+	inline bool operator == (const Location &p){
+		return x == p.x && y == p.y;
+	}
+
+	inline bool operator != (const Location &p){
+		return !(*this == p);
+	}
+	inline Pose toPose(angle heading){
+		return Pose(x,y,heading);
+	}
+	inline Pose toPose(){
+		return toPose(0);
+	}
+};
+
+inline Location Pose::getLocation(){
+	return Location(x,y);
+}
 
 #define UNKNOWN_POSE (Pose(1023,1023,0))
 

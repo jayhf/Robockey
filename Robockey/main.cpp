@@ -21,6 +21,8 @@
 #include "ADC.h"
 #include "PathPlanning.h"
 #include "BAMSMath.h"
+#include "FastMath.h"
+
 #define OFF 0
 
 extern "C"{
@@ -35,6 +37,9 @@ Pose getEnemyGoal();
 
 int main(void)
 {
+	uint16_t potato = 12;
+	uint8_t test = sqrt(potato);
+	PORTB = test;
 	m_clockdivide(0);
 	m_disableJTAG();
 	sei();
@@ -52,10 +57,17 @@ int main(void)
 	puckLocalizationTest();
 }
 void puckLocalizationTest(){
+	setEnabled(false);
 	while(1){
+		localizeRobot();
+		findPuck(getRobotPose());
+		beginADC();
+		while(!adcUpdateCompleted());
 		sendRobotLocation();
 		sendIR();
 		sendPuckPose();
+		_delay_ms(100);
+		m_green(TOGGLE);
 	}
 }
 void oldMain(){

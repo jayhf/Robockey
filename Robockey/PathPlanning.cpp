@@ -11,6 +11,8 @@
 #include "Digital.h"
 #include "BAMSMath.h"
 #include "time.h"
+#include "FastMath.h"
+
 extern "C"{
 	#include "m_usb.h"
 };
@@ -60,7 +62,7 @@ void goTo(Pose target, Pose current){
 void goToPosition(Pose target, Pose current, bool faceForward){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
-	int16_t distance = sqrt(deltaX*deltaX + deltaY*deltaY);
+	int16_t distance = sqrt((uint16_t)abs(deltaX*deltaX + deltaY*deltaY));
 	if(distance>10){ //if not within 5 pixels in both x and y
 		int16_t targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
 		angle deltaTheta = current.o - targetTheta;
@@ -135,7 +137,7 @@ void goToPositionSpin(Pose target, Pose current){
 		int16_t deltaX = current.x - target.x;
 		int16_t deltaY = current.y - target.y;
 		if((deltaX > 5 || deltaX < -5) || (deltaY > 5 || deltaY < -5)){
-			int16_t distance = sqrt(deltaX*deltaX + deltaY*deltaY);
+			int16_t distance = sqrt((uint16_t)abs(deltaX*deltaX + deltaY*deltaY));
 			int16_t x = MAX(0,MIN(800,7 * distance - 1 * (distance - lastDistance)));
 			setMotors(x,x);
 		}
@@ -151,7 +153,7 @@ void goToPositionSpin(Pose target, Pose current){
 bool goToPuck(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
-	int16_t distance =  sqrt(deltaX*deltaX + deltaY*deltaY);
+	int16_t distance =  sqrt((uint16_t)abs(deltaX*deltaX + deltaY*deltaY));
 	if(distance<5){
 	if (getStartPositive()) {
 		if (target.x > current.x){
@@ -191,7 +193,7 @@ bool goToPuck(Pose target, Pose current){
 void goToPositionPuck(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
-	int16_t distance = sqrt(deltaX*deltaX + deltaY*deltaY);
+	int16_t distance = sqrt((uint16_t)abs(deltaX*deltaX + deltaY*deltaY));
 	if(distance>10){ //if not within 5 pixels in both x and y
 		int16_t targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
 		angle deltaTheta = current.o - targetTheta;
@@ -279,4 +281,92 @@ void faceAngle(angle o,Pose current){
 	}
 	lastPose = current;
 	time2=time1;
+}
+
+bool circleIntersectsSegment(Location p1, Location p2, Location c, uint8_t radius){
+	p1.x-=c.x;
+	p1.y-=c.y;
+	p2.x-=c.x;
+	p2.y-=c.y;
+	if(radius>MIN(p1.x,p2.x)&&-radius<MAX(p1.x,p2.x)&&radius>MIN(p1.y,p2.y)&&-radius<MAX(p1.y,p2.y)){
+		uint8_t dx = abs((int16_t)p1.x-p2.x);
+		uint8_t dy = abs((int16_t)p1.y-p2.y);
+		int16_t n = (int16_t)p2.x*p1.y-(int16_t)p2.y*p1.x;
+		uint8_t d = sqrt((uint16_t)dx*dx+(uint16_t)dy*dy);
+		return (int16_t)((uint16_t)radius*d) > n;
+	}
+	else
+		return false;
+}
+
+uint8_t findPath(uint8_t *result, Location *vertices, uint8_t vertexCount, Location *enemies, Pose *allies){
+	Location allyLocations[2] = {allies[0].getLocation(),allies[1].getLocation()};
+	uint16_t scores[vertexCount];
+	uint8_t distances[vertexCount][vertexCount];
+	uint8_t previousLocations[vertexCount];
+	bool checked[vertexCount];
+	for(uint8_t i = 0; i<vertexCount;i++){
+		checked[i] = 0;
+		scores[i] = 0xffff;
+		Location v1 = vertices[i];
+		for(uint8_t j=i+1; j<vertexCount; j++){
+			Location v2 = vertices[j];	
+			uint8_t dx = abs((int16_t)v1.x-v2.x);
+			uint8_t dy = abs((int16_t)v1.y-v2.y);
+			distances[i][j] = distances[j][i] = sqrt((uint16_t)dx*dx+(uint16_t)dy*dy);
+		}
+	}
+	scores[0] = 0;
+	bool foundGoal = false;
+	while(!foundGoal){
+		uint16_t minScore = 0xFFFF;
+		uint8_t minScoreIndex = 0xFF;
+		for(uint8_t i = 0; i<vertexCount;i++){
+			if(!checked[i]){
+				uint16_t score = scores[i];
+				if(score<minScore){
+					score += distances[1][i];
+					if(score<minScore){
+						minScore = score;
+						minScoreIndex = i;
+					}
+				}
+			}
+		}
+		if(minScoreIndex == -1){
+			return 0xFF;
+		}
+		checked[minScoreIndex] = true;
+		for(uint8_t i = 0; i<vertexCount; i++){
+			if(checked[i] || i==minScoreIndex)
+				continue;
+			uint16_t score = minScore + distances[minScoreIndex][i];
+			if(score < scores[i]){
+				bool connected = true;
+				for(int j=0;j<3;j++){
+					if(circleIntersectsSegment(vertices[minScoreIndex],vertices[i],enemies[j],30))
+						connected = false;
+				}
+				if(circleIntersectsSegment(vertices[minScoreIndex],vertices[i],allyLocations[0],17))
+					connected = false;
+				if(circleIntersectsSegment(vertices[minScoreIndex],vertices[i],allyLocations[1],17))
+					connected = false;
+				if(connected){
+					scores[i] = score;
+					previousLocations[i] = minScoreIndex;
+					if(i == 1){
+						foundGoal = true;
+						break;
+					}
+				}
+			}
+		}
+	}
+	uint8_t resultLength = 1;
+	result[0] = 1;
+	while(result[resultLength] != 0){
+		result[resultLength] = previousLocations[result[resultLength-1]];
+		resultLength++;
+	}
+	return resultLength;
 }
