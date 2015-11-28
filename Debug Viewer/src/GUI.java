@@ -5,6 +5,8 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.Arrays;
 
 import javax.swing.JFrame;
@@ -55,5 +57,11 @@ public class GUI {
 		menuBar.add(viewerOptions);
 		frame.add(menuBar,BorderLayout.NORTH);
 		frame.pack();
+	}
+	public void addMouseListener(MouseListener l) {
+		rink.addMouseListener(l);
+	}
+	public void addMouseMotionListener(MouseMotionListener l) {
+		rink.addMouseMotionListener(l);
 	}
 }

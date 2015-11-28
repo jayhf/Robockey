@@ -22,10 +22,12 @@ public class Main {
 		//Robot robot = new Robot(new Pose(60,0,Math.PI),Team.RED);
 		//Robot robot2 = new Robot(new Pose(-60,0,0),Team.BLUE);
 		//System.out.println(robot.getPosition(new int[]{5}));
-		Robot robots[] = new Robot[3];
+		Robot robots[] = new Robot[6];
 		for(int i=0;i<3;i++)
 			robots[i] = new Robot(new Pose(0,0,0), Team.BLUE);
-		Rink rink = new Rink(robots[0]);//,robot2);
+		for(int i=0;i<3;i++)
+			robots[i+3] = new Robot(new Pose(0,0,0), Team.RED);
+		Rink rink = new Rink(robots);//,robot2);
 		//rink.addRobot(new Robot(new Pose(76,12,Math.PI/2),Team.RED));
 		GUI gui = new GUI(rink);
 		SwingUtilities.invokeAndWait(()->gui.init());
@@ -68,6 +70,9 @@ public class Main {
 		catch(IllegalArgumentException e){
 			System.out.println(e.getMessage());
 		}
+		RobotDragger mouse = new RobotDragger(rink, robots);
+		gui.addMouseListener(mouse);
+		gui.addMouseMotionListener(mouse);
 		/*File file = new File("C:/Users/Jay/Dropbox/Penn/Sophomore Year/Mechatronics/Robockey/Localization/Calibration Data/Full Circle 2.csv");
 		Scanner s = new Scanner(file);
 		while(s.hasNext()){
@@ -111,7 +116,7 @@ public class Main {
 		//System.out.printf("(%d,%d)", location[0],location[1]);
 		while(true){
 			gui.refresh();
-			Thread.sleep(100);
+			Thread.sleep(10);
 		}
 	}
 

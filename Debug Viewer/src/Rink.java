@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
@@ -26,6 +27,7 @@ public class Rink extends JComponent{
 	private int redScore = 0;
 	private int blueScore = 0;
 	private Puck puck = new Puck(new Pose(0,0,0));
+	private AffineTransform transform = null;
 	public Rink(Robot... robots){
 		super.setPreferredSize(new Dimension(1280, 768));
 		super.setMinimumSize(new Dimension(1280, 768));
@@ -53,7 +55,9 @@ public class Rink extends JComponent{
 		puckCollisionPolygon.append(new Arc2D.Double(-109.34, -56.19, 29.21*2, 29.21*2, 90, 90, Arc2D.OPEN), true);
 		puckCollisionPolygon.closePath();
 	}
-	
+	public AffineTransform getTransform(){
+		return transform;
+	}
 	@Override
 	public void paint(Graphics g){
 		Graphics2D g2d = (Graphics2D) g;
@@ -64,7 +68,7 @@ public class Rink extends JComponent{
 		g2d.scale(scaleFactor,scaleFactor);
 		g2d.translate(140, 85);
 		g2d.scale(1, -1);
-
+		transform = g2d.getTransform();
 		
 		g2d.setColor(Color.BLUE);
 		g2d.fill(new Rectangle2D.Double(-125,-30,10,60));
@@ -82,7 +86,26 @@ public class Rink extends JComponent{
 		
 		for(Robot robot:robots)
 			robot.paint(g2d);
-		
+		Pose[] graphVertices = new Pose[100];
+		int vertexCount = PathFinding.getVertices(graphVertices,
+				(Pose[])robots.stream().map((r)->r.getPose()).toArray((i)->new Pose[i]),
+				new Pose(50,0,0), new Pose(-50,0,0),puck.getPose(), false);
+		g.setColor(Color.GREEN);
+		for(Pose vertex: graphVertices){
+			if(vertex!=null)
+				g2d.fill(new Ellipse2D.Double(vertex.x-2, vertex.y-2, 4, 4));
+		}
+		g.setColor(Color.CYAN);
+		boolean[][] connectedVertices = PathFinding.getEdges(graphVertices,vertexCount, (Pose[])robots.stream().map((r)->r.getPose()).toArray((i)->new Pose[i]));
+		for(int i=0;i<vertexCount;i++){
+			for(int j=i+1; j<vertexCount;j++){
+				if(connectedVertices[i][j]){
+					Pose v1 = graphVertices[i];
+					Pose v2 = graphVertices[j];
+					g2d.draw(new Line2D.Double(v1.x, v1.y, v2.x, v2.y));
+				}
+			}
+		}	
 		//puck.paint(g2d);
 	}
 	

@@ -32,7 +32,7 @@ public class Robot {
 		this.team = team;
 		if(nativesLoaded){
 			Thread robotThread = new Thread(()->run());
-			robotThread.start();
+			//robotThread.start();
 		}
 	}
 	private Color color = Color.getHSBColor((float) Math.random(), 1, 1);
