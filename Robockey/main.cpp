@@ -38,8 +38,8 @@ Pose getEnemyGoal();
 int main(void)
 {
 	uint16_t potato = 12;
-	uint8_t test = sqrt(potato);
-	PORTB = test;
+//	uint8_t test = sqrt(potato);
+//	PORTB = test;
 	m_clockdivide(0);
 	m_disableJTAG();
 	sei();

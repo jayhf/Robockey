@@ -8,7 +8,7 @@
 #define XMAX 115
 #define XMIN -115
 #define ROBOT_RADIUS 15
-#define PUCK_RADIUS 68
+#define PUCK_RADIUS 9
 
 class Location;
 class Pose{
@@ -74,7 +74,6 @@ Pose* getEnemyLocations();
 Pose getPuckLocation();
 Pose* getAllyLocations();
 Pose getRobotPose();
-Pose getRobotPose2();
 
 angle getPuckHeading();
 
@@ -87,7 +86,6 @@ bool nearWall(Pose current);
 Pose localizeRobot(uint16_t* irData);
 
 void localizeRobot();
-void localizeRobot2();
 
 void updateEnemyLocations(int8_t *locations);
 
