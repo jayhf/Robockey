@@ -102,7 +102,7 @@ ISR(ADC_vect){
 	//}
 	//badReading = !badReading;
 	//Start next conversion
-	_delay_us(50);
+	_delay_us(10000);
 	ADCSRA |= 1 << ADSC;
 }
 
