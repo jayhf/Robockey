@@ -12,9 +12,6 @@
 #include "BAMSMath.h"
 #include "Digital.h"
 
-#define robotRadius 10
-#define puckRadius 3
-
 
 enum class Player : uint8_t{
 	GOALIE = 0, DEFENSE = 1, SCORER = 2, ASSISTER = 3
@@ -25,6 +22,8 @@ void leftCorner();
 void rightCorner();
 void avoidGoalie();
 void fakeGoalie();
+void followWall();
+void charge();
 
 void playerLogic(Player player){
 	switch(player){
@@ -33,7 +32,7 @@ void playerLogic(Player player){
 			break;
 		}
 		case Player::SCORER: {
-			int rando = random() % 4; //change to number of strategies
+			int rando = random() % 6; //change to number of strategies
 			switch(rando){
 				case 0:{
 					leftCorner();
@@ -49,6 +48,14 @@ void playerLogic(Player player){
 				}
 				case 3:{
 					fakeGoalie();
+					break;
+				}
+				case 4:{
+					followWall();
+					break;
+				}
+				case 5:{
+					charge();
 					break;
 				}
 				default:{
@@ -68,30 +75,32 @@ void playerLogic(Player player){
 
 void goalieLogic(){
 	Pose puckPredict = predictPuck();
-	if (puckPredict.x < XMAX / 2) {
-		uint16_t yPos;
+	if (puckPredict.x < XMAX / 2) { //if puck closer than half field
+		int16_t yPos;
 		if (puckPredict.y >= 0) {
 			yPos = MIN(YMAX/2,puckPredict.y);
 		}
 		else{
 			yPos = MAX(YMIN/2,puckPredict.y);
 		}
-		goToPosition(Pose(XMIN + robotRadius, yPos,puckPredict.o),getRobotPose(), true);
+		//go to puck height and in goal area but don't leave the space between goal posts
+		goToPosition(Pose(XMIN + ROBOT_RADIUS, yPos,puckPredict.o),getRobotPose(), true);
 		facePose(puckPredict, getRobotPose());
 	}
-	else if(puckPredict.x < 3*XMIN/4){
+	else if(puckPredict.x < 3*XMIN/4){ //if puck closet than 3/4
 		facePose(puckPredict, getRobotPose());
-		movement(100,100);
+		setMotors(1600,1600); //charge
 		//communicate to other robot to fill in
 	}
 	else {
-		uint16_t yPos;
+		int16_t yPos;
 		if (puckPredict.y >= 0) {
 			yPos = MIN(YMAX/2,puckPredict.y);
 		}
 		else{
 			yPos = MAX(YMIN/2,puckPredict.y);
 		}
+		//move out a bit
 		goToPosition(Pose(7*XMIN/8, yPos, puckPredict.o), getRobotPose(), true);
 		facePose(puckPredict, getRobotPose());
 	}
@@ -99,28 +108,119 @@ void goalieLogic(){
 
 void leftCorner(){
 	Pose currentPose = getRobotPose();
-	if (currentPose.x < XMAX - robotRadius && currentPose.y < YMAX - robotRadius - 5) {
-		goToPositionPuck(Pose(XMAX - robotRadius - 5, YMAX - robotRadius - 5, -PI/3), currentPose);
+	if (currentPose.x < XMAX - ROBOT_RADIUS || currentPose.y < YMAX - ROBOT_RADIUS - 5) { //if not in corner go to corner
+		goToPositionPuck(Pose(XMAX - ROBOT_RADIUS - 5, YMAX - ROBOT_RADIUS - 5, -PI/3), currentPose);
 	}
 	else {
-		goToPositionPuck(Pose(XMAX,YMAX/2 - puckRadius,0),currentPose);
+		goToPositionPuck(Pose(XMAX+5,YMAX/2 - PUCK_RADIUS,0),currentPose); //charge into goal
 	}
 }
 
 void rightCorner(){
 	Pose currentPose = getRobotPose();
-	if (currentPose.x < XMAX - robotRadius && currentPose.y > YMIN + robotRadius + 5) {
-		goToPositionPuck(Pose(XMAX - robotRadius - 5, YMIN + robotRadius + 5, -PI/3), currentPose);
+	if (currentPose.x < XMAX - ROBOT_RADIUS || currentPose.y > YMIN + ROBOT_RADIUS+ 5) {
+		goToPositionPuck(Pose(XMAX - ROBOT_RADIUS - 5, YMIN + ROBOT_RADIUS + 5, -PI/3), currentPose);
 	}
 	else {
-		goToPositionPuck(Pose(XMAX,YMIN/2 + puckRadius,0),currentPose);
+		goToPositionPuck(Pose(XMAX,YMIN/2 + PUCK_RADIUS,0),currentPose);
 	}
 }
 
 void avoidGoalie(){
 	//find if one of their players is in the goal and go towards the larger space based on his position
+	Pose* enemies = getEnemyLocations();
+	
+	//check to see if enemy has goalie in position
+	bool enGoal = false;
+	int16_t goalie[3] = {0,0,0};
+	uint8_t count = 0;
+	for (int i=0; i<3;i++){
+		if (enemies[i].x > XMAX - 2*ROBOT_RADIUS){
+			enGoal=true;
+			goalie[i] = enemies[i].y;
+			count++;
+		}
+	}
+	if (enGoal){
+		int16_t gap[3] = {0,0,0}; //store largest y1, y2, height of largest gap
+		if (count == 1){
+			for (int i = 0; i<3; i++){
+				uint16_t distance = YMAX - goalie[i];
+				if (distance > gap[2]){
+					gap[0] = YMAX;
+					gap[1] = goalie[i];
+					gap[2] = distance;
+				}
+			}
+			if (gap[2] >=YMAX/2){ // if goalie is in bottom half of rink
+				goToPositionPuck(Pose(XMAX + ROBOT_RADIUS, YMAX - (gap[0]+gap[1])*0.5, 0),getRobotPose());
+			}
+			else{
+				goToPositionPuck(Pose(XMAX + ROBOT_RADIUS, YMIN + (gap[0]+gap[1])*0.5, 0),getRobotPose());
+			}
+		}
+		else { //if more than one enemy goalie, find largest gap and go there
+			int16_t max = 0;
+			int16_t min = 0;
+			for (int i = 0; i<3;i++){
+				if (goalie[i] > max) max = goalie[i];
+				else if (goalie[i] < min) min = goalie[i];
+			}
+			//check gaps to wall
+			if(YMAX - max > abs(YMIN-min)){
+				gap[0] = YMAX;
+				gap[1] = max;
+				gap[2] = YMAX - max;
+			}
+			else{
+				gap[0] = YMIN;
+				gap[1] = min;
+				gap[2] = abs(YMIN - min);
+			}
+			
+			//check gaps between robots
+			//assume their robots aren't exactly at 0 to prevent array errors from initilalizing array at 0
+			if(goalie[0] - goalie[1] > gap[2] && goalie[0] != 0 && goalie[1] !=0){
+				gap[0] = goalie[0];
+				gap[1] = goalie[1];
+				gap[2] = goalie[0]-goalie[1];
+			}
+			else if(goalie[0] - goalie[2] > gap[2] && goalie[0] != 0 && goalie[2] !=0){
+				gap[0] = goalie[0];
+				gap[1] = goalie[2];
+				gap[2] = goalie[0]-goalie[2];
+			}
+			else if(goalie[1] - goalie[2] > gap[2] && goalie[1] != 0 && goalie[2] !=0){
+				gap[0] = goalie[1];
+				gap[1] = goalie[2];
+				gap[2] = goalie[1]-goalie[2];
+			}
+			goToPositionPuck(Pose(XMAX+ROBOT_RADIUS,(gap[0]+gap[1])*0.5,0),getRobotPose());
+		}
+	}
+	else goToPositionPuck(Pose(XMAX+ROBOT_RADIUS,getRobotPose().y,0),getRobotPose());
 }
 
 void fakeGoalie(){
 	//do same as avoid goalie but move other direction then turn quickly
+}
+
+void followWall(){
+	if(!nearWall(getRobotPose())){
+		if(getRobotPose().y >=0){
+			goToPositionPuck(Pose(getRobotPose().x+ROBOT_RADIUS,YMAX,0), getRobotPose());
+		}
+		else goToPositionPuck(Pose(getRobotPose().x+ROBOT_RADIUS,YMIN,0), getRobotPose());
+	}
+	else{
+		setMotors(1600,1600); //full steam ahead
+	}
+}
+
+void charge(){
+	goToPositionPuck(Pose(XMAX+ROBOT_RADIUS,getRobotPose().y,0),getRobotPose());
+	if (getRobotPose().x > XMAX - ROBOT_RADIUS){
+		startKick(200);
+	}
+	updateKick();
 }

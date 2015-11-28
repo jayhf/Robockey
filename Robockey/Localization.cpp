@@ -20,8 +20,6 @@ extern "C"{
 #include "ADC.h"
 #include "time.h"
 #include "stdio.h"
-#define robotRadius 10
-#define puckRadius 3
 
 
 Pose::Pose(int16_t x, int16_t y, int16_t o):
@@ -161,7 +159,7 @@ Pose predictPuck(){
 }
 
 bool nearWall(Pose current){
-	return current.x > XMAX - robotRadius || current.x < XMIN + robotRadius || current.y > YMAX - robotRadius || current.y < YMIN +robotRadius;
+	return current.x > XMAX - ROBOT_RADIUS || current.x < XMIN + ROBOT_RADIUS || current.y > YMAX - ROBOT_RADIUS || current.y < YMIN +ROBOT_RADIUS;
 }
 
 void localizeRobot(){
