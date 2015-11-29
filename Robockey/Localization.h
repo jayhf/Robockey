@@ -9,7 +9,7 @@
 #define XMAX 115
 #define XMIN -115
 #define ROBOT_RADIUS 15
-#define PUCK_RADIUS 68
+#define PUCK_RADIUS 9
 
 class Location;
 class Pose{
@@ -82,6 +82,7 @@ public:
 
 void initLocalization();
 void updateLocalization();
+
 
 angle getPuckHeading();
 

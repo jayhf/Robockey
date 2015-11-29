@@ -46,6 +46,7 @@ Location puckLocation;
 Velocity puckVelocity;
 time puckUpdateTime;
 
+
 void initLocalization(){
 	m_wii_open();
 	updateLocalization();
@@ -125,6 +126,7 @@ Location getPuckLocation(){
 Location* getAllyLocations(){
 	return allyLocations;
 }
+
 Pose getRobotPose(){
 	return robotPose;
 }
@@ -254,7 +256,7 @@ time getPuckUpdateTime(){
 }*/
 
 bool nearWall(Pose current){
-	return current.x > XMAX - robotRadius || current.x < XMIN + robotRadius || current.y > YMAX - robotRadius || current.y < YMIN +robotRadius;
+	return current.x > XMAX - ROBOT_RADIUS || current.x < XMIN + ROBOT_RADIUS || current.y > YMAX - ROBOT_RADIUS || current.y < YMIN +ROBOT_RADIUS;
 }
 
 void localizeRobot(){
