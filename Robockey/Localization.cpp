@@ -21,9 +21,6 @@ extern "C"{
 #include "stdio.h"
 #include "GameState.h"
 
-#define robotRadius 10
-#define puckRadius 3
-
 Location newAllyLocations[2];
 Location newAllyPuckLocations[2];
 time newAllyUpdateTimes[2];
