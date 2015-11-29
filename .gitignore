@@ -72,4 +72,8 @@ Debug Viewer/Robockey Debug Viewer.jar
 *.x3g
 *.xlsx
 *.pdf
+*.p2m
+*.png
+*.psd
+*.docx
 >>>>>>> origin/master
