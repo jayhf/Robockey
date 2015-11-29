@@ -18,74 +18,167 @@ extern "C"{
 #endif
 #include "BAMSMath.h"
 #include "ADC.h"
-#include "time.h"
 #include "stdio.h"
+#include "GameState.h"
+
 #define robotRadius 10
 #define puckRadius 3
 
+Location newAllyLocations[2];
+Location newAllyPuckLocations[2];
+time newAllyUpdateTimes[2];
+Location newEnemyLocations[3];
+time newEnemyUpdateTime;
 
-Pose::Pose(int16_t x, int16_t y, int16_t o):
-x(x), y(y), o(o){
-}
-
-Pose enemyPoses[3];
+Location allyLocations[2];
+Location allyPuckLocations[2];
+Velocity allyVelocities[2];
+time allyUpdateTimes[2];
+Location enemyLocations[3];
+Velocity enemyVelocities[3];
+time enemyUpdateTime;
 Pose robotPose;
-Pose allyPoses[2];
-Pose robotPose2;
-bool startPositive;
+Velocity robotVelocity;
+time robotUpdateTime;
+angle puckHeading;
+Location puckLocationToSend;
+Location puckLocation;
+Velocity puckVelocity;
+time puckUpdateTime;
 
-Pose puckPose[5];
-uint16_t puckTime[5];
-angle puckHeading = 0;
-
-angle getPuckHeading(){
-	return puckHeading;
+void initLocalization(){
+	m_wii_open();
+	updateLocalization();
+	//m_wait(100);
+	//startPositive = getRobotPose().x >= 0;
 }
 
-Pose* getEnemyLocations(){
-	return enemyPoses;
+void updateLocalization(){
+	uint16_t buffer[12];
+	m_wii_read(buffer);
+	Pose newRobotPose = localizeRobot(buffer, robotPose);
+	if(newRobotPose != UNKNOWN_POSE){
+		Location robotLocation = robotPose.getLocation();
+		kalmanFilter(robotLocation, robotVelocity, newRobotPose.getLocation(), robotUpdateTime, getTime());
+		robotPose.x = robotLocation.x;
+		robotPose.y = robotLocation.y;
+		robotPose.o = newRobotPose.o;
+		updatePuckPosition();
+	}
+	for(int i=0;i<2;i++)
+		kalmanFilter(allyLocations[i],allyVelocities[i],newAllyLocations[i], allyUpdateTimes[i], newAllyUpdateTimes[i]);
+	for(int i=0;i<3;i++)
+		kalmanFilter(enemyLocations[i],enemyVelocities[i],newEnemyLocations[i], enemyUpdateTime, newEnemyUpdateTime);
 }
 
-Pose getPuckLocation(){
-	return puckPose[0];
+void updatePuckPosition(){
+	Location averagePuckLocation = findPuck();
+	puckLocationToSend = averagePuckLocation;
+	time currentTime = getTime();
+	time dt;
+	if(allyPuckLocations[0] == UNKNOWN_LOCATION){
+		if(allyPuckLocations[1] == UNKNOWN_LOCATION){}
+		else{
+			averagePuckLocation.x = (averagePuckLocation.x>>1) + (allyPuckLocations[1].x>>1);
+			averagePuckLocation.y = (averagePuckLocation.y>>1) + (allyPuckLocations[1].y>>1);
+			dt = currentTime-allyUpdateTimes[1];
+		}
+	}
+	else{
+		averagePuckLocation.x = averagePuckLocation.x>>1;
+		averagePuckLocation.y = averagePuckLocation.y>>1;
+		if(allyPuckLocations[1] == UNKNOWN_LOCATION){
+			averagePuckLocation.x += allyPuckLocations[0].x>>1;
+			averagePuckLocation.y += allyPuckLocations[0].y>>1;
+			dt = currentTime-allyUpdateTimes[2];
+		}
+		else{
+			averagePuckLocation.x += (allyPuckLocations[0].x>>2) + (allyPuckLocations[1].x>>2);
+			averagePuckLocation.y += (allyPuckLocations[0].y>>2) + (allyPuckLocations[1].y>>2);
+			dt = (currentTime-allyUpdateTimes[1]+currentTime-allyUpdateTimes[0])>>1;
+		}
+	}
+	kalmanFilter(puckLocation, puckVelocity, averagePuckLocation, puckUpdateTime, currentTime-(dt>>1));
 }
 
-Pose* getAllyLocations(){
-	return allyPoses;
+void kalmanFilter(Location &location, Velocity &velocity, Location measuredLocation, time &oldTime, time newTime){
+	if(location == UNKNOWN_LOCATION){
+		location = measuredLocation;
+		oldTime = newTime;
+		return;
+	}
+	else if(measuredLocation == UNKNOWN_LOCATION){
+		return;
+	}
+	else{
+		
+	}
+}
+
+
+Location* getEnemyLocations(){
+	return enemyLocations;
+}
+Location getPuckLocation(){
+	return puckLocation;
+}
+Location* getAllyLocations(){
+	return allyLocations;
 }
 Pose getRobotPose(){
 	return robotPose;
 }
-Pose getRobotPose2(){
-	return robotPose2;
+
+Velocity getPuckVelocity(){
+	return puckVelocity;
 }
 
-bool getStartPositive(){
-	return startPositive;
+Velocity* getEnemyVelocities(){
+	return enemyVelocities;
 }
 
-Pose getEnemyGoal(){
-	if (startPositive){
-		return Pose(0,-120,0);
-	}
-	else return Pose(0,120,0);
+Velocity* getAllyVelocities(){
+	return allyVelocities;
 }
 
-void initLocalization(){
-	m_wii_open();
-	//m_usb_init();
-	localizeRobot();
-	m_wait(100);
-	startPositive = getRobotPose().x >= 0;
+Velocity getVelocity(){
+	return robotVelocity;
 }
 
-void updateEnemyLocations(int8_t *locations){
+Location predictPuck(uint16_t dt){
+	return Location(puckLocation.x+(uint8_t)((((uint16_t)dt*puckVelocity.x)>>8)),puckLocation.y+(uint8_t)((((uint16_t)dt*puckVelocity.y)>>8)));
+}
+
+Location predictEnemy(uint8_t enemyIndex, uint16_t dt){
+	Location location = enemyLocations[enemyIndex];
+	Velocity velocity = enemyVelocities[enemyIndex];
+	return Location(location.x+(uint8_t)((((uint16_t)dt*velocity.x)>>8)),location.y+(uint8_t)((((uint16_t)dt*velocity.y)>>8)));
+}
+
+Location predictAlly(uint8_t allyID, uint16_t dt){
+	Location location = allyLocations[allyID];
+	Velocity velocity = allyVelocities[allyID];
+	return Location(location.x+(uint8_t)((((uint16_t)dt*velocity.x)>>8)),location.y+(uint8_t)((((uint16_t)dt*velocity.y)>>8)));
+}
+
+Location predictPose(uint16_t dt){
+	return Location(robotPose.x+(uint8_t)((((uint16_t)dt*robotVelocity.x)>>8)),robotPose.y+(uint8_t)((((uint16_t)dt*robotVelocity.y)>>8)));
+}
+
+void receivedAllyUpdate(Location location, Location puckLocation, uint8_t allyID){
+	newAllyUpdateTimes[allyID] = getTime();
+	newAllyLocations[allyID] = location;
+	newAllyPuckLocations[allyID] = puckLocation;
+}
+
+void receivedEnemyLocations(int8_t *locations){
+	newEnemyUpdateTime = getTime();
 	for(int i=0;i<3;i++){
-		enemyPoses[i] = Pose(locations[3*i+1], locations[3*i+2], 0);
+		newEnemyLocations[i] = flipCoordinates() ? Location(-locations[3*i+1], -locations[3*i+2]) : Location(locations[3*i+1], locations[3*i+2]);
 	}
 }
 
-void findPuck(Pose current){
+Location findPuck(){
 	uint16_t val1 = 0;
 	uint16_t val2 = 0;
 	uint16_t val3 = 0;
@@ -130,30 +223,26 @@ void findPuck(Pose current){
 
 	}
 	else {
-		///You never rotate by the offset by which phototransistor is selected.
 		heading = -2*PI/16 * ((photo1 * val1 + photo2 * val2) / (float)(val1+val2) - 1)+PI; //compute weighted average and multiply by degrees per transistor
 	}
 	//m_usb_tx_int(heading);
 	//m_usb_tx_char('\n');
-	int avg = 0;
-	for (int i = 0; i < 5; i++){
-		avg += puckPose[i].o;
-	}
-	avg = avg/5;
-	heading = 0.3*(current.o + heading) + 0.7*avg;
 	///Don't see the point of multiplying and dividing by 3. Doesn't really matter, because we need a lookup table based system
 	///to get a decent distance measurement. You also will need to consider that the resistor changes and you need to check which is used.
-	uint16_t distance = 0.1*(val1 + val2 + val3)/3; //need to scale accordingly
-	for(int i = 0; i<4; i++) {
-		puckPose[i+1] = puckPose[i];
-		puckTime[i+1] = puckTime[i];
-	}
-	puckPose[0] = Pose(distance*cosb(heading) + current.x,distance*sinb(heading)+current.y,heading);
-	puckTime[0] = getTime();
+	uint8_t distance = 0.1*(val1 + val2 + val3)/3; //need to scale accordingly
 	puckHeading = heading;
+	return Location((int16_t)(distance*cosb(heading)) + robotPose.x,(int16_t)(distance*sinb(heading))+robotPose.y);
 }
 
-Pose predictPuck(){
+angle getPuckHeading(){
+	return puckHeading;
+}
+
+time getPuckUpdateTime(){
+	return puckUpdateTime;
+}
+
+/*Pose predictPuck(){
 	
 	uint16_t deltaT = puckTime[0] - puckTime[1];
 	uint16_t deltaX = puckPose[0].x - puckPose[1].x;
@@ -162,7 +251,7 @@ Pose predictPuck(){
 	Pose velocity(deltaX/deltaT,deltaY/deltaT,deltaO/deltaT);
 	uint16_t timeStep = getTime() - puckTime[0];
 	return Pose(puckPose[0].x + velocity.x*timeStep, puckPose[0].y + velocity.y*timeStep,puckPose[0].o + velocity.o*timeStep);
-}
+}*/
 
 bool nearWall(Pose current){
 	return current.x > XMAX - robotRadius || current.x < XMIN + robotRadius || current.y > YMAX - robotRadius || current.y < YMIN +robotRadius;
@@ -175,7 +264,7 @@ void localizeRobot(){
 	robotPose = Pose(0,0,0);
 }
 
-Pose localizeRobot(uint16_t* irData){
+Pose localizeRobot(uint16_t* irData, Pose previousPose){
 	int16_t possiblePointsX[12];
 	int16_t possiblePointsY[12];
 	int16_t possiblePointsO[12];
@@ -461,5 +550,5 @@ void localizeRobot2(){
 		points[2]*rotationmatrix[0]+points[3]*rotationmatrix[2],points[2]*rotationmatrix[1]+points[3]*rotationmatrix[3]};
 	//float uvect[2] = {rotationmatrix[0],rotationmatrix[1]};
 	float dvect[2] = {rotated[2]-rotated[0],rotated[3]-rotated[1]};
-	robotPose2 = Pose(dvect[0],dvect[1],toBAMS(offsettheta));
+	//robotPose2 = Pose(dvect[0],dvect[1],toBAMS(offsettheta));
 }

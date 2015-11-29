@@ -32,7 +32,6 @@ extern "C"{
 
 void qualify();
 void puckLocalizationTest();
-bool startPos = getStartPositive();
 Pose getEnemyGoal();
 
 int main(void)
@@ -52,15 +51,13 @@ int main(void)
 	initWireless();
 	initLocalization();
 	m_wait(100);
-	localizeRobot();
-	
+	updateLocalization();	
 	puckLocalizationTest();
 }
 void puckLocalizationTest(){
 	setEnabled(false);
 	while(1){
-		localizeRobot();
-		findPuck(getRobotPose());
+		updateLocalization();
 		beginADC();
 		while(!adcUpdateCompleted());
 		sendRobotLocation();
@@ -71,16 +68,15 @@ void puckLocalizationTest(){
 	}
 }
 void oldMain(){
-	startPos = getRobotPose().x >= 0;
-		//uint8_t batteryLowCount = 0;
+	//uint8_t batteryLowCount = 0;
 	int i = 0;
 	//uint16_t blobs[12]={0,0,0,0,0,0,0,0,0,0,0,0};
 	uint16_t* values;
 	Pose robot;
-	Pose puck;
+	Location puck;
 	while (1) {
 		beginADC();
-		localizeRobot();
+		updateLocalization();
 		/*if(i<300){
 		//goToPuck(Pose(0,0,0),getRobotPose());
 		m_wait(15);
@@ -97,14 +93,14 @@ void oldMain(){
 		m_usb_tx_int(robot.o);
 		m_usb_tx_char('\n');
 		
-		findPuck(robot);
+		findPuck();
 		
 		puck = getPuckLocation();
 		m_usb_tx_int(puck.x);
 		m_usb_tx_char(',');
 		m_usb_tx_int(puck.y);
 		m_usb_tx_char(',');
-		m_usb_tx_int(puck.o);
+		m_usb_tx_int(getPuckHeading());
 		m_usb_tx_char('\n');
 		
 		values = getIRData();
@@ -151,9 +147,6 @@ void oldMain(){
 }
 void qualify(){
 	Pose robot = getRobotPose();
-	if (startPos){
-		goTo(Pose(-110,0,0),robot);
-	}
-	else goTo(Pose(110,0,0),robot);
+	goTo(Pose(110,0,0),robot);
 }
 

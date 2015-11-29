@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "BAMSMath.h"
+#include "time.h"
 
 #define YMAX 60
 #define YMIN -60
@@ -13,8 +14,8 @@
 class Location;
 class Pose{
 public:
-	Pose(int16_t x, int16_t y, angle o);
-	Pose() : Pose(0,0,0){};
+	Pose(int16_t x, int16_t y, angle o) : x(x), y(y), o(o){}
+	Pose() : Pose(0,0,0){}
 	int16_t x;
 	int16_t y;
 	angle o;
@@ -37,8 +38,8 @@ public:
 
 class Location{
 	public:
-	Location(int8_t x, int8_t y);
-	Location() : Location(0,0){};
+	Location(int8_t x, int8_t y) : x(x), y(y){}
+	Location() : Location(0,0){}
 	int8_t x;
 	int8_t y;
 	inline Location operator-(Location b){
@@ -67,29 +68,46 @@ inline Location Pose::getLocation(){
 	return Location(x,y);
 }
 
-#define UNKNOWN_POSE (Pose(1023,1023,0))
+//units: cm/s
+class Velocity{
+public:
+	int8_t x;
+	int8_t y;
+	Velocity(int8_t vx, int8_t vy) : x(vx), y(vy){}
+	Velocity() : Velocity(0,0){}
+};
 
-Pose* getEnemyLocations();
+#define UNKNOWN_POSE (Pose(255,255,0))
+#define UNKNOWN_LOCATION (Location(255,255))
 
-Pose getPuckLocation();
-Pose* getAllyLocations();
-Pose getRobotPose();
-Pose getRobotPose2();
+void initLocalization();
+void updateLocalization();
 
 angle getPuckHeading();
 
-void initLocalization();
-void findPuck(Pose current);
+Location* getEnemyLocations();
+Location getPuckLocation();
+Location* getAllyLocations();
+Pose getRobotPose();
 
-Pose predictPuck();
-bool nearWall(Pose current);
+Velocity getPuckVelocity();
+Velocity* getEnemyVelocities();
+Velocity* getAllyVelocities();
+Velocity getVelocity();
 
-Pose localizeRobot(uint16_t* irData);
+//dt is in 1/256 of a second
+Location predictPuck(uint8_t dt);
+Location predictEnemy(uint8_t enemyIndex, uint8_t dt);
+Location predictAlly(uint8_t allyID, uint8_t dt);
+Location predictPose(uint8_t dt);
 
-void localizeRobot();
-void localizeRobot2();
+bool nearWall(Pose pose);
+time getPuckUpdateTime();
 
-void updateEnemyLocations(int8_t *locations);
-
-bool getStartPositive();
-Pose getEnemyGoal();
+//Used internally.
+void updatePuckPosition();
+Location findPuck();
+Pose localizeRobot(uint16_t* irData, Pose previousPose);
+void receivedEnemyLocations(int8_t *locations);
+void receivedAllyUpdate(Pose pose, Location puckLocation, uint8_t allyID);
+void kalmanFilter(Location &location, Velocity &velocity, Location measuredLocation, uint16_t &oldTime, uint16_t newTime);

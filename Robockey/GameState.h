@@ -7,7 +7,7 @@ enum class GameState : uint8_t{
 };
 
 enum class Robot : uint8_t{
-	CONTROLLER = 84, ROBOT1 = 0, ROBOT2 = 1, ROBOT3 = 2
+	CONTROLLER = 84, ROBOT1 = 85, ROBOT2 = 86, ROBOT3 = 87
 };
 
 enum class Team : uint8_t{
@@ -33,4 +33,7 @@ void updateScores(uint8_t red, uint8_t blue);
 
 bool allowedToMove();
 
-bool invertCoordinates();
+bool flipCoordinates();
+
+//A way to identify which ally is which. One ally is alway ally 0. The other is always ally 1.
+uint8_t getAllyID(uint8_t address);

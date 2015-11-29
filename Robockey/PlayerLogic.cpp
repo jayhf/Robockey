@@ -67,7 +67,7 @@ void playerLogic(Player player){
 }
 
 void goalieLogic(){
-	Pose puckPredict = predictPuck();
+	Location puckPredict = predictPuck(getTime()-getPuckUpdateTime());
 	if (puckPredict.x < XMAX / 2) {
 		uint16_t yPos;
 		if (puckPredict.y >= 0) {
@@ -76,11 +76,11 @@ void goalieLogic(){
 		else{
 			yPos = MAX(YMIN/2,puckPredict.y);
 		}
-		goToPosition(Pose(XMIN + robotRadius, yPos,puckPredict.o),getRobotPose(), true);
-		facePose(puckPredict, getRobotPose());
+		goToPosition(Pose(XMIN + robotRadius, yPos,getPuckHeading()),getRobotPose(), true);
+		faceLocation(puckPredict, getRobotPose());
 	}
 	else if(puckPredict.x < 3*XMIN/4){
-		facePose(puckPredict, getRobotPose());
+		faceLocation(puckPredict, getRobotPose());
 		movement(100,100);
 		//communicate to other robot to fill in
 	}
@@ -92,8 +92,8 @@ void goalieLogic(){
 		else{
 			yPos = MAX(YMIN/2,puckPredict.y);
 		}
-		goToPosition(Pose(7*XMIN/8, yPos, puckPredict.o), getRobotPose(), true);
-		facePose(puckPredict, getRobotPose());
+		goToPosition(Pose(7*XMIN/8, yPos, getPuckHeading()), getRobotPose(), true);
+		faceLocation(puckPredict, getRobotPose());
 	}
 }
 

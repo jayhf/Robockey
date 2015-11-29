@@ -130,8 +130,8 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 }
 
 void goToPositionSpin(Pose target, Pose current){
-	if(!facingPose(target, current)){
-		facePose(target,current);
+	if(!facingLocation(target.getLocation(), current)){
+		faceLocation(target.getLocation(),current);
 	}
 	else{
 		int16_t deltaX = current.x - target.x;
@@ -155,7 +155,7 @@ bool goToPuck(Pose target, Pose current){
 	int16_t deltaY = current.y - target.y;
 	int16_t distance =  sqrt((uint16_t)abs(deltaX*deltaX + deltaY*deltaY));
 	if(distance<5){
-	if (getStartPositive()) {
+	//if (getStartPositive()) {
 		if (target.x > current.x){
 			if(target.y>0){
 				goToPosition(Pose(target.x + ROBOT_RADIUS, target.y + ROBOT_RADIUS, target.o),current,true);
@@ -167,7 +167,7 @@ bool goToPuck(Pose target, Pose current){
 		else {
 			goToPosition(target, current,true);
 		}
-	}
+	/*}
 	else {
 		if (target.x < current.x){
 			if(target.y>0){
@@ -180,7 +180,7 @@ bool goToPuck(Pose target, Pose current){
 		else {
 			goToPosition(target, current,true);
 		}
-	}
+	}*/
 	return false;
 	}
 	else 
@@ -233,16 +233,16 @@ void goToPositionPuck(Pose target, Pose current){
 }
 
 
-bool facingPose(Pose target, Pose current){
+bool facingLocation(Location target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	angle o = atan2b(-deltaY,-deltaX);
 	return current.o < o + 3500 && current.o > o - 3500;
 }
 
-void facePose(Pose target, Pose current){
+void faceLocation(Location target, Pose current){
 	uint16_t time1 = getTime();
-	if(!facingPose(target,current)){
+	if(!facingLocation(target,current)){
 		int16_t deltaX = current.x - target.x;
 		int16_t deltaY = current.y - target.y;
 		angle o = atan2b(-deltaY,-deltaX);

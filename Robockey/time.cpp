@@ -3,18 +3,22 @@
 #include "avr/io.h"
 #include "avr/interrupt.h"
 
-uint16_t time;
+time currentTime;
 
 void initClock(){
-	//Count to 16000
-	OCR3A = 16000;
+	//Count to 62500
+	OCR3A = 62500;
 	TCCR3B |= 1 << WGM32;
 	//Start the timer
 	TCCR3B |= 1 << CS30;
 }
 
-uint16_t getTime(){
-	return time;
+time getTime(){
+	return currentTime;
+}
+
+bool timePassed(uint16_t t){
+	return (int16_t)(currentTime - t) >= 0;
 }
 
 void sleep(){
@@ -30,5 +34,5 @@ void sleep(){
 }
 
 ISR(TIMER3_OVF_vect){
-	time++;
+	currentTime++;
 }

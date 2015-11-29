@@ -102,7 +102,7 @@ ISR(INT2_vect){
 			updateGameState(GameState::GAME_OVER);
 			break;
 		case 0xA8:
-			updateEnemyLocations((int8_t*)(buffer + 1));
+			receivedEnemyLocations((int8_t*)(buffer + 1));
 			break;
 	}
 }
