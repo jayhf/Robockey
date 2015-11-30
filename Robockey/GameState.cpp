@@ -60,12 +60,23 @@ void updateScores(uint8_t red, uint8_t blue){
 }
 
 void determineTeam(){
+	static int8_t teamCount;
 	Pose robotPose = getRobotPose();
-	if(robotPose != UNKNOWN_POSE){
-		if(team != Team::UNKNOWN){
+	
+	if(team == Team::UNKNOWN){
+		if(robotPose != UNKNOWN_POSE){
 			if(robotPose.x > XMAX/2)
-				team = Team::BLUE;
+				teamCount++;
+			else if(teamCount > 0)
+				teamCount = 0;
 			else if(robotPose.x < XMIN/2)
+				teamCount--;
+			else
+				teamCount = 0;
+
+			if(teamCount == 10)
+				team = Team::BLUE;
+			else if(teamCount == -10)
 				team = Team::RED;
 		}
 	}
@@ -105,13 +116,13 @@ void updateLED(){
 	}
 	if(gameState == GameState::NONE){
 		if(commTesting){
-			if(timePassed(startTime+2048)){
+			if(timePassed(startTime+256)){
 				commTesting = false;
 				setLED(LEDColor::OFF);
 			}
 			else{
 				uint16_t elapsedTime = getTime()-startTime;
-				if(elapsedTime & (1<<9))
+				if(elapsedTime & (1<<5))
 					setLEDToTeamColor();
 				else
 					setLED(LEDColor::OFF);

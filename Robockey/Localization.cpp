@@ -62,6 +62,7 @@ void updateLocalization(){
 		robotPose.y = robotLocation.y;
 		robotPose.o = newRobotPose.o;
 		updatePuckPosition();
+		determineTeam();
 	}
 	for(int i=0;i<2;i++)
 		kalmanFilter(allyLocations[i],allyVelocities[i],newAllyLocations[i], allyUpdateTimes[i], newAllyUpdateTimes[i]);
@@ -69,13 +70,16 @@ void updateLocalization(){
 		kalmanFilter(enemyLocations[i],enemyVelocities[i],newEnemyLocations[i], enemyUpdateTime, newEnemyUpdateTime);
 }
 
+
 void updatePuckPosition(){
 	Location averagePuckLocation = findPuck();
 	puckLocationToSend = averagePuckLocation;
 	time currentTime = getTime();
 	time dt;
 	if(allyPuckLocations[0] == UNKNOWN_LOCATION){
-		if(allyPuckLocations[1] == UNKNOWN_LOCATION){}
+		if(allyPuckLocations[1] == UNKNOWN_LOCATION){
+			dt = 0;
+		}
 		else{
 			averagePuckLocation.x = (averagePuckLocation.x>>1) + (allyPuckLocations[1].x>>1);
 			averagePuckLocation.y = (averagePuckLocation.y>>1) + (allyPuckLocations[1].y>>1);
@@ -88,7 +92,7 @@ void updatePuckPosition(){
 		if(allyPuckLocations[1] == UNKNOWN_LOCATION){
 			averagePuckLocation.x += allyPuckLocations[0].x>>1;
 			averagePuckLocation.y += allyPuckLocations[0].y>>1;
-			dt = currentTime-allyUpdateTimes[2];
+			dt = currentTime-allyUpdateTimes[1];
 		}
 		else{
 			averagePuckLocation.x += (allyPuckLocations[0].x>>2) + (allyPuckLocations[1].x>>2);
@@ -272,7 +276,7 @@ Pose localizeRobot(uint16_t* irData, Pose previousPose){
 	uint16_t irX[4] = {irData[0], irData[3], irData[6], irData[9]};
 	uint16_t irY[4] = {irData[1], irData[4], irData[7], irData[10]};
 	if(irY[1] == 1023){
-		return Pose(1023,1023,0);
+		return UNKNOWN_POSE;
 	}
 	int8_t validPoints = 0;
 	int8_t errorPoints = 0;

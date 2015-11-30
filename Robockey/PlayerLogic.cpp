@@ -13,14 +13,6 @@
 #include "Digital.h"
 #include "PlayerLogic.h"
 
-void goalieLogic();
-void leftCorner();
-void rightCorner();
-void avoidGoalie();
-void fakeGoalie();
-void followWall();
-void charge();
-void kick();
 bool helpRequested = false;
 
 void playerLogic(Player player){
@@ -234,10 +226,15 @@ void tryKick(){
 		if((goalY <= (YMAX/2 - PUCK_RADIUS)) && (goalY >= (YMIN/2 + PUCK_RADIUS))){	
 			Location target = Location(currentPose.x, goalY);
 			//if(!checkIntersection(currentPose.getLocation(), target, PUCK_RADIUS)){
-				startKick();
+				//startKick();
+				setLED(LEDColor::BLUE);
 			//}	
 		}
+		else
+			setLED(LEDColor::RED);
 	}
+	else
+		setLED(LEDColor::PURPLE);
 }
 	
 void defenseLogic(){

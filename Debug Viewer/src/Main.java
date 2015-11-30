@@ -27,7 +27,7 @@ public class Main {
 			robots[i] = new Robot(new Pose(0,0,0), Team.BLUE);
 		for(int i=0;i<3;i++)
 			robots[i+3] = new Robot(new Pose(0,0,0), Team.RED);
-		Rink rink = new Rink(robots);//,robot2);
+		Rink rink = new Rink(robots[0]);//,robot2);
 		//rink.addRobot(new Robot(new Pose(76,12,Math.PI/2),Team.RED));
 		GUI gui = new GUI(rink);
 		SwingUtilities.invokeAndWait(()->gui.init());

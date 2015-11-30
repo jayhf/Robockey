@@ -86,7 +86,7 @@ public class Rink extends JComponent{
 		
 		for(Robot robot:robots)
 			robot.paint(g2d);
-		Pose[] graphVertices = new Pose[100];
+		/*Pose[] graphVertices = new Pose[100];
 		int vertexCount = PathFinding.getVertices(graphVertices,
 				(Pose[])robots.stream().map((r)->r.getPose()).toArray((i)->new Pose[i]),
 				new Pose(50,0,0), new Pose(-50,0,0),puck.getPose(), false);
@@ -105,7 +105,7 @@ public class Rink extends JComponent{
 					g2d.draw(new Line2D.Double(v1.x, v1.y, v2.x, v2.y));
 				}
 			}
-		}	
+		}*/
 		//puck.paint(g2d);
 	}
 	

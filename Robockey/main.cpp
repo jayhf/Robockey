@@ -42,17 +42,22 @@ int main(void)
 	sei();
 	
 	//m_usb_init();
-
 	initDigital();
 	initClock();
 	initADC();
 	initWireless();
 	initLocalization();
+	updateLocalization();
 	m_wait(500);
+	updateLocalization();
+	updateGameState(GameState::HALFTIME);
+	updateGameState(GameState::COMM_TEST);
 	while(1){
-		updateLED();
+		//updateLED();
+		
 		updateLocalization();
-		sendRobotLocation();
+		tryKick();
+		/*sendRobotLocation();
 		m_green(0);
 		if(!timePassed(500)){
 			m_green(1);
@@ -60,7 +65,7 @@ int main(void)
 			goToPositionPuck(Pose(0,0,0),getRobotPose());
 		}
 		else setMotors(0,0);
-		
+		*/
 	}
 	//puckLocalizationTest();
 }
