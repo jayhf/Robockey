@@ -50,7 +50,6 @@ int main(void)
 	m_wait(100);
 	time initTime = getTime();
 	while(1){
-		beginADC();
 		updateLocalization();
 		sendRobotLocation();
 		setLED(LEDColor::RED);

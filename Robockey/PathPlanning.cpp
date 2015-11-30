@@ -302,8 +302,12 @@ bool checkIntersection(Location p1, Location p2, uint8_t radius){
 	Location* allyLocations = getAllyLocations();
 	Location* enemyLocations = getEnemyLocations();
 	Location obstacles[5] = {allyLocations[0],allyLocations[1],enemyLocations[0],enemyLocations[1],enemyLocations[2]};
+		uint8_t checkRadius = radius + ROBOT_RADIUS;
 	for(int x = 0; x < 5; x++){
-		if(circleIntersectsSegment(p1, p2, obstacles[x], radius)){
+		if(x == 2){
+			checkRadius = checkRadius + ROBOT_RADIUS;
+		}
+		if(circleIntersectsSegment(p1, p2, obstacles[x], checkRadius)){
 			return true;
 		}
 	}
