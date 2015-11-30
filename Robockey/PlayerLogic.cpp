@@ -226,7 +226,6 @@ void charge(){
 void tryKick(){
 	Pose currentPose = getRobotPose();
 	int16_t dMax = ROBOT_RADIUS + 20;
-	int16_t kickTime = 100;
 	int16_t dX = XMAX - currentPose.x;
 	int16_t dL = dX/cosb(currentPose.o);
 	if(dL <= dMax){
