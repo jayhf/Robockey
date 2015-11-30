@@ -283,6 +283,9 @@ void faceAngle(angle o,Pose current){
 }
 
 bool circleIntersectsSegment(Location p1, Location p2, Location c, uint8_t radius){
+	if(c == UNKNOWN_LOCATION){
+		return false;
+	}
 	p1.x-=c.x;
 	p1.y-=c.y;
 	p2.x-=c.x;
