@@ -22,6 +22,7 @@
 #include "PathPlanning.h"
 #include "BAMSMath.h"
 #include "FastMath.h"
+#include "PlayerLogic.h"
 
 #define OFF 0
 
@@ -41,25 +42,24 @@ int main(void)
 	sei();
 	
 	//m_usb_init();
-	
 	initDigital();
 	initClock();
 	initADC();
 	initWireless();
 	initLocalization();
 	m_wait(100);
-	updateLocalization();
-	startKick(50);
+	time initTime = getTime();
 	while(1){
-		setLED(LEDColor::BLUE);
-		updateKick();
-		m_wait(100);
+		beginADC();
+		updateLocalization();
+		sendRobotLocation();
 		setLED(LEDColor::RED);
-		updateKick();
-		m_wait(100);
-		setLED(LEDColor::PURPLE);
-		updateKick();
-		m_wait(100);
+		if(!timePassed(256)){
+			setLED(LEDColor::BLUE);
+			leftCorner();
+		}
+		else setMotors(0,0);
+		
 	}
 	//puckLocalizationTest();
 }

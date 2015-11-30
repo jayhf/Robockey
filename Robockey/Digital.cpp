@@ -44,8 +44,8 @@ void setMotors(int16_t right, int16_t left){
 }
 
 time kickEndTime;
-void startKick(uint16_t duration){
-	kickEndTime = getTime() + duration;
+void startKick(){
+	kickEndTime = getTime() + 50;
 	PORTD &= ~(1 << 7);
 }
 

@@ -25,7 +25,7 @@ bool timePassed(time t){
 
 void sleep(){
 	cli();
-	startKick(0);
+	//startKick();
 	updateKick();
 	setLED(LEDColor::OFF);
 	setEnabled(false);

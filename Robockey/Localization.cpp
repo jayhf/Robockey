@@ -31,7 +31,7 @@ Location allyLocations[2];
 Location allyPuckLocations[2];
 Velocity allyVelocities[2];
 time allyUpdateTimes[2];
-Location enemyLocations[3];
+Location enemyLocations[3] = {Location(110,5),Location(-110,5), Location(-110,-10)};
 Velocity enemyVelocities[3];
 time enemyUpdateTime;
 Pose robotPose;
