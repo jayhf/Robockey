@@ -3,20 +3,19 @@
 #include <avr/interrupt.h>
 #define F_CPU 16000000
 #include "m_general.h"
-volatile bool updateCompleted;
 
 Resistor irResistor;
+Resistor nextResistor;
 uint8_t irIndex;
-uint16_t irValues[16];
+uint16_t irBuffer1[16];
+uint16_t irBuffer2[16];
+uint16_t *irReadBuffer = irBuffer1;
+uint16_t *irWriteBuffer = irBuffer2;
 uint16_t battery;
 uint16_t boost;
 uint16_t leftMotor;
 uint16_t rightMotor;
 uint16_t switchValue;
-
-bool adcUpdateCompleted(){
-	return updateCompleted;
-}
 
 void initADC(){
 	//Set the ADC clock prescaler
@@ -33,77 +32,65 @@ void initADC(){
 	ADCSRA |= 1 << ADIE;
 	//Enable the ADC
 	ADCSRA |= 1 << ADEN;
-	
-	beginADC();
-	while(!updateCompleted){
-		
-	}
+	ADMUX |= 0b111 << MUX0;
+	_delay_ms(120);
 }
 
-void beginADC(){
-	updateCompleted = 0;
-	ADMUX |= 0b111 << MUX0;
-	//Start the conversion
-	ADCSRA |= 1 << ADSC;
+void updateResistor(){
 	//Change the resistor if necessary
 	uint16_t maxValue = 0;
 	for(uint8_t i=0;i<16;i++)
-		maxValue = maxValue > irValues[i] ? maxValue : irValues[i];
+		maxValue = maxValue > irReadBuffer[i] ? maxValue : irReadBuffer[i];
 	if(maxValue>900)
-		irResistor--;
+		nextResistor--;
 	else if(maxValue<175)
-		irResistor++;
-	PORTB = (PORTB & (~0b11 << 4)) | (static_cast<uint8_t>(irResistor) << 4);
+		nextResistor++;
+	PORTB = (PORTB & (~0b11 << 4)) | (static_cast<uint8_t>(nextResistor) << 4);
 }
 
 ISR(ADC_vect){
 	static uint8_t selectedIR = 0;
-	//static bool badReading = 1;
-	//if(!badReading){
-		uint8_t currentIndex = (ADMUX >> MUX0) & 0b111;
-		ADMUX &= ~(0b111 << MUX0);
-		switch(currentIndex){
-			case 0:
-				irValues[selectedIR] = ADC;
-				selectedIR = (selectedIR+1) & 0b1111;
-				if(selectedIR != 0){
-					PORTB = (PORTB & (~0b1111)) | selectedIR;
-					break;
-				}
-				else
-					goto defaultCase;
-			case 1:
-				switchValue = ADC;
-				ADMUX |= 0 << MUX0;
-				break;
-			case 4:
-				rightMotor = ADC;
-				ADMUX |= 1 << MUX0;
-				break;
-			case 5:
-				leftMotor = ADC;
-				ADMUX |= 4 << MUX0;
-				break;
-			case 6:
-				battery = ADC;
-				ADMUX |= 5 << MUX0;
-				break;
-			case 7:
-				boost = ADC;
-				ADMUX |= 6 << MUX0;
-				break;
-			defaultCase:
-			default:
-				m_red(OFF);
-				updateCompleted = true;
+	uint8_t currentIndex = (ADMUX >> MUX0) & 0b111;
+	ADMUX &= ~(0b111 << MUX0);
+	switch(currentIndex){
+		case 0:
+			irWriteBuffer[selectedIR] = ADC;
+			selectedIR = (selectedIR+1) & 0b1111;
+			if(selectedIR != 0)
+				PORTB = (PORTB & (~0b1111)) | selectedIR;
+			else{
+				uint16_t *temp = irWriteBuffer;
+				irWriteBuffer = irReadBuffer;
+				irReadBuffer = temp;
+				irResistor = nextResistor;
 				ADMUX |= 7 << MUX0;
-				return;
-		}
-	//}
-	//badReading = !badReading;
-	//Start next conversion
-	_delay_us(10000);
-	ADCSRA |= 1 << ADSC;
+				updateResistor();
+			}
+			break;
+		case 1:
+			switchValue = ADC;
+			ADMUX |= 0 << MUX0;
+			break;
+		case 4:
+			rightMotor = ADC;
+			ADMUX |= 1 << MUX0;
+			break;
+		case 5:
+			leftMotor = ADC;
+			ADMUX |= 4 << MUX0;
+			break;
+		case 6:
+			battery = ADC;
+			ADMUX |= 5 << MUX0;
+			break;
+		case 7:
+			boost = ADC;
+			ADMUX |= 6 << MUX0;
+			break;
+		default:
+			ADMUX |= 7 << MUX0;
+			break;
+	}
 }
 
 bool batteryLow(){
@@ -136,7 +123,7 @@ Resistor getSelectedResistor(){
 };
 
 uint16_t* getIRData(){
-	return irValues;
+	return irReadBuffer;
 }
 
 Resistor& operator++(Resistor &r){

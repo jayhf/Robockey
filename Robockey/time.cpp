@@ -37,4 +37,6 @@ void sleep(){
 
 ISR(TIMER3_COMPA_vect){
 	currentTime++;
+	//Start the next ADC cycle
+	ADCSRA |= 1 << ADSC;
 }

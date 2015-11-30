@@ -96,7 +96,7 @@ void setLEDToTeamColor(){
 }
 
 void updateLED(){
-	static uint16_t startTime;
+	static time startTime;
 	static bool commTesting = false;
 	if(gameState == GameState::COMM_TEST){
 		commTesting = true;
