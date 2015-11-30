@@ -31,7 +31,7 @@ Location allyLocations[2];
 Location allyPuckLocations[2];
 Velocity allyVelocities[2];
 time allyUpdateTimes[2];
-Location enemyLocations[3];
+Location enemyLocations[3] = {Location(110,5),Location(-110,5), Location(-110,-10)};
 Velocity enemyVelocities[3];
 time enemyUpdateTime;
 Pose robotPose;
@@ -100,16 +100,17 @@ void updatePuckPosition(){
 }
 
 void kalmanFilter(Location &location, Velocity &velocity, Location measuredLocation, time &oldTime, time newTime){
-	if(location == UNKNOWN_LOCATION){
+	if(measuredLocation == UNKNOWN_LOCATION){
+		return;
+	}
+	else if(location == UNKNOWN_LOCATION){
 		location = measuredLocation;
 		oldTime = newTime;
 		return;
 	}
-	else if(measuredLocation == UNKNOWN_LOCATION){
-		return;
-	}
 	else{
-		
+		//Todo fix:
+		location = measuredLocation;	
 	}
 }
 
@@ -484,7 +485,10 @@ Pose localizeRobot(uint16_t* irData, Pose previousPose){
 	int16_t ry = (ox*sino - oy *coso)*(115.0f/768);
 	oo = PI/2-(oo-PI/2);
 	//fprintf(stdout,"(%f,%f,%d)\n",rx,ry,oo);
-	return Pose(-rx, ry, -oo);
+	if(flipCoordinates())
+		return Pose(rx,-ry,PI-oo);
+	else
+		return Pose(-rx, ry, -oo);
 }
 
 void localizeRobot2(){

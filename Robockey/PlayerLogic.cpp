@@ -11,7 +11,7 @@
 #include "PathPlanning.h"
 #include "BAMSMath.h"
 #include "Digital.h"
-
+#include "PlayerLogic.h"
 
 enum class Player : uint8_t{
 	GOALIE = 0, DEFENSE = 1, SCORER = 2, ASSISTER = 3
@@ -25,6 +25,7 @@ void fakeGoalie();
 void followWall();
 void charge();
 void kick();
+bool helpRequested = false;
 
 void playerLogic(Player player){
 	switch(player){
@@ -69,7 +70,7 @@ void playerLogic(Player player){
 			
 		}
 		case Player::DEFENSE:{
-			
+			defenseLogic();
 		}
 	}
 }
@@ -77,7 +78,7 @@ void playerLogic(Player player){
 void goalieLogic(){
 	Location puckPredict = predictPuck(getTime()-getPuckUpdateTime());
 	if (puckPredict.x < XMAX / 2) { //if puck closer than half field
-		uint16_t yPos;
+		int16_t yPos;
 		if (puckPredict.y >= 0) {
 			yPos = MIN(YMAX/2,puckPredict.y);
 		}
@@ -220,7 +221,7 @@ void followWall(){
 void charge(){
 	goToPositionPuck(Pose(XMAX+ROBOT_RADIUS,getRobotPose().y,0),getRobotPose());
 	if (getRobotPose().x > XMAX - ROBOT_RADIUS){
-		startKick(200);
+		startKick();
 	}
 	updateKick();
 }
@@ -242,4 +243,27 @@ void tryKick(){
 			}	
 		}
 	}
+	
+void defenseLogic(){
+	if(helpRequested){
+		if(getRobotPose().x>-110){
+			Location puckPredict = predictPuck(getTime()-getPuckUpdateTime());
+			int16_t yPos;
+			if (puckPredict.y >= 0) {
+				yPos = MIN(YMAX/2,puckPredict.y);
+			}
+			else{
+				yPos = MAX(YMIN/2,puckPredict.y);
+			}
+			goToPosition(Pose(XMIN + ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose(), true);
+			faceLocation(puckPredict, getRobotPose());
+		}
+	}
+	else{ //get in front of puck
+		Location puck = getPuckLocation();
+		goToPosition(Pose(puck.x-2*ROBOT_RADIUS,puck.y,0),getRobotPose(),true);
+	}
+}
+void requestHelp(){
+	helpRequested = true;
 }

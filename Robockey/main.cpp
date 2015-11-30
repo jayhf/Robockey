@@ -22,6 +22,7 @@
 #include "PathPlanning.h"
 #include "BAMSMath.h"
 #include "FastMath.h"
+#include "PlayerLogic.h"
 
 #define OFF 0
 
@@ -36,23 +37,31 @@ Pose getEnemyGoal();
 
 int main(void)
 {
-	uint16_t potato = 12;
-//	uint8_t test = sqrt(potato);
-//	PORTB = test;
 	m_clockdivide(0);
 	m_disableJTAG();
 	sei();
 	
 	//m_usb_init();
-	
 	initDigital();
 	initClock();
 	initADC();
 	initWireless();
 	initLocalization();
 	m_wait(100);
-	updateLocalization();	
-	puckLocalizationTest();
+	time initTime = getTime();
+	while(1){
+		beginADC();
+		updateLocalization();
+		sendRobotLocation();
+		setLED(LEDColor::RED);
+		if(!timePassed(256)){
+			setLED(LEDColor::BLUE);
+			leftCorner();
+		}
+		else setMotors(0,0);
+		
+	}
+	//puckLocalizationTest();
 }
 void puckLocalizationTest(){
 	setEnabled(false);

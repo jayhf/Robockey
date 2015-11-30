@@ -27,6 +27,7 @@ void initGameState();
 void determineTeam();
 void updateGameState(GameState state);
 GameState getGameState();
+void updateLED();
 
 void goalScored(Team team);
 void updateScores(uint8_t red, uint8_t blue);

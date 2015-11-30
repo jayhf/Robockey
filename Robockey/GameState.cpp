@@ -62,10 +62,12 @@ void updateScores(uint8_t red, uint8_t blue){
 void determineTeam(){
 	Pose robotPose = getRobotPose();
 	if(robotPose != UNKNOWN_POSE){
-		if(robotPose.x > XMAX/2)
-			team = Team::BLUE;
-		else if(robotPose.x < XMIN/2)
-			team = Team::RED;
+		if(team != Team::UNKNOWN){
+			if(robotPose.x > XMAX/2)
+				team = Team::BLUE;
+			else if(robotPose.x < XMIN/2)
+				team = Team::RED;
+		}
 	}
 }
 
