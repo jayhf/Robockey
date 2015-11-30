@@ -485,7 +485,10 @@ Pose localizeRobot(uint16_t* irData, Pose previousPose){
 	int16_t ry = (ox*sino - oy *coso)*(115.0f/768);
 	oo = PI/2-(oo-PI/2);
 	//fprintf(stdout,"(%f,%f,%d)\n",rx,ry,oo);
-	return Pose(-rx, ry, -oo);
+	if(flipCoordinates())
+		return Pose(rx,-ry,PI-oo);
+	else
+		return Pose(-rx, ry, -oo);
 }
 
 void localizeRobot2(){
