@@ -36,11 +36,11 @@ void setEnabled(bool enabled){
 
 void setMotors(int16_t right, int16_t left){
 	
-	OCR1B = abs(0.05*right + 0.95*previousRight)+(right==0?0:400);
-	OCR1C = abs(0.05*left + 0.95*previousLeft)+(left==0?0:400);
+	OCR1B = abs(right)+(right==0?0:400);
+	OCR1C = abs(left)+(left==0?0:400);
 	PORTC = ((PORTC & ~(0b11 << 6))) | ((bool)(right>0) << 6) | ((bool)(left>0) << 7);
-	previousLeft = left;
-	previousRight = right;
+	//previousLeft = left;
+	//previousRight = right;
 }
 
 time kickEndTime;

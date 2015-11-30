@@ -254,6 +254,9 @@ void defenseLogic(){
 			goToPosition(Pose(XMIN + ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose(), true);
 			faceLocation(puckPredict, getRobotPose());
 		}
+		else{
+			helpRequested = false;
+		}
 	}
 	else{ //get in front of puck
 		Location puck = getPuckLocation();

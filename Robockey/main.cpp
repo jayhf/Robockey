@@ -42,20 +42,22 @@ int main(void)
 	sei();
 	
 	//m_usb_init();
+
 	initDigital();
 	initClock();
 	initADC();
 	initWireless();
 	initLocalization();
-	m_wait(100);
-	time initTime = getTime();
+	m_wait(500);
 	while(1){
+		updateLED();
 		updateLocalization();
 		sendRobotLocation();
-		setLED(LEDColor::RED);
-		if(!timePassed(256)){
-			setLED(LEDColor::BLUE);
-			leftCorner();
+		m_green(0);
+		if(!timePassed(500)){
+			m_green(1);
+			//setMotors(900,550);
+			goToPositionPuck(Pose(0,0,0),getRobotPose());
 		}
 		else setMotors(0,0);
 		

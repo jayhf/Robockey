@@ -196,35 +196,35 @@ void goToPositionPuck(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	int16_t distance = sqrt((uint16_t)abs(deltaX*deltaX + deltaY*deltaY));
-	if(distance>10){ //if not within 5 pixels in both x and y
+	if(distance>5){ //if not within 5 pixels in both x and y
 		int16_t targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
 		angle deltaTheta = current.o - targetTheta;
 
-		uint16_t k1 = 5; //distance proportional
+		uint16_t k1 = 50; //distance proportional
 		uint16_t k2 = 0.5; //angle proportional
 		uint16_t k3 = 1; //distance derivative
 		uint16_t k4 = 15; //angle derivative
 		
 
-		uint16_t x = MIN(800,k1 * distance - k3 * (distance - lastDistance));
-		uint16_t y = MIN(200,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
+		uint16_t x = MIN(900,k1 * distance - k3 * (distance - lastDistance));
+		uint16_t y = MIN(300,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
 		
-		if (deltaTheta < 3500 && deltaTheta > -3500){ //if within 0.1 radians ~5* of target angle,
+		if (deltaTheta < 4500 && deltaTheta > -4500){ //if within 0.1 radians ~5* of target angle,
 			setMotors(x,x); //forwards
 		}
 		else {
-			if (nearWall(current)) {
-				goToPositionSpin(Pose(current.x, 0.8*current.y,current.o),current);
-			}
-			else
-			{
+			//if (nearWall(current)) {
+				//goToPositionSpin(Pose(current.x, 0.8*current.y,current.o),current);
+			//}
+			//else
+			//{
 				if(deltaTheta >0) {
 					setMotors(x-y,x); //spin cw, forwards
 				}
 				else {
 					setMotors(x,x-y); //spin ccw, forwards
 				}
-			}
+			//}
 		}
 	}
 	else {
