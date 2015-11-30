@@ -25,5 +25,6 @@ void avoidGoalie();
 void fakeGoalie();
 void followWall();
 void charge();
+void tryKick();
 void requestHelp();
 void defenseLogic();

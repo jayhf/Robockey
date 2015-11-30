@@ -13,10 +13,6 @@
 #include "Digital.h"
 #include "PlayerLogic.h"
 
-enum class Player : uint8_t{
-	GOALIE = 0, DEFENSE = 1, SCORER = 2, ASSISTER = 3
-};
-
 void goalieLogic();
 void leftCorner();
 void rightCorner();
@@ -239,10 +235,11 @@ void tryKick(){
 		if((goalY <= (YMAX/2 - PUCK_RADIUS)) && (goalY >= (YMIN/2 + PUCK_RADIUS))){	
 			Location target = Location(currentPose.x, goalY);
 			if(!checkIntersection(currentPose.getLocation(), target, PUCK_RADIUS)){
-				startKick(kickTime);
+				startKick();
 			}	
 		}
 	}
+}
 	
 void defenseLogic(){
 	if(helpRequested){
