@@ -232,7 +232,6 @@ void goToPositionPuck(Pose target, Pose current){
 	}
 }
 
-
 bool facingLocation(Location target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
@@ -297,6 +296,18 @@ bool circleIntersectsSegment(Location p1, Location p2, Location c, uint8_t radiu
 	}
 	else
 		return false;
+}
+
+bool checkIntersection(Location p1, Location p2, uint8_t radius){
+	Location* allyLocations = getAllyLocations();
+	Location* enemyLocations = getEnemyLocations();
+	Location obstacles[5] = {allyLocations[0],allyLocations[1],enemyLocations[0],enemyLocations[1],enemyLocations[2]};
+	for(int x = 0; x < 5; x++){
+		if(circleIntersectsSegment(p1, p2, obstacles[x], radius)){
+			return true;
+		}
+	}
+	return false;
 }
 
 uint8_t findPath(uint8_t *result, Location *vertices, uint8_t vertexCount, Location *enemies, Pose *allies){

@@ -15,6 +15,8 @@ void faceAngle(angle o, Pose current);
 bool goToPuck(Pose target, Pose current);
 
 bool circleIntersectsSegment(Location p1, Location p2, Location c, uint8_t radius);
+bool checkIntersection(Location p1, Location p2, uint8_t radius);
+	
 
 //Returns the length of the resulting path.
 //Result is filled with the path, starting with the end point and going to the start

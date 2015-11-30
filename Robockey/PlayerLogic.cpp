@@ -24,6 +24,7 @@ void avoidGoalie();
 void fakeGoalie();
 void followWall();
 void charge();
+void kick();
 
 void playerLogic(Player player){
 	switch(player){
@@ -222,4 +223,23 @@ void charge(){
 		startKick(200);
 	}
 	updateKick();
+}
+
+//Should be called in the move with puck
+void tryKick(){
+	Pose currentPose = getRobotPose();
+	int16_t dMax = ROBOT_RADIUS + 20;
+	int16_t kickTime = 100;
+	int16_t dX = XMAX - currentPose.x;
+	int16_t dL = dX/cosb(currentPose.o);
+	if(dL <= dMax){
+		int16_t dY = dL * sinb(currentPose.o);
+		int16_t goalY = currentPose.y + dY;
+		if((goalY <= (YMAX/2 - PUCK_RADIUS)) && (goalY >= (YMIN/2 + PUCK_RADIUS))){	
+			Location target = Location(currentPose.x, goalY);
+			if(!checkIntersection(currentPose.getLocation(), target, PUCK_RADIUS)){
+				startKick(kickTime);
+			}	
+		}
+	}
 }

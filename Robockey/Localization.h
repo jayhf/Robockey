@@ -8,8 +8,8 @@
 #define YMIN -60
 #define XMAX 115
 #define XMIN -115
-#define ROBOT_RADIUS 15
-#define PUCK_RADIUS 9
+#define ROBOT_RADIUS 8
+#define PUCK_RADIUS 4
 
 class Location;
 class Pose{
