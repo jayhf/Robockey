@@ -49,9 +49,17 @@ int main(void)
 	initLocalization();
 	m_wait(100);
 	updateLocalization();
-	startKick(256);
+	startKick(50);
 	while(1){
+		setLED(LEDColor::BLUE);
 		updateKick();
+		m_wait(100);
+		setLED(LEDColor::RED);
+		updateKick();
+		m_wait(100);
+		setLED(LEDColor::PURPLE);
+		updateKick();
+		m_wait(100);
 	}
 	//puckLocalizationTest();
 }
