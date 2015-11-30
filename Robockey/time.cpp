@@ -11,13 +11,15 @@ void initClock(){
 	TCCR3B |= 1 << WGM32;
 	//Start the timer
 	TCCR3B |= 1 << CS30;
+	//enable interrupt
+	TIMSK3 |= 1<<OCIE3A;
 }
 
 time getTime(){
 	return currentTime;
 }
 
-bool timePassed(uint16_t t){
+bool timePassed(time t){
 	return (int16_t)(currentTime - t) >= 0;
 }
 
@@ -33,6 +35,6 @@ void sleep(){
 	SMCR |= 1 << SE;
 }
 
-ISR(TIMER3_OVF_vect){
+ISR(TIMER3_COMPA_vect){
 	currentTime++;
 }

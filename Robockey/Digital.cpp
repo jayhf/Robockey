@@ -53,6 +53,7 @@ void initDigital(){
 	DDRD |= 0b11 << 4;
 	DDRD |= 1 << 7;
 	DDRE |= 1 << 6;
+	PORTD |= 1<<7;
 	
 	//Set B6,7 to PWM mode (set on rollover)
 	TCCR1A |= 1 << COM1B1;
@@ -83,15 +84,17 @@ void setMotors(int16_t right, int16_t left){
 	previousRight = right;
 }
 
-uint16_t kickEndTime;
+time kickEndTime;
 void startKick(uint16_t duration){
 	kickEndTime = getTime() + duration;
-	PORTD |= 1 << 7;
+	PORTD &= ~(1 << 7);
 }
 
 void updateKick(){
-	if(((int16_t)(getTime() - kickEndTime)) >= 0)
-	PORTD &= ~(1 << 7);
+	if(((int16_t)(getTime() - kickEndTime)) >= 0){
+		PORTD |= 1 << 7;
+		kickEndTime = getTime();
+	}
 }
 
 void setLED(enum LEDColor color){

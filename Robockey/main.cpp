@@ -36,9 +36,6 @@ Pose getEnemyGoal();
 
 int main(void)
 {
-	uint16_t potato = 12;
-//	uint8_t test = sqrt(potato);
-//	PORTB = test;
 	m_clockdivide(0);
 	m_disableJTAG();
 	sei();
@@ -51,8 +48,12 @@ int main(void)
 	initWireless();
 	initLocalization();
 	m_wait(100);
-	updateLocalization();	
-	puckLocalizationTest();
+	updateLocalization();
+	startKick(256);
+	while(1){
+		updateKick();
+	}
+	//puckLocalizationTest();
 }
 void puckLocalizationTest(){
 	setEnabled(false);
