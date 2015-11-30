@@ -8,6 +8,7 @@
 ///Please switch all types to those found in stdint.h
 
 #include "PathPlanning.h"
+#include "PlayerLogic.h"
 #include "Digital.h"
 #include "BAMSMath.h"
 #include "time.h"
@@ -191,6 +192,7 @@ bool goToPuck(Pose target, Pose current){
 }
 
 void goToPositionPuck(Pose target, Pose current){
+	tryKick();
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	int16_t distance = sqrt((uint16_t)abs(deltaX*deltaX + deltaY*deltaY));
