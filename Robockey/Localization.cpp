@@ -100,16 +100,17 @@ void updatePuckPosition(){
 }
 
 void kalmanFilter(Location &location, Velocity &velocity, Location measuredLocation, time &oldTime, time newTime){
-	if(location == UNKNOWN_LOCATION){
+	if(measuredLocation == UNKNOWN_LOCATION){
+		return;
+	}
+	else if(location == UNKNOWN_LOCATION){
 		location = measuredLocation;
 		oldTime = newTime;
 		return;
 	}
-	else if(measuredLocation == UNKNOWN_LOCATION){
-		return;
-	}
 	else{
-		
+		//Todo fix:
+		location = measuredLocation;	
 	}
 }
 
