@@ -13,7 +13,16 @@
 #include "Digital.h"
 #include "PlayerLogic.h"
 
+void goalieLogic();
+void leftCorner();
+void rightCorner();
+void avoidGoalie();
+void fakeGoalie();
+void followWall();
+void charge();
+void kick();
 bool helpRequested = false;
+bool inCorner = false;
 
 void playerLogic(Player player){
 	switch(player){
@@ -101,7 +110,13 @@ void leftCorner(){
 		goToPositionPuck(Pose(XMAX - ROBOT_RADIUS - 5, YMAX - ROBOT_RADIUS - 5, -PI/3), currentPose);
 	}
 	else {
+		inCorner = true;
+	}
+	if(inCorner){
 		goToPositionPuck(Pose(XMAX+5,YMAX/2 - PUCK_RADIUS,0),currentPose); //charge into goal
+		if(currentPose.x > XMAX - ROBOT_RADIUS && (currentPose.y > YMAX/2 - PUCK_RADIUS - 2 && currentPose.y < YMAX/2 - PUCK_RADIUS + 2)){
+			inCorner = false;
+		}
 	}
 }
 
@@ -111,7 +126,13 @@ void rightCorner(){
 		goToPositionPuck(Pose(XMAX - ROBOT_RADIUS - 5, YMIN + ROBOT_RADIUS + 5, -PI/3), currentPose);
 	}
 	else {
-		goToPositionPuck(Pose(XMAX,YMIN/2 + PUCK_RADIUS,0),currentPose);
+		inCorner = true;
+	}
+	if(inCorner){
+		goToPositionPuck(Pose(XMAX+5,YMIN/2 + PUCK_RADIUS,0),currentPose); //charge into goal
+		if(currentPose.x > XMAX - ROBOT_RADIUS && (currentPose.y > YMIN/2 + PUCK_RADIUS - 2 && currentPose.y < YMIN/2 + PUCK_RADIUS + 2)){
+			inCorner = false;
+		}
 	}
 }
 

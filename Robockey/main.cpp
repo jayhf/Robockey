@@ -56,7 +56,8 @@ int main(void)
 		//updateLED();
 		leftCorner();
 		updateLocalization();
-		//tryKick();
+		tryKick();
+		updateKick();
 		/*sendRobotLocation();
 		m_green(0);
 		if(!timePassed(500)){
