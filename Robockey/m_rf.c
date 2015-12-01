@@ -6,6 +6,8 @@
 // -----------------------------------------------------------------------------
 
 #include "m_rf.h"
+#include <avr/interrupt.h>
+
 
 #define MRFTWIADDR		0x28
 #define MRFINIT			0x01

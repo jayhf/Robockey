@@ -70,7 +70,7 @@ int main(void)
 	}
 	//puckLocalizationTest();
 }
-#define OFF 0
+
 void puckLocalizationTest(){
 	setEnabled(false);
 	while(1){
