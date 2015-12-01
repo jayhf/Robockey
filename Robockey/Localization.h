@@ -108,7 +108,7 @@ time getPuckUpdateTime();
 //Used internally.
 void updatePuckPosition();
 Location findPuck();
-Pose localizeRobot(uint16_t* irData, Pose previousPose);
+Pose localizeRobot(uint16_t* irData);
 void receivedEnemyLocations(int8_t *locations);
 void receivedAllyUpdate(Pose pose, Location puckLocation, uint8_t allyID);
 void kalmanFilter(Location &location, Velocity &velocity, Location measuredLocation, uint16_t &oldTime, uint16_t newTime);

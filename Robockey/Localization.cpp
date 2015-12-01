@@ -54,7 +54,7 @@ void initLocalization(){
 void updateLocalization(){
 	uint16_t buffer[12];
 	m_wii_read(buffer);
-	Pose newRobotPose = localizeRobot(buffer, robotPose);
+	Pose newRobotPose = localizeRobot(buffer);
 	if(newRobotPose != UNKNOWN_POSE){
 		Location robotLocation = robotPose.getLocation();
 		kalmanFilter(robotLocation, robotVelocity, newRobotPose.getLocation(), robotUpdateTime, getTime());
@@ -268,22 +268,16 @@ void localizeRobot(){
 	robotPose = Pose(0,0,0);
 }
 
-Pose localizeRobot(uint16_t* irData, Pose previousPose){
-	previousPose.x *= 6.68;
-	previousPose.y *= 6.68;
-	if(flipCoordinates()){
-		previousPose.x *= -1;
-		previousPose.y *= -1;
-		previousPose.o += PI;
-	}
+Pose previousGood = UNKNOWN_POSE;
+Pose localizeRobot(uint16_t* irData){
 	int16_t possiblePointsX[13];
 	int16_t possiblePointsY[13];
 	int16_t possiblePointsO[13];
 	uint8_t possiblePointCount = 0;
-	if(previousPose != UNKNOWN_POSE){
-		possiblePointsX[0] = previousPose.x;
-		possiblePointsY[0] = previousPose.y;
-		possiblePointsO[0] = previousPose.o;
+	if(previousGood != UNKNOWN_POSE){
+		possiblePointsX[0] = previousGood.x;
+		possiblePointsY[0] = previousGood.y;
+		possiblePointsO[0] = previousGood.o;
 		possiblePointCount++;
 	}
 	uint16_t irX[4] = {irData[0], irData[3], irData[6], irData[9]};
@@ -495,14 +489,16 @@ Pose localizeRobot(uint16_t* irData, Pose previousPose){
 
 	}
 	//fprintf(stdout,"(%f,%f,%d)\n",ox,oy,oo);
-	
 	float coso = cos(toFloatAngle(oo));
 	float sino = sin(toFloatAngle(oo));
 	int16_t rx = (-ox*coso - oy *sino)*(115.0f/768);
 	int16_t ry = (ox*sino - oy *coso)*(115.0f/768);
-	oo = PI/2-(oo-PI/2);
+
 	if(rx > XMAX || rx < XMIN || ry > YMAX || ry < YMIN)
 		return UNKNOWN_POSE;
+	
+	previousGood = Pose(rx, ry, oo);
+	oo = PI/2-(oo-PI/2);
 	//fprintf(stdout,"(%f,%f,%d)\n",rx,ry,oo);
 	if(flipCoordinates())
 		return Pose(rx,-ry,PI-oo);
