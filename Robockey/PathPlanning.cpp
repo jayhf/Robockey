@@ -64,7 +64,7 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	int16_t distance = sqrt((uint16_t)abs(deltaX*deltaX + deltaY*deltaY));
-	if(distance>10){ //if not within 5 pixels in both x and y
+	if(distance>5){ //if not within 5 pixels in both x and y
 		int16_t targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
 		angle deltaTheta = current.o - targetTheta;
 
@@ -74,8 +74,8 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 		uint16_t k4 = 20; //angle derivative
 		
 
-		uint16_t x = MIN(800,k1 * distance - k3 * (distance - lastDistance));
-		uint16_t y = MIN(400,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
+		uint16_t x = MIN(900,k1 * distance - k3 * (distance - lastDistance));
+		uint16_t y = MIN(300,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
 		if (!faceForward){
 			if (deltaTheta < 3500 && deltaTheta > -3500){
 				setMotors(x,x); //forwards
@@ -139,7 +139,7 @@ void goToPositionSpin(Pose target, Pose current){
 		int16_t deltaY = current.y - target.y;
 		if((deltaX > 5 || deltaX < -5) || (deltaY > 5 || deltaY < -5)){
 			int16_t distance = sqrt((uint16_t)abs(deltaX*deltaX + deltaY*deltaY));
-			int16_t x = MAX(0,MIN(800,7 * distance - 1 * (distance - lastDistance)));
+			int16_t x = MAX(0,MIN(900,7 * distance - 1 * (distance - lastDistance)));
 			setMotors(x,x);
 		}
 		else{//reset PID terms
@@ -250,7 +250,7 @@ void faceLocation(Location target, Pose current){
 		float deltaTime = 1/(time1-time2);
 		//uint8_t buffer[10] = {0,0,(current.o-o)>>8,(current.o-o)&0xFF,(current.o-lastPose.o)>>8,(current.o-lastPose.o)&0xFF,0,0,0,0};
 		//sendPacket(Robot::CONTROLLER,0x21,buffer);
-		uint16_t x = MAX(0,MIN(800,1 * abs((current.o - o)) - 20 * abs((current.o - lastPose.o)*deltaTime)));
+		uint16_t x = MAX(0,MIN(1199,1 * abs((current.o - o)) - 20 * abs((current.o - lastPose.o)*deltaTime)));
 		if(current.o - o > 0){
 			setMotors(-x,x);
 		}
@@ -265,7 +265,7 @@ void faceLocation(Location target, Pose current){
 void faceAngle(angle o,Pose current){
 	uint16_t time1 = getTime();
 	float deltaTime = 1/(time1-time2);
-	uint16_t x = MAX(0,MIN(800,1 * abs((current.o - o)) - 20 * abs((current.o - lastPose.o)*deltaTime)));
+	uint16_t x = MAX(0,MIN(1199,1 * abs((current.o - o)) - 20 * abs((current.o - lastPose.o)*deltaTime)));
 	
 	if(current.o - o < -3500 || current.o - o > 3500){
 		
