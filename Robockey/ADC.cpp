@@ -2,7 +2,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #define F_CPU 16000000
-#include "m_general.h"
+#include <avr/delay.h>
+#include "miscellaneous.h"
 
 Resistor irResistor;
 Resistor nextResistor;

@@ -5,9 +5,13 @@
 // author: J. Fiene
 // -----------------------------------------------------------------------------
 
-#include "m_general.h" // just for debugging
+#include "miscellaneous.h" // just for debugging
 #include "m_wii.h"
 #include "m_usb.h"
+#define F_CPU 16000000
+#include <util/delay.h>
+#include <avr/interrupt.h>
+#define m_wait(x) _delay_ms(x)
 
 #define MWIITWIADDR		0x58
 #define TWI_MAX_WAIT	1000

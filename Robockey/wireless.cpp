@@ -2,6 +2,9 @@
 #include "GameState.h"
 #include "Localization.h"
 #include "ADC.h"
+#define F_CPU 16000000
+#include <util/delay.h>
+#include <avr/interrupt.h>
 
 extern "C"{
 	#include "m_rf.h"
@@ -74,8 +77,7 @@ ISR(INT2_vect){
 		case static_cast<uint8_t>(Robot::ROBOT3):
 			{
 				//Received a message from another team robot
-				Robot robot = static_cast<Robot>(buffer[0]);
-				//processTeamMessage(buffer+1);
+				processTeamMessage(getAllyID(buffer[0]),buffer+1);
 				break;
 			}
 		case 0xA0:
@@ -105,4 +107,12 @@ ISR(INT2_vect){
 			receivedEnemyLocations((int8_t*)(buffer + 1));
 			break;
 	}
+}
+
+void sendRobotMessage(Robot otherRobot, Pose location, uint8_t thisStrategy, uint8_t suggestedStrategy){
+	
+}
+
+void processTeamMessage(uint8_t allyID, uint8_t *data){
+	
 }

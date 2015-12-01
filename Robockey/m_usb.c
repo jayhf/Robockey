@@ -7,6 +7,10 @@
 
 #define USB_SERIAL_PRIVATE_INCLUDE
 #include "m_usb.h"
+#include <stdint.h>
+#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
+#include <stdlib.h>
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------

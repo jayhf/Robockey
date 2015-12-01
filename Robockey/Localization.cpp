@@ -13,9 +13,9 @@
 #include <stdlib.h>
 extern "C"{
 	#include "m_wii.h"
-	#include "m_usb.h"
 };
 #endif
+
 #include "BAMSMath.h"
 #include "ADC.h"
 #include "stdio.h"
@@ -495,7 +495,7 @@ Pose localizeRobot(uint16_t* irData, Pose previousPose){
 		return Pose(-rx, ry, -oo);
 }
 
-void localizeRobot2(){
+/*void localizeRobot2(){
 	uint16_t center[2] = {1024/2,768/2};
 	//constellation center in pixels
 
@@ -558,4 +558,4 @@ void localizeRobot2(){
 	//float uvect[2] = {rotationmatrix[0],rotationmatrix[1]};
 	float dvect[2] = {rotated[2]-rotated[0],rotated[3]-rotated[1]};
 	//robotPose2 = Pose(dvect[0],dvect[1],toBAMS(offsettheta));
-}
+}*/

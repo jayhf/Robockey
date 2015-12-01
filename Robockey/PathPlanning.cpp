@@ -5,14 +5,14 @@
 *  Author: Daniel Orol
 */
 
-///Please switch all types to those found in stdint.h
-
 #include "PathPlanning.h"
 #include "PlayerLogic.h"
 #include "Digital.h"
 #include "BAMSMath.h"
 #include "time.h"
 #include "FastMath.h"
+#include "Localization.h"
+#include <stdlib.h>
 
 extern "C"{
 	#include "m_usb.h"
@@ -20,13 +20,10 @@ extern "C"{
 
 
 //TODO get rid of this:
-#include "GameState.h"
-#include "wireless.h"
 int16_t lastDistance = 0;
 int16_t lastTheta = 0;
 Pose lastPose = getRobotPose();
 uint16_t time2=0;
-
 
 void goToPosition(Pose target, Pose current, bool faceForward);
 void goToPositionSpin(Pose target, Pose current);

@@ -10,9 +10,10 @@
 #else
 #define F_CPU 16000000
 #include <util/delay.h>
-#include "m_general.h"
+#include "miscellaneous.h"
 #endif
 
+#include <avr/interrupt.h>
 #include "time.h"
 #include "Digital.h"
 #include "Localization.h"
@@ -24,7 +25,6 @@
 #include "FastMath.h"
 #include "PlayerLogic.h"
 
-#define OFF 0
 
 extern "C"{
 	#include "m_usb.h"
@@ -48,15 +48,15 @@ int main(void)
 	initWireless();
 	initLocalization();
 	updateLocalization();
-	m_wait(500);
+	_delay_ms(500);
 	updateLocalization();
 	updateGameState(GameState::HALFTIME);
 	updateGameState(GameState::COMM_TEST);
 	while(1){
 		//updateLED();
-		
+		leftCorner();
 		updateLocalization();
-		tryKick();
+		//tryKick();
 		/*sendRobotLocation();
 		m_green(0);
 		if(!timePassed(500)){
@@ -69,6 +69,7 @@ int main(void)
 	}
 	//puckLocalizationTest();
 }
+#define OFF 0
 void puckLocalizationTest(){
 	setEnabled(false);
 	while(1){
@@ -79,7 +80,7 @@ void puckLocalizationTest(){
 		sendIR();
 		sendPuckPose();
 		_delay_ms(100);
-		m_green(TOGGLE);
+		m_green(2);
 	}
 }
 void oldMain(){
@@ -124,7 +125,7 @@ void oldMain(){
 			m_usb_tx_char(',');
 		}
 		m_usb_tx_char('\n');
-		m_wait(1000);
+		_delay_ms(1000);
 		
 		/*
 		if(i<100){

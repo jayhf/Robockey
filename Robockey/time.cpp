@@ -3,7 +3,7 @@
 #include "avr/io.h"
 #include "avr/interrupt.h"
 
-time currentTime;
+volatile time currentTime;
 
 void initClock(){
 	//Count to 62500

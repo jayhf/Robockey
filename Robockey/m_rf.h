@@ -8,7 +8,7 @@
 #ifndef m_rf__
 #define m_rf__
 
-#include "m_general.h"
+#include "miscellaneous.h"
 #include "m_bus.h"
 
 // -----------------------------------------------------------------------------

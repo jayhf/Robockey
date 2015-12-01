@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------------
 
 #include "m_bus.h"
+#include <avr/interrupt.h>
 
 // private function prototypes:
 unsigned char twi_start(unsigned char address, unsigned char readwrite);

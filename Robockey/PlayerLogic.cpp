@@ -134,7 +134,7 @@ void avoidGoalie(){
 		int16_t gap[3] = {0,0,0}; //store largest y1, y2, height of largest gap
 		if (count == 1){
 			for (int i = 0; i<3; i++){
-				uint16_t distance = YMAX - goalie[i];
+				int16_t distance = YMAX - goalie[i];
 				if (distance > gap[2]){
 					gap[0] = YMAX;
 					gap[1] = goalie[i];
@@ -227,14 +227,14 @@ void tryKick(){
 			Location target = Location(currentPose.x, goalY);
 			//if(!checkIntersection(currentPose.getLocation(), target, PUCK_RADIUS)){
 				//startKick();
-				setLED(LEDColor::BLUE);
+				//setLED(LEDColor::BLUE);
 			//}	
 		}
-		else
-			setLED(LEDColor::RED);
+		//else
+			//setLED(LEDColor::RED);
 	}
-	else
-		setLED(LEDColor::PURPLE);
+	//else
+		//setLED(LEDColor::PURPLE);
 }
 	
 void defenseLogic(){

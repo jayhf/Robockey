@@ -1,8 +1,8 @@
 #pragma once
 
 #include <stdint.h>
-#include "BAMSMath.h"
 #include "time.h"
+#include "BAMSMath.h"
 
 #define YMAX 60
 #define YMIN -60

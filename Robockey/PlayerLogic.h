@@ -7,11 +7,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <stdlib.h>
-#include "Localization.h"
-#include "PathPlanning.h"
-#include "BAMSMath.h"
-#include "Digital.h"
 
 enum class Player : uint8_t{
 	GOALIE = 0, DEFENSE = 1, SCORER = 2, ASSISTER = 3

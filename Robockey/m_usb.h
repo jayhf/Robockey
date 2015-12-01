@@ -8,8 +8,8 @@
 #ifndef m_usb__
 #define m_usb__
 
-#include "m_general.h"
-#include <stdlib.h>
+#include "miscellaneous.h"
+#include <stdint.h>
 
 // -----------------------------------------------------------------------------
 // Public functions:

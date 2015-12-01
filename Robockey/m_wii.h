@@ -8,7 +8,7 @@
 #ifndef m_wii__
 #define m_wii__
 
-#include "m_general.h"
+#include "miscellaneous.h"
 #include "m_bus.h"
 
 // -----------------------------------------------------------------------------

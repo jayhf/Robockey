@@ -14,8 +14,8 @@ enum class Team : uint8_t{
 	UNKNOWN, RED, BLUE
 };
 
-enum class RobotStrategy : uint8_t{
-	GOALIE = 0, DEFENSE = 1, OFFENSE = 2, SCORER =3
+enum class StrategyType : uint8_t{
+	GOALIE = 0b0000000, DEFENSE = 0b01000000, OFFENSE = 0b10000000, SCORER = 0b11000000
 };
 
 uint8_t getRScore();
