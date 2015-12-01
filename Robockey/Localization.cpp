@@ -268,18 +268,11 @@ void localizeRobot(){
 	robotPose = Pose(0,0,0);
 }
 
-Pose previousGood = UNKNOWN_POSE;
 Pose localizeRobot(uint16_t* irData){
-	int16_t possiblePointsX[13];
-	int16_t possiblePointsY[13];
-	int16_t possiblePointsO[13];
+	int16_t possiblePointsX[12];
+	int16_t possiblePointsY[12];
+	int16_t possiblePointsO[12];
 	uint8_t possiblePointCount = 0;
-	if(previousGood != UNKNOWN_POSE){
-		possiblePointsX[0] = previousGood.x;
-		possiblePointsY[0] = previousGood.y;
-		possiblePointsO[0] = previousGood.o;
-		possiblePointCount++;
-	}
 	uint16_t irX[4] = {irData[0], irData[3], irData[6], irData[9]};
 	uint16_t irY[4] = {irData[1], irData[4], irData[7], irData[10]};
 	if(irY[1] == 1023){
@@ -424,7 +417,7 @@ Pose localizeRobot(uint16_t* irData){
 	int16_t ox = 0;
 	int16_t oy = 0;
 	int16_t oo = 0;
-	if(possiblePointCount < 2){
+	if(possiblePointCount == 0){
 		return UNKNOWN_POSE;
 	}
 	else if(possiblePointCount == 2){
@@ -443,7 +436,7 @@ Pose localizeRobot(uint16_t* irData){
 	}
 	else{
 		bool stop = false;
-		uint8_t scores[13];
+		uint8_t scores[12];
 		for(uint8_t i=0;i<possiblePointCount;i++)
 			scores[i] = 0;
 		for(uint8_t i=0;i<possiblePointCount && !stop;i++){
@@ -489,15 +482,11 @@ Pose localizeRobot(uint16_t* irData){
 
 	}
 	//fprintf(stdout,"(%f,%f,%d)\n",ox,oy,oo);
+	
 	float coso = cos(toFloatAngle(oo));
 	float sino = sin(toFloatAngle(oo));
 	int16_t rx = (-ox*coso - oy *sino)*(115.0f/768);
 	int16_t ry = (ox*sino - oy *coso)*(115.0f/768);
-
-	if(rx > XMAX || rx < XMIN || ry > YMAX || ry < YMIN)
-		return UNKNOWN_POSE;
-	
-	previousGood = Pose(rx, ry, oo);
 	oo = PI/2-(oo-PI/2);
 	//fprintf(stdout,"(%f,%f,%d)\n",rx,ry,oo);
 	if(flipCoordinates())
