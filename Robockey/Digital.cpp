@@ -43,16 +43,27 @@ void setMotors(int16_t right, int16_t left){
 	//previousRight = right;
 }
 
+
 time kickEndTime;
+time kickResetTime;
+bool canKick;
 void startKick(){
-	kickEndTime = getTime() + 50;
-	PORTD &= ~(1 << 7);
+	if(canKick){
+		canKick = false;
+		kickEndTime = getTime() + 50;
+		kickResetTime = getTime() + 256;
+		PORTD &=~(1 << 7);
+	}
 }
 
 void updateKick(){
 	if(((int16_t)(getTime() - kickEndTime)) >= 0){
 		PORTD |= 1 << 7;
 		kickEndTime = getTime();
+	}
+	if(((int16_t)(getTime() - kickResetTime)) >= 0){
+		canKick = true;
+		kickResetTime = getTime();
 	}
 }
 
