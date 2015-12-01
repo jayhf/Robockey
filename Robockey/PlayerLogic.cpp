@@ -241,22 +241,24 @@ void tryKick(){
 	Pose currentPose = getRobotPose();
 	uint8_t dMax = ROBOT_RADIUS + 20;
 	uint8_t dX = XMAX - currentPose.x;
-	float dL = dX/cosb(currentPose.o);
-	if(dL <= dMax){
-		int16_t dY = dL * sinb(currentPose.o);
-		int16_t goalY = currentPose.y + dY;
-		if((goalY <= (YMAX/2 - PUCK_RADIUS)) && (goalY >= (YMIN/2 + PUCK_RADIUS))){	
-			Location target = Location(currentPose.x, goalY);
-			//if(!checkIntersection(currentPose.getLocation(), target, PUCK_RADIUS)){
-				//startKick();
-				//setLED(LEDColor::BLUE);
-			//}	
+	if(dX <= dMax){
+		float dL = dX/cosb(currentPose.o);
+		if(dL <= dMax){
+			int16_t dY = dL * sinb(currentPose.o);
+			int16_t goalY = currentPose.y + dY;
+			if((goalY <= (YMAX/2 - PUCK_RADIUS)) && (goalY >= (YMIN/2 + PUCK_RADIUS))){	
+				Location target = Location(currentPose.x, goalY);
+				//if(!checkIntersection(currentPose.getLocation(), target, PUCK_RADIUS)){
+					//startKick();
+					//setLED(LEDColor::BLUE);
+				//}	
+			}
+			//else
+				//setLED(LEDColor::RED);
 		}
 		//else
-			//setLED(LEDColor::RED);
+			//setLED(LEDColor::PURPLE);
 	}
-	//else
-		//setLED(LEDColor::PURPLE);
 }
 	
 void defenseLogic(){
