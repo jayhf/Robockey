@@ -54,10 +54,14 @@ int main(void)
 	updateGameState(GameState::COMM_TEST);
 	while(1){
 		//updateLED();
-		leftCorner();
 		updateLocalization();
-		tryKick();
-		updateKick();
+		if(!timePassed(700)){
+		leftCorner();
+		}
+		else setMotors(0,0);
+		
+		//tryKick();
+		//updateKick();
 		/*sendRobotLocation();
 		m_green(0);
 		if(!timePassed(500)){

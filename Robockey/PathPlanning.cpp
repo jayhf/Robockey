@@ -197,16 +197,16 @@ void goToPositionPuck(Pose target, Pose current){
 		int16_t targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
 		angle deltaTheta = current.o - targetTheta;
 
-		uint16_t k1 = 50; //distance proportional
+		uint16_t k1 = 40; //distance proportional
 		uint16_t k2 = 0.5; //angle proportional
-		uint16_t k3 = 1; //distance derivative
+		uint16_t k3 = 25; //distance derivative
 		uint16_t k4 = 15; //angle derivative
 		
 
 		uint16_t x = MIN(900,k1 * distance - k3 * (distance - lastDistance));
 		uint16_t y = MIN(300,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
 		
-		if (deltaTheta < 4500 && deltaTheta > -4500){ //if within 0.1 radians ~5* of target angle,
+		if (deltaTheta < 3500 && deltaTheta > -3500){ //if within 0.1 radians ~5* of target angle,
 			setMotors(x,x); //forwards
 		}
 		else {
