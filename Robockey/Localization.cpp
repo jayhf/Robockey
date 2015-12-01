@@ -269,10 +269,23 @@ void localizeRobot(){
 }
 
 Pose localizeRobot(uint16_t* irData, Pose previousPose){
-	int16_t possiblePointsX[12];
-	int16_t possiblePointsY[12];
-	int16_t possiblePointsO[12];
+	previousPose.x *= 6.68;
+	previousPose.y *= 6.68;
+	if(flipCoordinates()){
+		previousPose.x *= -1;
+		previousPose.y *= -1;
+		previousPose.o += PI;
+	}
+	int16_t possiblePointsX[13];
+	int16_t possiblePointsY[13];
+	int16_t possiblePointsO[13];
 	uint8_t possiblePointCount = 0;
+	if(previousPose != UNKNOWN_POSE){
+		possiblePointsX[0] = previousPose.x;
+		possiblePointsY[0] = previousPose.y;
+		possiblePointsO[0] = previousPose.o;
+		possiblePointCount++;
+	}
 	uint16_t irX[4] = {irData[0], irData[3], irData[6], irData[9]};
 	uint16_t irY[4] = {irData[1], irData[4], irData[7], irData[10]};
 	if(irY[1] == 1023){
@@ -417,8 +430,8 @@ Pose localizeRobot(uint16_t* irData, Pose previousPose){
 	int16_t ox = 0;
 	int16_t oy = 0;
 	int16_t oo = 0;
-	if(possiblePointCount == 0){
-		return Pose(1023,1023,0);
+	if(possiblePointCount < 2){
+		return UNKNOWN_POSE;
 	}
 	else if(possiblePointCount == 2){
 		int32_t d1 = possiblePointsX[0]*possiblePointsX[0]+possiblePointsY[0]*possiblePointsY[0];
@@ -436,7 +449,7 @@ Pose localizeRobot(uint16_t* irData, Pose previousPose){
 	}
 	else{
 		bool stop = false;
-		uint8_t scores[12];
+		uint8_t scores[13];
 		for(uint8_t i=0;i<possiblePointCount;i++)
 			scores[i] = 0;
 		for(uint8_t i=0;i<possiblePointCount && !stop;i++){
