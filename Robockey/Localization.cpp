@@ -501,6 +501,8 @@ Pose localizeRobot(uint16_t* irData, Pose previousPose){
 	int16_t rx = (-ox*coso - oy *sino)*(115.0f/768);
 	int16_t ry = (ox*sino - oy *coso)*(115.0f/768);
 	oo = PI/2-(oo-PI/2);
+	if(rx > XMAX || rx < XMIN || ry > YMAX || ry < YMIN)
+		return UNKNOWN_POSE;
 	//fprintf(stdout,"(%f,%f,%d)\n",rx,ry,oo);
 	if(flipCoordinates())
 		return Pose(rx,-ry,PI-oo);
