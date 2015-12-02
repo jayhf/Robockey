@@ -63,7 +63,7 @@ public class Robot {
 			g.fill(new Ellipse2D.Double(puckEstimate.x-3.81, puckEstimate.y-3.81, 7.62, 7.62));
 			g.setColor(Color.DARK_GRAY);
 			g.draw(new Line2D.Double(pose.x, pose.y, pose.x+100*Math.cos(puckAngle+pose.o), pose.y+100*Math.sin(puckAngle+pose.o)));
-			g.draw(new Ellipse2D.Double(pose.x-puckDistance/2, pose.y-puckDistance/2, puckDistance, puckDistance));
+			g.draw(new Ellipse2D.Double(pose.x-puckDistance, pose.y-puckDistance, puckDistance*2, puckDistance*2));
 		}
 	}
 	
@@ -392,7 +392,9 @@ public class Robot {
 				puckAngle = buffer.getShort()*Math.PI/32768;
 				puckEstimate = new Pose(buffer.get(),buffer.get(),0);
 				System.out.println("Resistor: "+buffer.get());
-				puckDistance =  buffer.get();
+				System.out.println(puckEstimate);
+				puckDistance =  0xFF& buffer.get();
+				System.out.println("Distance " + puckDistance);
 				break;
 			case 0x20:
 				System.out.print("Angle: "+(buffer.getShort()*180/32768+'\t'));
