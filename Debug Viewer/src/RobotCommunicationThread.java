@@ -40,7 +40,7 @@ public class RobotCommunicationThread extends Thread {
 		}
 		else if(serialPorts.size() > 1){
 			Object selection = JOptionPane.showInputDialog(null, "Select a COM port", "COM Port Selection", JOptionPane.QUESTION_MESSAGE, null, serialPorts.toArray(), serialPorts.get(0));
-			port = (CommPort) selection;
+			port = ((CommPortIdentifier) selection).open("Robockey", 2000);
 		}
 		else
 			throw new IllegalArgumentException("No comm port found!");
