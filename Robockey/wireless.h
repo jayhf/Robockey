@@ -12,3 +12,4 @@ void sendBattery();
 void sendPuckPose();
 void sendRobotMessage(Robot otherRobot, Pose location, uint8_t thisStrategy, uint8_t suggestedStrategy);
 void processTeamMessage(uint8_t allyID, uint8_t *data);
+void sendNextMessage();

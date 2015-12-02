@@ -2,6 +2,7 @@
 #include "Digital.h"
 #include "avr/io.h"
 #include "avr/interrupt.h"
+#include "wireless.h"
 
 volatile time currentTime;
 
@@ -37,6 +38,9 @@ void sleep(){
 
 ISR(TIMER3_COMPA_vect){
 	currentTime++;
+	if(currentTime & 0x10){
+		sendNextMessage();
+	}
 	//Start the next ADC cycle
 	ADCSRA |= 1 << ADSC;
 }
