@@ -12,7 +12,7 @@ extern "C"{
 }
 
 volatile Robot recipients[8];
-volatile uint8_t messageQueue[8][10];
+uint8_t messageQueue[8][10];
 volatile uint8_t messageCount = 0;
 volatile uint8_t firstMessageIndex = 0;
 
@@ -23,21 +23,20 @@ void initWireless(){
 void sendNextMessage(){
 	if(messageCount==0)
 		return;
-	//m_rf_send(static_cast<uint8_t>(recipients[firstMessageIndex]), (char*)messageQueue[firstMessageIndex], 10);
+	m_rf_send(static_cast<uint8_t>(recipients[firstMessageIndex&0x7]), (char*)messageQueue[firstMessageIndex&0x7], 10);
 	firstMessageIndex++;
 	messageCount--;
 }
 
 void sendPacket(Robot robot, uint8_t messageID, uint8_t *packet){
-	packet[0]=static_cast<uint8_t>(getThisRobot());
-	packet[1]=messageID;
 	if(messageCount == 8)
 		return;
+	packet[0]=static_cast<uint8_t>(getThisRobot());
+	packet[1]=messageID;
 	uint8_t messageIndex = (messageCount + firstMessageIndex)&0x7;
-	//memcpy(messageQueue[messageIndex],packet,10);
+	memcpy(messageQueue[messageIndex],packet,10);
 	recipients[messageIndex] = robot;
 	messageCount++;
-	m_rf_send(static_cast<uint8_t>(recipients[firstMessageIndex]), (char*)messageQueue[firstMessageIndex], 10);
 	_delay_ms(10);
 }
 
