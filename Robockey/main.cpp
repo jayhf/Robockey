@@ -53,10 +53,29 @@ int main(void)
 	updateGameState(GameState::HALFTIME);
 	updateGameState(GameState::COMM_TEST);
 	while(1){
+		//setLED(LEDColor::RED);
 		//updateLED();
 		updateLocalization();
-		if(!timePassed(700)){
-		leftCorner();
+		sendRobotLocation();
+		sendPuckPose();
+		sendIR();
+		switch (getSelectedResistor())
+		{
+			case Resistor::R1K:
+			setLED(LEDColor::OFF);
+			break;
+			case Resistor::R47K:
+			setLED(LEDColor::RED);
+			break;
+			case Resistor::R6K8:
+			setLED(LEDColor::PURPLE);
+			break;
+			case Resistor::R330K:
+			setLED(LEDColor::BLUE);
+			break;
+		}
+		if(!timePassed(400)){
+			followWall();
 		}
 		else setMotors(0,0);
 		

@@ -183,57 +183,38 @@ void receivedEnemyLocations(int8_t *locations){
 }
 
 Location findPuck(){
-	uint16_t val1 = 0;
-	uint16_t val2 = 0;
-	uint16_t val3 = 0;
-	uint8_t photo1 = 0;
-	uint8_t photo2 = 0;
-	uint8_t photo3 = 0;
+	uint16_t val = 0;
+	uint8_t photo = 0;
 
 	uint16_t * values = getIRData(); // loop through transistors
 	for (uint8_t i = 0; i < 16; i++){
 		uint16_t thisADC = values[i];
-		if (thisADC > val3) {
-			if (thisADC > val2) {
-				if (thisADC > val1){
-					photo3 = photo2;
-					photo2 = photo1;
-					photo1 = i; //current pin
-					val3 = val2;
-					val2 = val1;
-					val1 = thisADC;
-				}
-				else {
-					photo3 = photo2;
-					photo2 = i;
-					val3 = val2;
-					val2 = thisADC;
-				}
-			}
+		if (thisADC > val) {
+			val=thisADC;
+			photo=i;
 		}
 	}
-	/*m_usb_tx_int(photo1);
-	m_usb_tx_char(',');
-	m_usb_tx_int(photo2);
-	m_usb_tx_char(',');
-	m_usb_tx_int(photo3);
-	m_usb_tx_char('\n');*/
+	uint8_t photol,photor;
+	if (photo == 15)
+	{
+		photol=15;
+		photor=1;
+	}
+	else if(photo==0){
+		photol=14;
+		photor=0;
+	}
+	else{
+		photol = photo--;
+		photor = photo++;
+	}
+	uint8_t photo2 = MAX(photol,photor);
+	uint16_t val2 = values[photo2];
+	int16_t heading = 2*PI/16 * ((photo * val +  photo2 * val2) / (float)(val+val2))+PI; //compute weighted average and multiply by degrees per transistor
 	
-	int16_t heading;
-	if (((photo2 == photo1 + 15 && photo3 == photo1 - 15)
-	|| (photo2 == photo1 - 15 && photo3 == photo1 + 15))){
-		//if largest reading is in betweeen next two and the next two are within +/- 5, assume that middle is pointing directly at it
-		heading = -2*PI/16 * ((float)photo1 - 1)+PI;
-
-	}
-	else {
-		heading = -2*PI/16 * ((photo1 * val1 + photo2 * val2) / (float)(val1+val2) - 1)+PI; //compute weighted average and multiply by degrees per transistor
-	}
-	//m_usb_tx_int(heading);
-	//m_usb_tx_char('\n');
 	///Don't see the point of multiplying and dividing by 3. Doesn't really matter, because we need a lookup table based system
 	///to get a decent distance measurement. You also will need to consider that the resistor changes and you need to check which is used.
-	uint8_t distance = 0.1*(val1 + val2 + val3)/3; //need to scale accordingly
+	uint8_t distance = 0.1*(val + val2)/2; //need to scale accordingly
 	puckHeading = heading;
 	return Location((int16_t)(distance*cosb(heading)) + robotPose.x,(int16_t)(distance*sinb(heading))+robotPose.y);
 }
@@ -258,7 +239,7 @@ time getPuckUpdateTime(){
 }*/
 
 bool nearWall(Pose current){
-	return current.x > XMAX - ROBOT_RADIUS || current.x < XMIN + ROBOT_RADIUS || current.y > YMAX - ROBOT_RADIUS || current.y < YMIN +ROBOT_RADIUS;
+	return current.x > XMAX - 2*ROBOT_RADIUS || current.x < XMIN + 2*ROBOT_RADIUS || current.y > YMAX - 2*ROBOT_RADIUS || current.y < YMIN +2*ROBOT_RADIUS;
 }
 
 void localizeRobot(){

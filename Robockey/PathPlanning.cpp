@@ -71,7 +71,7 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 		uint16_t k4 = 20; //angle derivative
 		
 
-		uint16_t x = MIN(900,k1 * distance - k3 * (distance - lastDistance));
+		uint16_t x = MIN(400,k1 * distance - k3 * (distance - lastDistance));
 		uint16_t y = MIN(300,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
 		if (!faceForward){
 			if (deltaTheta < 3500 && deltaTheta > -3500){
@@ -136,7 +136,7 @@ void goToPositionSpin(Pose target, Pose current){
 		int16_t deltaY = current.y - target.y;
 		if((deltaX > 5 || deltaX < -5) || (deltaY > 5 || deltaY < -5)){
 			int16_t distance = sqrt((uint16_t)abs(deltaX*deltaX + deltaY*deltaY));
-			int16_t x = MAX(0,MIN(900,7 * distance - 1 * (distance - lastDistance)));
+			int16_t x = MAX(0,MIN(400,7 * distance - 1 * (distance - lastDistance)));
 			setMotors(x,x);
 		}
 		else{//reset PID terms
@@ -203,8 +203,8 @@ void goToPositionPuck(Pose target, Pose current){
 		uint16_t k4 = 15; //angle derivative
 		
 
-		uint16_t x = MIN(900,k1 * distance - k3 * (distance - lastDistance));
-		uint16_t y = MIN(300,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
+		uint16_t x = MIN(400,k1 * distance - k3 * (distance - lastDistance));
+		uint16_t y = MIN(250,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
 		
 		if (deltaTheta < 3500 && deltaTheta > -3500){ //if within 0.1 radians ~5* of target angle,
 			setMotors(x,x); //forwards
