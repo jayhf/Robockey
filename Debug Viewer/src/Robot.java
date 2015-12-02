@@ -28,6 +28,7 @@ public class Robot {
 	private volatile Color ledColor = new Color(0, true);
 	private Pose puckEstimate = null;
 	private double puckAngle = 0, puckDistance = 0;
+	private boolean robotActive = false;
 	public Robot(Pose pose, Team team) {
 		this.pose = pose;
 		this.team = team;
@@ -38,6 +39,8 @@ public class Robot {
 	}
 	private Color color = Color.getHSBColor((float) Math.random(), 1, 1);
 	public void paint(Graphics2D g){
+		if(!robotActive)
+			return;
 		g.setColor(team==Team.RED?Color.RED:Color.BLUE);
 		g.fill(new Ellipse2D.Double(pose.x-7.5, pose.y-7.5, 15, 15));
 		g.setColor(Color.BLACK);
@@ -360,6 +363,7 @@ public class Robot {
 	}
 	double v = 0;
 	public void receivedDebugMessage(ByteBuffer buffer) {
+		robotActive = true;
 		byte id = buffer.get();
 		switch(id){
 			case 0x10:

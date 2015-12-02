@@ -27,7 +27,7 @@ public class Main {
 			robots[i] = new Robot(new Pose(0,0,0), Team.BLUE);
 		for(int i=0;i<3;i++)
 			robots[i+3] = new Robot(new Pose(0,0,0), Team.RED);
-		Rink rink = new Rink(robots[0]);//,robot2);
+		Rink rink = new Rink(robots[0],robots[1],robots[2]);//,robot2);
 		//rink.addRobot(new Robot(new Pose(76,12,Math.PI/2),Team.RED));
 		GUI gui = new GUI(rink);
 		SwingUtilities.invokeAndWait(()->gui.init());
@@ -60,8 +60,12 @@ public class Main {
 				switch(id){
 					case 85:
 						return robots[0];
+					case 86:
+						return robots[1];
+					case 87:
+						return robots[2];
 					default:
-						return robots[0];
+						return null;
 				}
 			});
 			robotConnection.start();
