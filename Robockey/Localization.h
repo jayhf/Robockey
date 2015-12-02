@@ -14,10 +14,10 @@
 class Location;
 class Pose{
 public:
-	Pose(int16_t x, int16_t y, angle o) : x(x), y(y), o(o){}
-	Pose() : Pose(0,0,0){}
-	int16_t x;
-	int16_t y;
+	Pose(int8_t x, int8_t y, angle o) : x(x), y(y), o(o){}
+	Pose() : Pose(127,127,0){}
+	int8_t x;
+	int8_t y;
 	angle o;
 	inline Pose operator-(Pose b){
 		return Pose(x-b.x, y-b.y, o-b.o);
@@ -39,7 +39,7 @@ public:
 class Location{
 	public:
 	Location(int8_t x, int8_t y) : x(x), y(y){}
-	Location() : Location(0,0){}
+	Location() : Location(127,127){}
 	int8_t x;
 	int8_t y;
 	inline Location operator-(Location b){
@@ -77,29 +77,31 @@ public:
 	Velocity() : Velocity(0,0){}
 };
 
-#define UNKNOWN_POSE (Pose(255,255,0))
-#define UNKNOWN_LOCATION (Location(255,255))
+#define UNKNOWN_POSE (Pose(127,127,0))
+#define UNKNOWN_LOCATION (Location(127,127))
 
 void initLocalization();
 void updateLocalization();
 
-
+bool puckVisible();
 angle getPuckHeading();
 uint8_t getPuckDistance();
 
-Location* getEnemyLocations();
+//Location* getEnemyLocations();
 Location getPuckLocation();
 Location* getAllyLocations();
 Pose getRobotPose();
+Pose getLastKnownRobotPose();
 
 Velocity getPuckVelocity();
-Velocity* getEnemyVelocities();
+//Velocity* getEnemyVelocities();
 Velocity* getAllyVelocities();
 Velocity getVelocity();
 
 //dt is in 1/256 of a second
+Location predictLocation(Location l, Velocity v, uint8_t dt);
 Location predictPuck(uint8_t dt);
-Location predictEnemy(uint8_t enemyIndex, uint8_t dt);
+//Location predictEnemy(uint8_t enemyIndex, uint8_t dt);
 Location predictAlly(uint8_t allyID, uint8_t dt);
 Location predictPose(uint8_t dt);
 
@@ -112,4 +114,4 @@ Location findPuck();
 Pose localizeRobot(uint16_t* irData);
 void receivedEnemyLocations(int8_t *locations);
 void receivedAllyUpdate(Pose pose, Location puckLocation, uint8_t allyID);
-void kalmanFilter(Location &location, Velocity &velocity, Location measuredLocation, uint16_t &oldTime, uint16_t newTime);
+void locationFilter(Location &location, Velocity &velocity, Location measuredLocation, uint16_t &oldTime, uint16_t newTime, uint8_t &certainty);

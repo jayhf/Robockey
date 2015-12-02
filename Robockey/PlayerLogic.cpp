@@ -138,7 +138,7 @@ void rightCorner(){
 	}
 }
 
-void avoidGoalie(){
+/*void avoidGoalie(){
 	//find if one of their players is in the goal and go towards the larger space based on his position
 	Location* enemies = getEnemyLocations();
 	
@@ -211,7 +211,7 @@ void avoidGoalie(){
 		}
 	}
 	else goToPositionPuck(Pose(XMAX+ROBOT_RADIUS,getRobotPose().y,0),getRobotPose());
-}
+}*/
 
 void fakeGoalie(){
 	//do same as avoid goalie but move other direction then turn quickly

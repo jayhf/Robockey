@@ -24,19 +24,24 @@ extern "C"{
 Location newAllyLocations[2];
 Location newAllyPuckLocations[2];
 time newAllyUpdateTimes[2];
-Location newEnemyLocations[3];
-time newEnemyUpdateTime;
+//Location newEnemyLocations[3];
+//time newEnemyUpdateTime;
 
+uint8_t allyLocationCertainty[] = {0,0};
 Location allyLocations[2];
-Location allyPuckLocations[2] = {UNKNOWN_LOCATION, UNKNOWN_LOCATION};
+Location allyPuckLocations[2];
 Velocity allyVelocities[2];
 time allyUpdateTimes[2];
-Location enemyLocations[3] = {Location(110,5),Location(-110,5), Location(-110,-10)};
-Velocity enemyVelocities[3];
-time enemyUpdateTime;
+//Location enemyLocations[3] = {Location(110,5),Location(-110,5), Location(-110,-10)};
+//Velocity enemyVelocities[3];
+//time enemyUpdateTime;
+uint8_t robotPoseCertainty = 0;
 Pose robotPose;
+Pose lastKnownRobotPose;
 Velocity robotVelocity;
 time robotUpdateTime;
+uint8_t puckCertainty = 0;
+bool seePuck = false;
 uint8_t puckDistance;
 angle puckHeading;
 Location puckLocationToSend;
@@ -53,12 +58,17 @@ void initLocalization(){
 }
 
 void updateLocalization(){
+	for(uint8_t i = 0; i<2; i++)
+		if(timePassed(allyUpdateTimes[i]+(ONE_SECOND/8))){
+			allyPuckLocations[i] = UNKNOWN_LOCATION;
+			allyLocations[i] = UNKNOWN_LOCATION;
+		}
 	uint16_t buffer[12];
 	m_wii_read(buffer);
 	Pose newRobotPose = localizeRobot(buffer);
 	if(newRobotPose != UNKNOWN_POSE){
 		Location robotLocation = robotPose.getLocation();
-		kalmanFilter(robotLocation, robotVelocity, newRobotPose.getLocation(), robotUpdateTime, getTime());
+		locationFilter(robotLocation, robotVelocity, newRobotPose.getLocation(), robotUpdateTime, getTime(),robotPoseCertainty);
 		robotPose.x = robotLocation.x;
 		robotPose.y = robotLocation.y;
 		robotPose.o = newRobotPose.o;
@@ -66,15 +76,15 @@ void updateLocalization(){
 		determineTeam();
 	}
 	for(int i=0;i<2;i++)
-		kalmanFilter(allyLocations[i],allyVelocities[i],newAllyLocations[i], allyUpdateTimes[i], newAllyUpdateTimes[i]);
-	for(int i=0;i<3;i++)
-		kalmanFilter(enemyLocations[i],enemyVelocities[i],newEnemyLocations[i], enemyUpdateTime, newEnemyUpdateTime);
+		locationFilter(allyLocations[i],allyVelocities[i],newAllyLocations[i], allyUpdateTimes[i], newAllyUpdateTimes[i],allyLocationCertainty[i]);
+	//for(int i=0;i<3;i++)
+	//	locationFilter(enemyLocations[i],enemyVelocities[i],newEnemyLocations[i], enemyUpdateTime, newEnemyUpdateTime);
 }
 
 
 void updatePuckPosition(){
-	Location averagePuckLocation = findPuck();
-	puckLocationToSend = averagePuckLocation;
+	puckLocationToSend = findPuck();
+	Location averagePuckLocation = puckLocationToSend;
 	time currentTime = getTime();
 	time dt;
 	if(allyPuckLocations[0] == UNKNOWN_LOCATION){
@@ -88,8 +98,8 @@ void updatePuckPosition(){
 		}
 	}
 	else{
-		averagePuckLocation.x = averagePuckLocation.x>>1;
-		averagePuckLocation.y = averagePuckLocation.y>>1;
+		averagePuckLocation.x >>= 1;
+		averagePuckLocation.y >>= 1;
 		if(allyPuckLocations[1] == UNKNOWN_LOCATION){
 			averagePuckLocation.x += allyPuckLocations[0].x>>1;
 			averagePuckLocation.y += allyPuckLocations[0].y>>1;
@@ -101,28 +111,54 @@ void updatePuckPosition(){
 			dt = (currentTime-allyUpdateTimes[1]+currentTime-allyUpdateTimes[0])>>1;
 		}
 	}
-	kalmanFilter(puckLocation, puckVelocity, averagePuckLocation, puckUpdateTime, currentTime-(dt>>1));
+	locationFilter(puckLocation, puckVelocity, averagePuckLocation, puckUpdateTime, currentTime-(dt>>1), puckCertainty);
 }
 
-void kalmanFilter(Location &location, Velocity &velocity, Location measuredLocation, time &oldTime, time newTime){
+void locationFilter(Location &location, Velocity &velocity, Location measuredLocation, time &oldTime, time newTime, uint8_t &certainty){
+	time dt = newTime - oldTime;
+	if(dt > certainty * (ONE_SECOND/8)){
+		location = UNKNOWN_LOCATION;
+		velocity = Velocity(0,0);
+		oldTime = newTime;
+		certainty = 0;
+	}
 	if(measuredLocation == UNKNOWN_LOCATION){
 		return;
 	}
-	else if(location == UNKNOWN_LOCATION){
+	else if(location == UNKNOWN_LOCATION || certainty == 0){
 		location = measuredLocation;
 		oldTime = newTime;
+		certainty = 2;
 		return;
 	}
 	else{
-		//Todo fix:
-		location = measuredLocation;	
+		Location predictedLocation = predictLocation(location,velocity,newTime - oldTime);
+		
+		if(predictedLocation.x > (int16_t)measuredLocation.x + 20 || predictedLocation.x < (int16_t)measuredLocation.x - 20 ||
+			predictedLocation.y > (int16_t)measuredLocation.y + 20 || predictedLocation.y < (int16_t)measuredLocation.y - 20){
+			if(certainty < 8)
+				certainty--;
+		}
+		else{
+			int8_t nextX = ((int16_t)predictedLocation.x+(int16_t)measuredLocation.x)>>1;
+			int8_t nextY = ((int16_t)predictedLocation.y+(int16_t)measuredLocation.y)>>1;
+			Location nextLocation(nextX,nextY);
+			Velocity estimatedVelocity((((int16_t)nextX-location.x)<<8)/dt,(((int16_t)nextY-location.y)<<8)/dt);
+			velocity = Velocity((velocity.x+estimatedVelocity.x)>>1,(velocity.y+estimatedVelocity.y)>>1);
+			location = nextLocation;
+			oldTime = newTime;
+			if(certainty < 8)
+				certainty++;
+		}
+		if(certainty >= 4)
+			lastKnownRobotPose = robotPose;
 	}
 }
 
 
-Location* getEnemyLocations(){
-	return enemyLocations;
-}
+//Location* getEnemyLocations(){
+//	return enemyLocations;
+//}
 Location getPuckLocation(){
 	return puckLocation;
 }
@@ -138,9 +174,13 @@ Velocity getPuckVelocity(){
 	return puckVelocity;
 }
 
-Velocity* getEnemyVelocities(){
-	return enemyVelocities;
+Pose getLastKnownRobotPose(){
+	return lastKnownRobotPose;
 }
+
+//Velocity* getEnemyVelocities(){
+//	return enemyVelocities;
+//}
 
 Velocity* getAllyVelocities(){
 	return allyVelocities;
@@ -150,24 +190,28 @@ Velocity getVelocity(){
 	return robotVelocity;
 }
 
-Location predictPuck(uint16_t dt){
-	return Location(puckLocation.x+(uint8_t)((((uint16_t)dt*puckVelocity.x)>>8)),puckLocation.y+(uint8_t)((((uint16_t)dt*puckVelocity.y)>>8)));
+Location predictLocation(Location l, Velocity v, uint8_t dt){
+	if(l == UNKNOWN_LOCATION)
+		return UNKNOWN_LOCATION;
+	return Location(l.x+(int8_t)(((uint16_t)dt*v.x)>>8),l.y+(uint8_t)(((uint16_t)dt*v.y)>>8));
 }
 
-Location predictEnemy(uint8_t enemyIndex, uint16_t dt){
+Location predictPuck(uint16_t dt){
+	return predictLocation(puckLocation, puckVelocity, dt);
+}
+
+/*Location predictEnemy(uint8_t enemyIndex, uint16_t dt){
 	Location location = enemyLocations[enemyIndex];
 	Velocity velocity = enemyVelocities[enemyIndex];
 	return Location(location.x+(uint8_t)((((uint16_t)dt*velocity.x)>>8)),location.y+(uint8_t)((((uint16_t)dt*velocity.y)>>8)));
-}
+}*/
 
 Location predictAlly(uint8_t allyID, uint16_t dt){
-	Location location = allyLocations[allyID];
-	Velocity velocity = allyVelocities[allyID];
-	return Location(location.x+(uint8_t)((((uint16_t)dt*velocity.x)>>8)),location.y+(uint8_t)((((uint16_t)dt*velocity.y)>>8)));
+	return predictLocation(allyLocations[allyID], allyVelocities[allyID], dt);
 }
 
 Location predictPose(uint16_t dt){
-	return Location(robotPose.x+(uint8_t)((((uint16_t)dt*robotVelocity.x)>>8)),robotPose.y+(uint8_t)((((uint16_t)dt*robotVelocity.y)>>8)));
+	return predictLocation(robotPose.getLocation(), robotVelocity, dt);
 }
 
 void receivedAllyUpdate(Location location, Location puckLocation, uint8_t allyID){
@@ -176,12 +220,12 @@ void receivedAllyUpdate(Location location, Location puckLocation, uint8_t allyID
 	newAllyPuckLocations[allyID] = puckLocation;
 }
 
-void receivedEnemyLocations(int8_t *locations){
+/*void receivedEnemyLocations(int8_t *locations){
 	newEnemyUpdateTime = getTime();
 	for(int i=0;i<3;i++){
 		newEnemyLocations[i] = flipCoordinates() ? Location(-locations[3*i+1], -locations[3*i+2]) : Location(locations[3*i+1], locations[3*i+2]);
 	}
-}
+}*/
 
 
 uint16_t intensities1K[] = {0,160,260,1023};
@@ -213,10 +257,7 @@ Location findPuck(){
 	int16_t max = MAX(abs(leftValue),abs(rightValue));
 	if(max!=0)
 		heading += (PI/16)*((leftValue-rightValue)/(float)max); //compute weighted average and multiply by degrees per transistor
-	
-	///Don't see the point of multiplying and dividing by 3. Doesn't really matter, because we need a lookup table based system
-	///to get a decent distance measurement. You also will need to consider that the resistor changes and you need to check which is used.
-	//uint8_t distance = 40;//values[photo]>>3; //need to scale accordingly
+
 	uint8_t intensityCount;
 	uint16_t* intensities;
 	uint8_t* distances;
@@ -241,6 +282,8 @@ Location findPuck(){
 			distances = distances330K;
 			intensityCount = sizeof(intensities330K)/sizeof(uint16_t);
 			break;
+		default://never gets here, but need to keep the compiler happy
+			return UNKNOWN_LOCATION;
 	}
 	uint16_t intensity = values[photo];
 	uint8_t distance = 0xFF;
@@ -251,11 +294,20 @@ Location findPuck(){
 			break;
 		}
 	}
+	if(distance == 0xFF || (getSelectedResistor() == Resistor::R330K && values[photo] < 315)){
+		seePuck = false;
+		return UNKNOWN_LOCATION;
+	}
 	puckDistance = distance;
 	puckHeading = heading;
+	seePuck = true;
 	Pose robot = getRobotPose();
 	heading = PI;
 	return Location((int8_t)(distance*cosb(heading + robot.o)) + robot.x,(int8_t)(distance*sinb(heading+robot.o))+robot.y);
+}
+
+bool puckVisible(){
+	return seePuck;
 }
 
 angle getPuckHeading(){
@@ -445,9 +497,9 @@ Pose localizeRobot(uint16_t* irData){
 		return UNKNOWN_POSE;
 	}
 	else if(possiblePointCount == 2){
-		int32_t d1 = possiblePointsX[0]*possiblePointsX[0]+possiblePointsY[0]*possiblePointsY[0];
-		int32_t d2 = possiblePointsX[1]*possiblePointsX[1]+possiblePointsY[1]*possiblePointsY[1];
-		if(d1<d2){
+		int32_t d1 = (int32_t)possiblePointsX[0]*possiblePointsX[0]+(int32_t)possiblePointsY[0]*possiblePointsY[0];
+		int32_t d2 = (int32_t)possiblePointsX[1]*possiblePointsX[1]+(int32_t)possiblePointsY[1]*possiblePointsY[1];
+		if(d1>d2){
 			ox = possiblePointsX[1];
 			oy = possiblePointsY[1];
 			oo = possiblePointsO[1];
@@ -457,8 +509,10 @@ Pose localizeRobot(uint16_t* irData){
 			oy = possiblePointsY[0];
 			oo = possiblePointsO[0];
 		}
+		m_green(0);
 	}
 	else{
+		m_green(1);
 		bool stop = false;
 		uint8_t scores[12];
 		for(uint8_t i=0;i<possiblePointCount;i++)
@@ -512,74 +566,12 @@ Pose localizeRobot(uint16_t* irData){
 	int16_t rx = (-ox*coso - oy *sino)*(115.0f/768);
 	int16_t ry = (ox*sino - oy *coso)*(115.0f/768);
 	oo = PI/2-(oo-PI/2);
+	if(rx > XMAX + 5 || rx < XMIN - 5 || ry > YMAX + 5 || ry < YMIN - 5){
+		return UNKNOWN_POSE;
+	}
 	//fprintf(stdout,"(%f,%f,%d)\n",rx,ry,oo);
 	if(flipCoordinates())
 		return Pose(rx,-ry,PI-oo);
 	else
 		return Pose(-rx, ry, -oo);
 }
-
-/*void localizeRobot2(){
-	uint16_t center[2] = {1024/2,768/2};
-	//constellation center in pixels
-
-	uint16_t data [12];
-	m_wii_read(data);
-	uint16_t datax[4] = {data[0], data[3], data[6], data[9]};
-	uint16_t datay[4] = {data[1], data[4], data[7], data[10]};
-	for (int i = 0; i<4; i++){
-		if (datax[i] == 1023) return;
-	}
-
-	//calculate distance between every pair
-	float d [6] = {sqrt((float)(datax[1]-datax[0])*(datax[1]-datax[0])+(datay[1]-datay[0])*(datay[1]-datay[0])),
-		sqrt((float)(datax[2]-datax[0])*(datax[2]-datax[0])+(datay[2]-datay[0])*(datay[2]-datay[0])),
-		sqrt((float)(datax[3]-datax[0])*(datax[3]-datax[0])+(datay[3]-datay[0])*(datay[3]-datay[0])),
-		sqrt((float)(datax[2]-datax[1])*(datax[2]-datax[1])+(datay[2]-datay[1])*(datay[2]-datay[1])),
-		sqrt((float)(datax[3]-datax[1])*(datax[3]-datax[1])+(datay[3]-datay[1])*(datay[3]-datay[1])),
-	sqrt((float)(datax[3]-datax[2])*(datax[3]-datax[2])+(datay[3]-datay[2])*(datay[3]-datay[2]))};
-
-	//calculate sum of distances from each point (in order 1, 2, 3, 4)
-	float sum[4] = {d[0]+d[1]+d[2],d[0]+d[3]+d[4],d[1]+d[3]+d[5],d[2]+d[4]+d[5]};
-
-	//sort sums into ascending order
-	uint16_t index [4];
-	for(int i = 0; i<3; i++){
-		for(int j = 0; j<3; j++){
-			if(sum[j] > sum[j+1]){
-				uint16_t temp = sum[j+1];
-				sum[j+1] = sum[j];
-				sum[j] = temp;
-				index[j] = j+1;
-				index[j+1] = j;
-			}
-		}
-	}
-
-	//from drawing, note that each point has a unique sum and assign indices
-	//accordingly
-	uint8_t top = index[0];
-	uint8_t right = index[2];
-	uint8_t bottom = index[3];
-	uint8_t left = index[1];
-
-	//reassign matrix so it's in the order, T R B L
-	uint16_t datax2[4] = {datax[top],datax[right],datax[bottom],datax[left]};
-	uint16_t datay2[4] = {datay[top],datay[right],datay[bottom],datay[left]};
-
-	//find center as midpoint of top and bottom point (relative to constellation)
-	uint16_t offsetcenter[2] = {(datax2[0]+datax2[2])/2,(datay2[0]+datay2[2])/2};
-	//find theta as offset of top from center
-	float offsettheta = -atan2((float)(datax2[0]-datax2[2]),(float)(datay2[0]-datay2[2]));
-
-	//put all points in x,y form
-	uint16_t points [4]= {offsetcenter[0],offsetcenter[1], center[0], center[1]};
-	//rotation matrix based on theta
-	float rotationmatrix[4] = {cos(offsettheta), -sin(offsettheta),sin(offsettheta), cos(offsettheta)};
-	//rotate the matrix
-	float rotated[4] = {points[0]*rotationmatrix[0] + points[1]*rotationmatrix[2],points[0]*rotationmatrix[1]+points[1]*rotationmatrix[3],
-		points[2]*rotationmatrix[0]+points[3]*rotationmatrix[2],points[2]*rotationmatrix[1]+points[3]*rotationmatrix[3]};
-	//float uvect[2] = {rotationmatrix[0],rotationmatrix[1]};
-	float dvect[2] = {rotated[2]-rotated[0],rotated[3]-rotated[1]};
-	//robotPose2 = Pose(dvect[0],dvect[1],toBAMS(offsettheta));
-}*/

@@ -4,6 +4,8 @@
 
 typedef uint16_t time;
 
+#define ONE_SECOND 256
+
 void initClock();
 //Returns the current time in milliseconds. Only useful for relative timing.
 time getTime();
