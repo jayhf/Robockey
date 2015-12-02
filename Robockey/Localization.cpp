@@ -68,15 +68,17 @@ void updateLocalization(){
 	Pose newRobotPose = localizeRobot(buffer);
 	if(newRobotPose != UNKNOWN_POSE){
 		Location robotLocation = robotPose.getLocation();
-		locationFilter(robotLocation, robotVelocity, newRobotPose.getLocation(), robotUpdateTime, getTime(),robotPoseCertainty);
+		locationFilter(robotLocation, robotVelocity, newRobotPose.getLocation(), robotUpdateTime, getTime(),robotPoseCertainty,15);
 		robotPose.x = robotLocation.x;
 		robotPose.y = robotLocation.y;
 		robotPose.o = newRobotPose.o;
+		if(robotPoseCertainty >= 4)
+			lastKnownRobotPose = robotPose;
 		updatePuckPosition();
 		determineTeam();
 	}
 	for(int i=0;i<2;i++)
-		locationFilter(allyLocations[i],allyVelocities[i],newAllyLocations[i], allyUpdateTimes[i], newAllyUpdateTimes[i],allyLocationCertainty[i]);
+		locationFilter(allyLocations[i],allyVelocities[i],newAllyLocations[i], allyUpdateTimes[i], newAllyUpdateTimes[i],allyLocationCertainty[i],15);
 	//for(int i=0;i<3;i++)
 	//	locationFilter(enemyLocations[i],enemyVelocities[i],newEnemyLocations[i], enemyUpdateTime, newEnemyUpdateTime);
 }
@@ -111,17 +113,17 @@ void updatePuckPosition(){
 			dt = (currentTime-allyUpdateTimes[1]+currentTime-allyUpdateTimes[0])>>1;
 		}
 	}
-	locationFilter(puckLocation, puckVelocity, averagePuckLocation, puckUpdateTime, currentTime-(dt>>1), puckCertainty);
+	locationFilter(puckLocation, puckVelocity, averagePuckLocation, puckUpdateTime, currentTime-(dt>>1), puckCertainty,30);
 }
 
 bool hasPuck(){
-	if((puckHeading >= -2048) && (puckHeading <= 2048)){
+	if(puckVisible() && (puckHeading >= -2048) && (puckHeading <= 2048)){
 		return true;
 	}
 	return false;
 }
 
-void locationFilter(Location &location, Velocity &velocity, Location measuredLocation, time &oldTime, time newTime, uint8_t &certainty){
+void locationFilter(Location &location, Velocity &velocity, Location measuredLocation, time &oldTime, time newTime, uint8_t &certainty,uint8_t radius){
 	time dt = newTime - oldTime;
 	if(dt > certainty * (ONE_SECOND/8)){
 		location = UNKNOWN_LOCATION;
@@ -141,8 +143,8 @@ void locationFilter(Location &location, Velocity &velocity, Location measuredLoc
 	else{
 		Location predictedLocation = predictLocation(location,velocity,newTime - oldTime);
 		
-		if(predictedLocation.x > (int16_t)measuredLocation.x + 20 || predictedLocation.x < (int16_t)measuredLocation.x - 20 ||
-			predictedLocation.y > (int16_t)measuredLocation.y + 20 || predictedLocation.y < (int16_t)measuredLocation.y - 20){
+		if(predictedLocation.x > (int16_t)measuredLocation.x + radius || predictedLocation.x < (int16_t)measuredLocation.x - radius ||
+			predictedLocation.y > (int16_t)measuredLocation.y + radius || predictedLocation.y < (int16_t)measuredLocation.y - radius){
 			if(certainty < 8)
 				certainty--;
 		}
@@ -157,8 +159,6 @@ void locationFilter(Location &location, Velocity &velocity, Location measuredLoc
 			if(certainty < 8)
 				certainty++;
 		}
-		if(certainty >= 4)
-			lastKnownRobotPose = robotPose;
 	}
 }
 
@@ -263,7 +263,7 @@ Location findPuck(){
 	angle heading = PI + (PI/8) * photo + PI/16;
 	int16_t max = MAX(abs(leftValue),abs(rightValue));
 	if(max!=0)
-		heading += (PI/16)*((leftValue-rightValue)/(float)max); //compute weighted average and multiply by degrees per transistor
+		heading += (PI/8)*((leftValue-rightValue)/(float)max); //compute weighted average and multiply by degrees per transistor
 
 	uint8_t intensityCount;
 	uint16_t* intensities;
@@ -294,7 +294,7 @@ Location findPuck(){
 	}
 	uint16_t intensity = values[photo];
 	uint8_t distance = 0xFF;
-	for(unsigned int i=1;i<intensityCount/sizeof(int);i++){
+	for(unsigned int i=1;i<intensityCount;i++){
 		if(intensities[i]>intensity){
 			float ratio = (intensity-intensities[i-1])/(float)(intensities[i]-intensities[i-1]);
 			distance = (1-ratio) * distances[i-1]+ratio*distances[i];
@@ -305,12 +305,16 @@ Location findPuck(){
 		seePuck = false;
 		return UNKNOWN_LOCATION;
 	}
-	puckDistance = distance;
-	puckHeading = heading;
 	seePuck = true;
 	Pose robot = getRobotPose();
-	heading = PI;
-	return Location((int8_t)(distance*cosb(heading + robot.o)) + robot.x,(int8_t)(distance*sinb(heading+robot.o))+robot.y);
+	float puckX = distance * cosb(heading + robot.o) + robot.x;
+	float puckY = distance * sinb(heading + robot.o) + robot.y;
+	if(puckX > XMAX + 5 || puckX < XMIN - 5 || puckY > YMAX + 5 || puckY < YMIN - 5){
+		return UNKNOWN_LOCATION;
+	}
+	puckDistance = distance;
+	puckHeading = heading;
+	return Location((int8_t)puckX,(int8_t)puckY);
 }
 
 bool puckVisible(){
@@ -516,10 +520,8 @@ Pose localizeRobot(uint16_t* irData){
 			oy = possiblePointsY[0];
 			oo = possiblePointsO[0];
 		}
-		m_green(0);
 	}
 	else{
-		m_green(1);
 		bool stop = false;
 		uint8_t scores[12];
 		for(uint8_t i=0;i<possiblePointCount;i++)

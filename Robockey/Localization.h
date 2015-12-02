@@ -115,4 +115,4 @@ Location findPuck();
 Pose localizeRobot(uint16_t* irData);
 void receivedEnemyLocations(int8_t *locations);
 void receivedAllyUpdate(Pose pose, Location puckLocation, uint8_t allyID);
-void locationFilter(Location &location, Velocity &velocity, Location measuredLocation, uint16_t &oldTime, uint16_t newTime, uint8_t &certainty);
+void locationFilter(Location &location, Velocity &velocity, Location measuredLocation, uint16_t &oldTime, uint16_t newTime, uint8_t &certainty, uint8_t radius);

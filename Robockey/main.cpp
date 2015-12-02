@@ -71,17 +71,17 @@ int main(void)
 		switch (getSelectedResistor())
 		{
 			case Resistor::R1K:
-			setLED(LEDColor::OFF);
-			break;
+				setLED(LEDColor::OFF);
+				break;
 			case Resistor::R47K:
-			setLED(LEDColor::RED);
-			break;
+				setLED(LEDColor::RED);
+				break;
 			case Resistor::R6K8:
-			setLED(LEDColor::PURPLE);
-			break;
+				setLED(LEDColor::PURPLE);
+				break;
 			case Resistor::R330K:
-			setLED(LEDColor::BLUE);
-			break;
+				setLED(LEDColor::BLUE);
+				break;
 		}
 		
 		if(!timePassed(400)){
