@@ -85,6 +85,7 @@ void updateLocalization();
 
 
 angle getPuckHeading();
+uint8_t getPuckDistance();
 
 Location* getEnemyLocations();
 Location getPuckLocation();

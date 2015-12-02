@@ -52,6 +52,9 @@ int main(void)
 	updateLocalization();
 	updateGameState(GameState::HALFTIME);
 	updateGameState(GameState::COMM_TEST);
+	setMotors(400,-400);
+	_delay_ms(2000);
+	setMotors(0,0);
 	while(1){
 		//setLED(LEDColor::RED);
 		//updateLED();
@@ -74,11 +77,12 @@ int main(void)
 			setLED(LEDColor::BLUE);
 			break;
 		}
-		if(!timePassed(400)){
-			followWall();
-		}
-		else setMotors(0,0);
 		
+		if(!timePassed(400)){
+			//followWall();
+		}
+		//else setMotors(0,0);
+		//setMotors(-400,400);
 		//tryKick();
 		//updateKick();
 		/*sendRobotLocation();

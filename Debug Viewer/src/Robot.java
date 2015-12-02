@@ -6,6 +6,7 @@ import java.awt.geom.Path2D;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Robot {
@@ -26,7 +27,7 @@ public class Robot {
 	private int[] lastIRData = new int[16];
 	private volatile Color ledColor = new Color(0, true);
 	private Pose puckEstimate = null;
-	private double puckAngle = 0;
+	private double puckAngle = 0, puckDistance = 0;
 	public Robot(Pose pose, Team team) {
 		this.pose = pose;
 		this.team = team;
@@ -61,7 +62,8 @@ public class Robot {
 			g.setColor(Color.GRAY);
 			g.fill(new Ellipse2D.Double(puckEstimate.x-3.81, puckEstimate.y-3.81, 7.62, 7.62));
 			g.setColor(Color.DARK_GRAY);
-			g.draw(new Line2D.Double(pose.x, pose.y, pose.x+100*Math.cos(puckAngle), pose.y+100*Math.sin(puckAngle)));
+			g.draw(new Line2D.Double(pose.x, pose.y, pose.x+100*Math.cos(puckAngle+pose.o), pose.y+100*Math.sin(puckAngle+pose.o)));
+			g.draw(new Ellipse2D.Double(pose.x-puckDistance/2, pose.y-puckDistance/2, puckDistance, puckDistance));
 		}
 	}
 	
@@ -356,6 +358,7 @@ public class Robot {
 	public Team getTeam() {
 		return team;
 	}
+	double v = 0;
 	public void receivedDebugMessage(ByteBuffer buffer) {
 		byte id = buffer.get();
 		switch(id){
@@ -367,14 +370,19 @@ public class Robot {
 				System.out.print("ADC "+id+": [");
 				for(int i=0;i<8;i++){
 					lastIRData[i]=((0xFF&buffer.get())<<2);
-					System.out.print(lastIRData[i]+",");
+					//System.out.print(lastIRData[i]+",");
 				}
 				break;
 			case 0x12:
 				for(int i=0;i<8;i++){
 					lastIRData[i+8]=((0xFF&buffer.get())<<2);
-					System.out.print(lastIRData[i+8]+",");
+					//System.out.print(lastIRData[i+8]+",");
 				}
+				int max = 0;
+				for(int i=0;i<16;i++)
+					if(max < lastIRData[i])
+						max = lastIRData[i];
+				System.out.print(v= v*.95+.05*max);
 				System.out.print("]\n");
 				break;
 			case 0x13:
@@ -384,6 +392,7 @@ public class Robot {
 				puckAngle = buffer.getShort()*Math.PI/32768;
 				puckEstimate = new Pose(buffer.get(),buffer.get(),0);
 				System.out.println("Resistor: "+buffer.get());
+				puckDistance =  buffer.get();
 				break;
 			case 0x20:
 				System.out.print("Angle: "+(buffer.getShort()*180/32768+'\t'));

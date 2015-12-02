@@ -59,6 +59,7 @@ void sendPuckPose(){
 	buffer[4] = getPuckLocation().x;
 	buffer[5] = getPuckLocation().y;
 	buffer[6] = static_cast<uint8_t>(getSelectedResistor());
+	buffer[7] = getPuckDistance();
 	sendPacket(Robot::CONTROLLER, 0x14, buffer);
 }
 

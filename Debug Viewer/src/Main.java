@@ -61,7 +61,7 @@ public class Main {
 					case 85:
 						return robots[0];
 					default:
-						return null;
+						return robots[0];
 				}
 			});
 			robotConnection.start();

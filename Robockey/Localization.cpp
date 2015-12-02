@@ -28,7 +28,7 @@ Location newEnemyLocations[3];
 time newEnemyUpdateTime;
 
 Location allyLocations[2];
-Location allyPuckLocations[2];
+Location allyPuckLocations[2] = {UNKNOWN_LOCATION, UNKNOWN_LOCATION};
 Velocity allyVelocities[2];
 time allyUpdateTimes[2];
 Location enemyLocations[3] = {Location(110,5),Location(-110,5), Location(-110,-10)};
@@ -37,6 +37,7 @@ time enemyUpdateTime;
 Pose robotPose;
 Velocity robotVelocity;
 time robotUpdateTime;
+uint8_t puckDistance;
 angle puckHeading;
 Location puckLocationToSend;
 Location puckLocation;
@@ -182,6 +183,16 @@ void receivedEnemyLocations(int8_t *locations){
 	}
 }
 
+
+uint16_t intensities1K[] = {0,160,260,1023};
+uint8_t distances1K[] = {11,10,9,8};
+uint16_t intensities6K8[] = {0,150,300,650,1023};
+uint8_t distances6K8[] = {18,16,12,10,9};
+uint16_t intensities47K[] = {0,150,290,400,500,650,850,1023};
+uint8_t distances47K[] = {34,30,26,22,20,18,16,14};
+uint16_t intensities330K[] = {0,315,320,340,360,410,450,525,600,700,775,850,1023};
+uint8_t distances330K[] = {255,200,150,120,100,80,70,60,50,45,40,35,31};
+	
 Location findPuck(){
 	uint16_t val = 0;
 	uint8_t photo = 0;
@@ -194,33 +205,66 @@ Location findPuck(){
 			photo=i;
 		}
 	}
-	uint8_t photol,photor;
-	if (photo == 15)
-	{
-		photol=15;
-		photor=1;
-	}
-	else if(photo==0){
-		photol=14;
-		photor=0;
-	}
-	else{
-		photol = photo--;
-		photor = photo++;
-	}
+	uint8_t photol = (photo - 1) & 0xF;
+	uint8_t photor = (photo + 1) & 0xF;
 	uint8_t photo2 = MAX(photol,photor);
-	uint16_t val2 = values[photo2];
-	int16_t heading = 2*PI/16 * ((photo * val +  photo2 * val2) / (float)(val+val2))+PI; //compute weighted average and multiply by degrees per transistor
+	int16_t leftValue = values[photo] - values[photol];
+	int16_t rightValue = values[photo] - values[photor];
+	angle heading = PI + (PI/8) * photo + PI/16;
+	int16_t max = MAX(abs(leftValue),abs(rightValue));
+	if(max!=0)
+		heading += (PI/16)*((leftValue-rightValue)/(float)max); //compute weighted average and multiply by degrees per transistor
 	
 	///Don't see the point of multiplying and dividing by 3. Doesn't really matter, because we need a lookup table based system
 	///to get a decent distance measurement. You also will need to consider that the resistor changes and you need to check which is used.
-	uint8_t distance = 0.1*(val + val2)/2; //need to scale accordingly
+	//uint8_t distance = 40;//values[photo]>>3; //need to scale accordingly
+	uint8_t intensityCount;
+	uint16_t* intensities;
+	uint8_t* distances;
+	switch(getSelectedResistor()){
+		case Resistor::R1K:
+			intensities = intensities1K;
+			distances = distances1K;
+			intensityCount = sizeof(intensities1K)/sizeof(uint16_t);
+			break;
+		case Resistor::R6K8:
+			intensities = intensities6K8;
+			distances = distances6K8;
+			intensityCount = sizeof(intensities6K8)/sizeof(uint16_t);
+			break;
+		case Resistor::R47K:
+			intensities = intensities47K;
+			distances = distances47K;
+			intensityCount = sizeof(intensities47K)/sizeof(uint16_t);
+			break;
+		case Resistor::R330K:
+			intensities = intensities330K;
+			distances = distances330K;
+			intensityCount = sizeof(intensities330K)/sizeof(uint16_t);
+			break;
+	}
+	uint16_t intensity = values[photo];
+	uint8_t distance = 0xFF;
+	for(unsigned int i=1;i<intensityCount/sizeof(int);i++){
+		if(intensities[i]>intensity){
+			float ratio = (intensity-intensities[i-1])/(float)(intensities[i]-intensities[i-1]);
+			distance = (1-ratio) * distances[i-1]+ratio*distances[i];
+			break;
+		}
+	}
+	puckDistance = distance;
 	puckHeading = heading;
-	return Location((int16_t)(distance*cosb(heading)) + robotPose.x,(int16_t)(distance*sinb(heading))+robotPose.y);
+	Pose robot = getRobotPose();
+	heading = PI;
+	return Location((int8_t)(distance*cosb(heading + robot.o)) + robot.x,(int8_t)(distance*sinb(heading+robot.o))+robot.y);
 }
 
 angle getPuckHeading(){
 	return puckHeading;
+}
+
+uint8_t getPuckDistance(){
+	return puckDistance;
 }
 
 time getPuckUpdateTime(){
@@ -256,9 +300,9 @@ Pose localizeRobot(uint16_t* irData){
 	uint8_t possiblePointCount = 0;
 	uint16_t irX[4] = {irData[0], irData[3], irData[6], irData[9]};
 	uint16_t irY[4] = {irData[1], irData[4], irData[7], irData[10]};
-	if(irY[1] == 1023){
-		return UNKNOWN_POSE;
-	}
+	//if(irY[1] == 1023){
+	//	return UNKNOWN_POSE;
+	//}
 	int8_t validPoints = 0;
 	int8_t errorPoints = 0;
 	//int8_t pointCount = 2 + ((irY[2] != 1023)?1:0)+((irY[3] != 1023)?1:0);
