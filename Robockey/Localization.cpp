@@ -195,18 +195,18 @@ Location findPuck(){
 		}
 	}
 	uint8_t photol,photor;
-	if (photo == 15)
+	if (photo == 0)
 	{
 		photol=15;
 		photor=1;
 	}
-	else if(photo==0){
+	else if(photo==15){
 		photol=14;
 		photor=0;
 	}
 	else{
-		photol = photo--;
-		photor = photo++;
+		photol = photo-1;
+		photor = photo+1;
 	}
 	uint8_t photo2 = MAX(photol,photor);
 	uint16_t val2 = values[photo2];
