@@ -114,6 +114,13 @@ void updatePuckPosition(){
 	locationFilter(puckLocation, puckVelocity, averagePuckLocation, puckUpdateTime, currentTime-(dt>>1), puckCertainty);
 }
 
+bool hasPuck(){
+	if((puckHeading >= -2048) && (puckHeading <= 2048)){
+		return true;
+	}
+	return false;
+}
+
 void locationFilter(Location &location, Velocity &velocity, Location measuredLocation, time &oldTime, time newTime, uint8_t &certainty){
 	time dt = newTime - oldTime;
 	if(dt > certainty * (ONE_SECOND/8)){

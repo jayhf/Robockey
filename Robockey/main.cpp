@@ -58,6 +58,12 @@ int main(void)
 	while(1){
 		//setLED(LEDColor::RED);
 		//updateLED();
+		if(hasPuck()){
+			setLED(LEDColor::BLUE);
+		}
+		else{
+			setLED(LEDColor::RED);
+		}
 		updateLocalization();
 		sendRobotLocation();
 		sendPuckPose();

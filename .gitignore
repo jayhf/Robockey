@@ -27,6 +27,7 @@
 *.out
 *.app
 *.bat
+*.jar
 
 #Atmel Studio Files
 *.xml
@@ -56,9 +57,7 @@ Makefile
 
 #java
 *.class
-<<<<<<< HEAD
-Debug Viewer/Robockey Debug Viewer.jar
-=======
+*.jar
 
 #SOLIDWORKS
 *.dwg
@@ -76,4 +75,3 @@ Debug Viewer/Robockey Debug Viewer.jar
 *.png
 *.psd
 *.docx
->>>>>>> origin/master
