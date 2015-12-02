@@ -27,6 +27,7 @@
 *.out
 *.app
 *.bat
+*.jar
 
 #Atmel Studio Files
 *.xml

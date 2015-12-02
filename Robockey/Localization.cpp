@@ -104,6 +104,13 @@ void updatePuckPosition(){
 	kalmanFilter(puckLocation, puckVelocity, averagePuckLocation, puckUpdateTime, currentTime-(dt>>1));
 }
 
+bool hasPuck(){
+	if((puckHeading >= -2048) && (puckHeading <= 2048)){
+		return true;
+	}
+	return false;
+}
+
 void kalmanFilter(Location &location, Velocity &velocity, Location measuredLocation, time &oldTime, time newTime){
 	if(measuredLocation == UNKNOWN_LOCATION){
 		return;
