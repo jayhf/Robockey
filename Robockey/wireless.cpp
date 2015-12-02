@@ -37,7 +37,6 @@ void sendPacket(Robot robot, uint8_t messageID, uint8_t *packet){
 	memcpy(messageQueue[messageIndex],packet,10);
 	recipients[messageIndex] = robot;
 	messageCount++;
-	_delay_ms(10);
 }
 
 void sendRobotLocation(){
