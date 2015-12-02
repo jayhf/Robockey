@@ -67,7 +67,7 @@ public class RobotCommunicationThread extends Thread {
 						if(in.read() == 0xFF && in.read() == 0x00){
 							byte data[] = new byte[10];
 							in.read(data);
-							Logger.getLogger().write(data);
+							//Logger.getLogger().write(data);
 							ByteBuffer buffer = ByteBuffer.wrap(data);
 							byte id = buffer.get();
 							Robot robot = robotFunction.apply(id);
