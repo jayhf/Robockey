@@ -11,10 +11,10 @@ extern "C"{
 	#include "m_rf.h"
 }
 
-Robot recipients[8];
-uint8_t messageQueue[8][10];
-uint8_t messageCount = 0;
-uint8_t firstMessageIndex = 0;
+volatile Robot recipients[8];
+volatile uint8_t messageQueue[8][10];
+volatile uint8_t messageCount = 0;
+volatile uint8_t firstMessageIndex = 0;
 
 void initWireless(){
 	m_rf_open(1, static_cast<uint8_t>(getThisRobot()),10);
