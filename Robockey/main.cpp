@@ -52,43 +52,21 @@ int main(void)
 	updateLocalization();
 	updateGameState(GameState::HALFTIME);
 	updateGameState(GameState::COMM_TEST);
-	setMotors(400,-400);
-	_delay_ms(2000);
-	setMotors(0,0);
 	while(1){
 		//setLED(LEDColor::RED);
 		//updateLED();
-		if(hasPuck()){
-			setLED(LEDColor::BLUE);
-		}
-		else{
-			setLED(LEDColor::RED);
-		}
+		
 		updateLocalization();
 		sendRobotLocation();
 		sendPuckPose();
 		sendIR();
-		switch (getSelectedResistor())
-		{
-			case Resistor::R1K:
-				setLED(LEDColor::OFF);
-				break;
-			case Resistor::R47K:
-				setLED(LEDColor::RED);
-				break;
-			case Resistor::R6K8:
-				setLED(LEDColor::PURPLE);
-				break;
-			case Resistor::R330K:
-				setLED(LEDColor::BLUE);
-				break;
+		if(!timePassed(1500)){
+			if(!hasPuck()){
+				goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+			}
+			else setMotors(0,0);
 		}
-		
-		if(!timePassed(400)){
-			//followWall();
-			//faceAngle(0,getRobotPose());
-		}
-		//else setMotors(0,0);
+		else setMotors(0,0);
 		//setMotors(-400,400);
 		//tryKick();
 		//updateKick();
@@ -120,7 +98,6 @@ void puckLocalizationTest(){
 }
 void oldMain(){
 	//uint8_t batteryLowCount = 0;
-	int i = 0;
 	//uint16_t blobs[12]={0,0,0,0,0,0,0,0,0,0,0,0};
 	uint16_t* values;
 	Pose robot;

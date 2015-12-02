@@ -70,13 +70,13 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 		uint16_t k4 = 20; //angle derivative
 		
 
-		uint16_t x = MIN(400,k1 * distance - k3 * (distance - lastDistance));
-		uint16_t y = MIN(300,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
+		uint16_t x = MIN(600,k1 * distance - k3 * (distance - lastDistance));
+		uint16_t y = MIN(500,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
 		if (!faceForward){
-			if (deltaTheta < 3500 && deltaTheta > -3500){
+			if (deltaTheta < 4500 && deltaTheta > -4500){
 				setMotors(x,x); //forwards
 			}
-			else if (-deltaTheta < 3500 && -deltaTheta > 3500) {
+			else if (-deltaTheta < 4500 && -deltaTheta > 4500) {
 				setMotors(-x,-x); //backwards
 			}
 			else {
@@ -100,7 +100,7 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 			}
 		}
 		else {
-			if (deltaTheta < 3500 && deltaTheta > -3500){ //if within 0.1 radians ~5* of target angle,
+			if (deltaTheta < 4500 && deltaTheta > -4500){ //if within 0.1 radians ~5* of target angle,
 				setMotors(x,x); //forwards
 			}
 			else {
@@ -147,44 +147,29 @@ void goToPositionSpin(Pose target, Pose current){
 	}
 }
 
-bool goToPuck(Pose target, Pose current){
-	int16_t deltaX = current.x - target.x;
-	int16_t deltaY = current.y - target.y;
-	int16_t distance =  sqrt((uint16_t)abs(deltaX*deltaX + deltaY*deltaY));
-	if(distance<5){
-	//if (getStartPositive()) {
-		if (target.x > current.x){
-			if(target.y>0){
-				goToPosition(Pose(target.x + ROBOT_RADIUS, target.y + ROBOT_RADIUS, target.o),current,true);
-			}
-			else {
-				goToPosition(Pose(target.x + ROBOT_RADIUS, target.y - ROBOT_RADIUS, target.o),current,true);
-			}
-		}
-		else {
-			goToPosition(target, current,true);
-		}
-	/*}
-	else {
-		if (target.x < current.x){
-			if(target.y>0){
-				goToPosition(Pose(target.x - ROBOT_RADIUS, target.y + ROBOT_RADIUS, target.o),current,true);
-			}
-			else {
-				goToPosition(Pose(target.x - ROBOT_RADIUS, target.y - ROBOT_RADIUS, target.o),current,true);
-			}
-		}
-		else {
-			goToPosition(target, current,true);
-		}
-	}*/
-	return false;
+void goToPuck(Pose target, Pose current){
+	if(target.x > XMIN/2){
+		goToPositionPuck(target,current);
 	}
-	else 
-	{
-		setMotors(0,0);
-		return true;
+	else{
+		if(target.x>current.x){
+			goToPositionPuck(target,current);
 		}
+		else{
+			if (target.y>0&&target.y<YMAX-2*ROBOT_RADIUS){
+			goToPositionPuck(Pose(target.x-2*ROBOT_RADIUS,target.y+2*ROBOT_RADIUS,target.o),current);
+			}
+			else if (target.y>0){
+				goToPositionPuck(Pose(target.x-2*ROBOT_RADIUS,target.y-2*ROBOT_RADIUS,target.o),current);
+			}
+			else if(target.y<0 && target.y>YMIN+2*ROBOT_RADIUS){
+				goToPositionPuck(Pose(target.x-2*ROBOT_RADIUS,target.y-2*ROBOT_RADIUS,target.o),current);
+			}
+			else{
+				goToPositionPuck(Pose(target.x-2*ROBOT_RADIUS,target.y+2*ROBOT_RADIUS,target.o),current);
+			}
+		}
+	}
 }
 
 void goToPositionPuck(Pose target, Pose current){
@@ -244,7 +229,7 @@ void faceLocation(Location target, Pose current){
 		angle o = atan2b(-deltaY,-deltaX);
 		//uint8_t buffer[10] = {0,0,(current.o-o)>>8,(current.o-o)&0xFF,(current.o-lastPose.o)>>8,(current.o-lastPose.o)&0xFF,0,0,0,0};
 		//sendPacket(Robot::CONTROLLER,0x21,buffer);
-		uint16_t x = MAX(0,MIN(300,1 * abs((current.o - o)) - 100 * abs(current.o - lastPose.o)));
+		uint16_t x = MAX(0,MIN(400,1 * abs((current.o - o)) - 60 * abs(current.o - lastPose.o)));
 		if(current.o - o > 0){
 			setMotors(-x,x);
 		}
@@ -252,11 +237,12 @@ void faceLocation(Location target, Pose current){
 			setMotors(x,-x);
 		}
 	}
+	else setMotors(0,0);
 	lastPose = current;
 }
 
 void faceAngle(angle o,Pose current){
-	uint16_t x = MAX(0,MIN(300,1 * abs((current.o - o)) - 100 * abs(current.o - lastPose.o)));
+	uint16_t x = MAX(0,MIN(400,1 * abs((current.o - o)) - 60 * abs(current.o - lastPose.o)));
 	
 	if(current.o - o < -4500 || current.o - o > 4500){
 		

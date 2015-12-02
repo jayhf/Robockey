@@ -73,34 +73,44 @@ void playerLogic(Player player){
 }
 
 void goalieLogic(){
-	Location puckPredict = predictPuck(getTime()-getPuckUpdateTime());
-	if (puckPredict.x < XMAX / 2) { //if puck closer than half field
-		int16_t yPos;
-		if (puckPredict.y >= 0) {
-			yPos = MIN(YMAX/2,puckPredict.y);
+	if(puckVisible()){
+		Location puck = getPuckLocation();//predictPuck(getTime()-getPuckUpdateTime());
+		if (puck != UNKNOWN_LOCATION){
+			if (puck.x < 0) { //if puck closer than half field
+				int16_t yPos;
+				if (puck.y >= 0) {
+					yPos = MIN(YMAX/2+ROBOT_RADIUS,puck.y);
+				}
+				else{
+					yPos = MAX(YMIN/2-ROBOT_RADIUS,puck.y);
+				}
+				goToPosition(Pose(XMIN + ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose(), true);
+				faceLocation(puck, getRobotPose());
+				setLED(LEDColor::BLUE);
+			}
+			else if(puck.x < 3*XMIN/4){ //if puck closer than 3/4
+				faceLocation(puck, getRobotPose());
+				setMotors(1200,1200); //charge
+				setLED(LEDColor::RED);
+				//communicate to other robot to fill in
+			}
+			else {
+				setLED(LEDColor::PURPLE);
+				int16_t yPos;
+				if (puck.y >= 0) {
+					yPos = MIN(YMAX/2,puck.y);
+				}
+				else{
+					yPos = MAX(YMIN/2,puck.y);
+				}
+				//move out a bit
+				goToPosition(Pose(7*XMIN/8, yPos, getPuckHeading()), getRobotPose(), true);
+				faceLocation(puck, getRobotPose());
+			}
 		}
 		else{
-			yPos = MAX(YMIN/2,puckPredict.y);
+			
 		}
-		goToPosition(Pose(XMIN + ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose(), true);
-		faceLocation(puckPredict, getRobotPose());
-	}
-	else if(puckPredict.x < 3*XMIN/4){ //if puck closet than 3/4
-		faceLocation(puckPredict, getRobotPose());
-		setMotors(1600,1600); //charge
-		//communicate to other robot to fill in
-	}
-	else {
-		int16_t yPos;
-		if (puckPredict.y >= 0) {
-			yPos = MIN(YMAX/2,puckPredict.y);
-		}
-		else{
-			yPos = MAX(YMIN/2,puckPredict.y);
-		}
-		//move out a bit
-		goToPosition(Pose(7*XMIN/8, yPos, getPuckHeading()), getRobotPose(), true);
-		faceLocation(puckPredict, getRobotPose());
 	}
 }
 
@@ -139,78 +149,78 @@ void rightCorner(){
 }
 
 /*void avoidGoalie(){
-	//find if one of their players is in the goal and go towards the larger space based on his position
-	Location* enemies = getEnemyLocations();
-	
-	//check to see if enemy has goalie in position
-	bool enGoal = false;
-	int16_t goalie[3] = {0,0,0};
-	uint8_t count = 0;
-	for (int i=0; i<3;i++){
-		if (enemies[i].x > XMAX - 2*ROBOT_RADIUS){
-			enGoal=true;
-			goalie[i] = enemies[i].y;
-			count++;
-		}
-	}
-	if (enGoal){
-		int16_t gap[3] = {0,0,0}; //store largest y1, y2, height of largest gap
-		if (count == 1){
-			for (int i = 0; i<3; i++){
-				int16_t distance = YMAX - goalie[i];
-				if (distance > gap[2]){
-					gap[0] = YMAX;
-					gap[1] = goalie[i];
-					gap[2] = distance;
-				}
-			}
-			if (gap[2] >=YMAX/2){ // if goalie is in bottom half of rink
-				goToPositionPuck(Pose(XMAX + ROBOT_RADIUS, YMAX - (gap[0]+gap[1])*0.5, 0),getRobotPose());
-			}
-			else{
-				goToPositionPuck(Pose(XMAX + ROBOT_RADIUS, YMIN + (gap[0]+gap[1])*0.5, 0),getRobotPose());
-			}
-		}
-		else { //if more than one enemy goalie, find largest gap and go there
-			int16_t max = 0;
-			int16_t min = 0;
-			for (int i = 0; i<3;i++){
-				if (goalie[i] > max) max = goalie[i];
-				else if (goalie[i] < min) min = goalie[i];
-			}
-			//check gaps to wall
-			if(YMAX - max > abs(YMIN-min)){
-				gap[0] = YMAX;
-				gap[1] = max;
-				gap[2] = YMAX - max;
-			}
-			else{
-				gap[0] = YMIN;
-				gap[1] = min;
-				gap[2] = abs(YMIN - min);
-			}
-			
-			//check gaps between robots
-			//assume their robots aren't exactly at 0 to prevent array errors from initilalizing array at 0
-			if(goalie[0] - goalie[1] > gap[2] && goalie[0] != 0 && goalie[1] !=0){
-				gap[0] = goalie[0];
-				gap[1] = goalie[1];
-				gap[2] = goalie[0]-goalie[1];
-			}
-			else if(goalie[0] - goalie[2] > gap[2] && goalie[0] != 0 && goalie[2] !=0){
-				gap[0] = goalie[0];
-				gap[1] = goalie[2];
-				gap[2] = goalie[0]-goalie[2];
-			}
-			else if(goalie[1] - goalie[2] > gap[2] && goalie[1] != 0 && goalie[2] !=0){
-				gap[0] = goalie[1];
-				gap[1] = goalie[2];
-				gap[2] = goalie[1]-goalie[2];
-			}
-			goToPositionPuck(Pose(XMAX+ROBOT_RADIUS,(gap[0]+gap[1])*0.5,0),getRobotPose());
-		}
-	}
-	else goToPositionPuck(Pose(XMAX+ROBOT_RADIUS,getRobotPose().y,0),getRobotPose());
+//find if one of their players is in the goal and go towards the larger space based on his position
+Location* enemies = getEnemyLocations();
+
+//check to see if enemy has goalie in position
+bool enGoal = false;
+int16_t goalie[3] = {0,0,0};
+uint8_t count = 0;
+for (int i=0; i<3;i++){
+if (enemies[i].x > XMAX - 2*ROBOT_RADIUS){
+enGoal=true;
+goalie[i] = enemies[i].y;
+count++;
+}
+}
+if (enGoal){
+int16_t gap[3] = {0,0,0}; //store largest y1, y2, height of largest gap
+if (count == 1){
+for (int i = 0; i<3; i++){
+int16_t distance = YMAX - goalie[i];
+if (distance > gap[2]){
+gap[0] = YMAX;
+gap[1] = goalie[i];
+gap[2] = distance;
+}
+}
+if (gap[2] >=YMAX/2){ // if goalie is in bottom half of rink
+goToPositionPuck(Pose(XMAX + ROBOT_RADIUS, YMAX - (gap[0]+gap[1])*0.5, 0),getRobotPose());
+}
+else{
+goToPositionPuck(Pose(XMAX + ROBOT_RADIUS, YMIN + (gap[0]+gap[1])*0.5, 0),getRobotPose());
+}
+}
+else { //if more than one enemy goalie, find largest gap and go there
+int16_t max = 0;
+int16_t min = 0;
+for (int i = 0; i<3;i++){
+if (goalie[i] > max) max = goalie[i];
+else if (goalie[i] < min) min = goalie[i];
+}
+//check gaps to wall
+if(YMAX - max > abs(YMIN-min)){
+gap[0] = YMAX;
+gap[1] = max;
+gap[2] = YMAX - max;
+}
+else{
+gap[0] = YMIN;
+gap[1] = min;
+gap[2] = abs(YMIN - min);
+}
+
+//check gaps between robots
+//assume their robots aren't exactly at 0 to prevent array errors from initilalizing array at 0
+if(goalie[0] - goalie[1] > gap[2] && goalie[0] != 0 && goalie[1] !=0){
+gap[0] = goalie[0];
+gap[1] = goalie[1];
+gap[2] = goalie[0]-goalie[1];
+}
+else if(goalie[0] - goalie[2] > gap[2] && goalie[0] != 0 && goalie[2] !=0){
+gap[0] = goalie[0];
+gap[1] = goalie[2];
+gap[2] = goalie[0]-goalie[2];
+}
+else if(goalie[1] - goalie[2] > gap[2] && goalie[1] != 0 && goalie[2] !=0){
+gap[0] = goalie[1];
+gap[1] = goalie[2];
+gap[2] = goalie[1]-goalie[2];
+}
+goToPositionPuck(Pose(XMAX+ROBOT_RADIUS,(gap[0]+gap[1])*0.5,0),getRobotPose());
+}
+}
+else goToPositionPuck(Pose(XMAX+ROBOT_RADIUS,getRobotPose().y,0),getRobotPose());
 }*/
 
 void fakeGoalie(){
@@ -253,21 +263,21 @@ void tryKick(){
 		if(dL <= dMax){
 			int16_t dY = dL * sinb(currentPose.o);
 			int16_t goalY = currentPose.y + dY;
-			if((goalY <= (YMAX/2 - PUCK_RADIUS)) && (goalY >= (YMIN/2 + PUCK_RADIUS))){	
+			if((goalY <= (YMAX/2 - PUCK_RADIUS)) && (goalY >= (YMIN/2 + PUCK_RADIUS))){
 				Location target = Location(currentPose.x, goalY);
 				//if(!checkIntersection(currentPose.getLocation(), target, PUCK_RADIUS)){
-					//startKick();
-					//setLED(LEDColor::BLUE);
-				//}	
+				//startKick();
+				//setLED(LEDColor::BLUE);
+				//}
 			}
 			//else
-				//setLED(LEDColor::RED);
+			//setLED(LEDColor::RED);
 		}
 		//else
-			//setLED(LEDColor::PURPLE);
+		//setLED(LEDColor::PURPLE);
 	}
 }
-	
+
 void defenseLogic(){
 	if(helpRequested){
 		if(getRobotPose().x>-110){
