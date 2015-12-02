@@ -50,8 +50,6 @@ int main(void)
 	updateLocalization();
 	_delay_ms(500);
 	updateLocalization();
-	updateGameState(GameState::HALFTIME);
-	updateGameState(GameState::COMM_TEST);
 	while(1){
 		//setLED(LEDColor::RED);
 		//updateLED();
@@ -62,11 +60,13 @@ int main(void)
 		sendIR();
 		if(!timePassed(1500)){
 			if(!hasPuck()){
-				goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+				setMotors(0,0);
+				//goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
 			}
 			else setMotors(0,0);
 		}
 		else setMotors(0,0);
+		updateLED();
 		//setMotors(-400,400);
 		//tryKick();
 		//updateKick();

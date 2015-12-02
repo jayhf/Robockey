@@ -89,7 +89,7 @@ void updateGameState(GameState state){
 }
 
 bool flipCoordinates(){
-	return pastHalfTime ^ (getTeam() == Team::BLUE);
+	return pastHalfTime ^ (getTeam() == Team::RED);
 }
 
 void setLEDToTeamColor(){
