@@ -11,7 +11,12 @@ public:
 	uint8_t getFailCount();
 	void strategyFailed();
 	void strategyWorked();
+	//Called once to update any internal variables before starting to use the strategy
+	virtual void prepare(){};
+	//Gets called every update cycle to control the robot with this strategy
 	virtual void run() = 0;
+	//Returns true if the strategy can be used
+	virtual bool possible() = 0;
 	
 protected:
 	StrategyType strategyType;
@@ -27,7 +32,7 @@ public:
 	StrategySelector(Strategy **strategies, uint8_t strategyCount) : strategies(strategies), strategyCount(strategyCount){}
 	void previousSucceeded();
 	void previousFailed();
-	Strategy *pickStrategy();
+	Strategy *pickStrategy(StrategyType strategyType);
 private:
 	Strategy **strategies;
 	uint8_t strategyCount;

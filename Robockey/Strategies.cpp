@@ -1,4 +1,5 @@
 ﻿#include "Strategies.h"
+#include "Digital.h"
 
 Strategy::Strategy(StrategyType strategyType, uint8_t strategyId) : 
 	strategyType(strategyType),
@@ -27,29 +28,68 @@ uint8_t Strategy::getID(){
 	return id;
 }
 
-class EmptyStrategy : public Strategy{
+class DoNothingStrategy : public Strategy{
 public:
-	EmptyStrategy(uint8_t id) : Strategy(StrategyType::OFFENSE, id){
+	DoNothingStrategy(StrategyType strategyType, uint8_t id) : Strategy(strategyType, id){
 		
 	}
 
-	void run() override{}
+	void run() override{
+		setMotors(0,0);
+	}
+		
+	bool possible() override{
+		return true;
+	}
 };
 
 
-EmptyStrategy emptyStrategy = EmptyStrategy(0);
-Strategy *strategies[1] = {&emptyStrategy};
+DoNothingStrategy doNothingOffense = DoNothingStrategy(StrategyType::OFFENSE, 0);
+DoNothingStrategy doNothingDefense = DoNothingStrategy(StrategyType::DEFENSE, 0);
+DoNothingStrategy doNothingScorer = DoNothingStrategy(StrategyType::SCORER, 0);
+DoNothingStrategy doNothingGoalie = DoNothingStrategy(StrategyType::GOALIE, 0);
+
+
+Strategy *offenseStrategies[] = {&doNothingOffense};
+Strategy *defenseStrategies[] = {&doNothingDefense};
+Strategy *scorerStrategies[] = {&doNothingScorer};
+Strategy *goalieStrategies[] = {&doNothingGoalie};
 
 Strategy *getStrategy(uint8_t strategyID){
 	switch(static_cast<StrategyType>(strategyID & 0b11000000)){
-		case StrategyType::DEFENSE:
-			break;
-		case StrategyType::GOALIE:
-			break;
 		case StrategyType::OFFENSE:
-			break;
+			for(uint8_t i = 0; i < sizeof(offenseStrategies)/sizeof(Strategy*); i++)
+				if(offenseStrategies[i]->getID() == strategyID)
+					return offenseStrategies[i];
+			return &doNothingOffense;
+			
+		case StrategyType::DEFENSE:
+			for(uint8_t i = 0; i < sizeof(defenseStrategies)/sizeof(Strategy*); i++)
+				if(defenseStrategies[i]->getID() == strategyID)
+					return defenseStrategies[i];
+			return &doNothingDefense;
+			
 		case StrategyType::SCORER:
-			break;
+			for(uint8_t i = 0; i < sizeof(scorerStrategies)/sizeof(Strategy*); i++)
+				if(scorerStrategies[i]->getID() == strategyID)
+					return scorerStrategies[i];
+			return &doNothingScorer;
+			
+		case StrategyType::GOALIE:
+			for(uint8_t i = 0; i < sizeof(goalieStrategies)/sizeof(Strategy*); i++)
+				if(goalieStrategies[i]->getID() == strategyID)
+					return goalieStrategies[i];
+			return &doNothingScorer;
 	}
-	return &emptyStrategy;
+	return &doNothingDefense;
+}
+
+void StrategySelector::previousSucceeded(){
+	
+}
+void StrategySelector::previousFailed(){
+	
+}
+Strategy *StrategySelector::pickStrategy(StrategyType strategyType){
+	
 }
