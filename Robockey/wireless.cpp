@@ -23,7 +23,7 @@ void initWireless(){
 void sendNextMessage(){
 	if(messageCount==0)
 		return;
-	m_rf_send(static_cast<uint8_t>(recipients[firstMessageIndex]), (char*)messageQueue[firstMessageIndex], 10);
+	//m_rf_send(static_cast<uint8_t>(recipients[firstMessageIndex]), (char*)messageQueue[firstMessageIndex], 10);
 	firstMessageIndex++;
 	messageCount--;
 }
@@ -34,9 +34,11 @@ void sendPacket(Robot robot, uint8_t messageID, uint8_t *packet){
 	if(messageCount == 8)
 		return;
 	uint8_t messageIndex = (messageCount + firstMessageIndex)&0x7;
-	memcpy(messageQueue[messageIndex],packet,10);
+	//memcpy(messageQueue[messageIndex],packet,10);
 	recipients[messageIndex] = robot;
 	messageCount++;
+	m_rf_send(static_cast<uint8_t>(recipients[firstMessageIndex]), (char*)messageQueue[firstMessageIndex], 10);
+	_delay_ms(10);
 }
 
 void sendRobotLocation(){
