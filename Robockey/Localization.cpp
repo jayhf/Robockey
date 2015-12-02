@@ -207,7 +207,6 @@ Location findPuck(){
 	}
 	uint8_t photol = (photo - 1) & 0xF;
 	uint8_t photor = (photo + 1) & 0xF;
-	uint8_t photo2 = MAX(photol,photor);
 	int16_t leftValue = values[photo] - values[photol];
 	int16_t rightValue = values[photo] - values[photor];
 	angle heading = PI + (PI/8) * photo + PI/16;

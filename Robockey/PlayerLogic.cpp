@@ -225,7 +225,12 @@ void followWall(){
 		else goToPositionPuck(Pose(getRobotPose().x+2*ROBOT_RADIUS,YMIN+2*ROBOT_RADIUS,0), getRobotPose());
 	}
 	else{
-		faceAngle(0,getRobotPose());
+		if(getRobotPose().y >=0){
+			faceAngle(-PI/6,getRobotPose());
+		}
+		else{
+			faceAngle(PI/6,getRobotPose());
+		}
 		setMotors(400,400); //full steam ahead
 	}
 }

@@ -80,6 +80,7 @@ int main(void)
 		
 		if(!timePassed(400)){
 			//followWall();
+			//faceAngle(0,getRobotPose());
 		}
 		//else setMotors(0,0);
 		//setMotors(-400,400);

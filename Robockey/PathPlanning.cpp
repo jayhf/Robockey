@@ -23,7 +23,6 @@ extern "C"{
 int16_t lastDistance = 0;
 int16_t lastTheta = 0;
 Pose lastPose = getRobotPose();
-uint16_t time2=0;
 
 void goToPosition(Pose target, Pose current, bool faceForward);
 void goToPositionSpin(Pose target, Pose current);
@@ -235,19 +234,17 @@ bool facingLocation(Location target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	angle o = atan2b(-deltaY,-deltaX);
-	return current.o < o + 3500 && current.o > o - 3500;
+	return current.o < o + 4500 && current.o > o - 4500;
 }
 
 void faceLocation(Location target, Pose current){
-	uint16_t time1 = getTime();
 	if(!facingLocation(target,current)){
 		int16_t deltaX = current.x - target.x;
 		int16_t deltaY = current.y - target.y;
 		angle o = atan2b(-deltaY,-deltaX);
-		float deltaTime = 1/(time1-time2);
 		//uint8_t buffer[10] = {0,0,(current.o-o)>>8,(current.o-o)&0xFF,(current.o-lastPose.o)>>8,(current.o-lastPose.o)&0xFF,0,0,0,0};
 		//sendPacket(Robot::CONTROLLER,0x21,buffer);
-		uint16_t x = MAX(0,MIN(1199,1 * abs((current.o - o)) - 20 * abs((current.o - lastPose.o)*deltaTime)));
+		uint16_t x = MAX(0,MIN(300,1 * abs((current.o - o)) - 100 * abs(current.o - lastPose.o)));
 		if(current.o - o > 0){
 			setMotors(-x,x);
 		}
@@ -256,15 +253,12 @@ void faceLocation(Location target, Pose current){
 		}
 	}
 	lastPose = current;
-	time2=time1;
 }
 
 void faceAngle(angle o,Pose current){
-	uint16_t time1 = getTime();
-	float deltaTime = 1/(time1-time2);
-	uint16_t x = MAX(0,MIN(1199,1 * abs((current.o - o)) - 20 * abs((current.o - lastPose.o)*deltaTime)));
+	uint16_t x = MAX(0,MIN(300,1 * abs((current.o - o)) - 100 * abs(current.o - lastPose.o)));
 	
-	if(current.o - o < -3500 || current.o - o > 3500){
+	if(current.o - o < -4500 || current.o - o > 4500){
 		
 		if(current.o - o > 0){
 			setMotors(-x,x);
@@ -278,7 +272,6 @@ void faceAngle(angle o,Pose current){
 		setMotors(0,0);
 	}
 	lastPose = current;
-	time2=time1;
 }
 
 bool circleIntersectsSegment(Location p1, Location p2, Location c, uint8_t radius){
