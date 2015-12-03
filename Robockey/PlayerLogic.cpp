@@ -59,26 +59,16 @@ void goalieLogic(){
 	if(puckVisible()){
 		Location puck = getPuckLocation();//predictPuck(getTime()-getPuckUpdateTime());
 		if (puck != UNKNOWN_LOCATION){
-			if (puck.x < 0) { //if puck closer than half field
-				int16_t yPos;
-				if (puck.y >= 0) {
-					yPos = MIN(YMAX/2+ROBOT_RADIUS,puck.y);
+			if(puck.x < XMIN+5*ROBOT_RADIUS+2*PUCK_RADIUS){ //if puck closer than 3/4
+				if(!facingLocation(puck,getRobotPose())){
+				faceLocation(puck, getRobotPose());
 				}
 				else{
-					yPos = MAX(YMIN/2-ROBOT_RADIUS,puck.y);
+				setMotors(900,900); //charge
 				}
-				goToPosition(Pose(XMIN + ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose());
-				faceLocation(puck, getRobotPose());
-				setLED(LEDColor::BLUE);
-			}
-			else if(puck.x < 3*XMIN/4){ //if puck closer than 3/4
-				faceLocation(puck, getRobotPose());
-				setMotors(1200,1200); //charge
-				setLED(LEDColor::RED);
 				//communicate to other robot to fill in
 			}
-			else {
-				setLED(LEDColor::PURPLE);
+			else if (puck.x < 0) { //if puck closer than half field
 				int16_t yPos;
 				if (puck.y >= 0) {
 					yPos = MIN(YMAX/2,puck.y);
@@ -86,9 +76,16 @@ void goalieLogic(){
 				else{
 					yPos = MAX(YMIN/2,puck.y);
 				}
-				//move out a bit
-				goToPosition(Pose(7*XMIN/8, yPos, getPuckHeading()), getRobotPose());
-				faceLocation(puck, getRobotPose());
+				goToPosition(Pose(XMIN + 3*ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose());
+				if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
+					faceLocation(puck, getRobotPose());
+				}
+			}
+			else {
+				goToPosition(Pose(XMIN+3*ROBOT_RADIUS,0,0), getRobotPose());
+				if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<2*ROBOT_RADIUS&&getRobotPose().y>-2*ROBOT_RADIUS){
+					faceLocation(puck, getRobotPose());
+				}
 			}
 		}
 		else{
@@ -302,7 +299,7 @@ void scoreLogic(){
 		}
 		else{
 			int rando = random() % 4; //change to number of strategies
-			switch(rando){
+			switch(2){
 				case 0:{
 					leftCorner();
 					break;

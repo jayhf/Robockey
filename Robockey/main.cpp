@@ -38,7 +38,7 @@ void friendlies();
 
 int main(void)
 {
-	initWireless();
+	friendlies();
 }
 
 void puckLocalizationTest(){
@@ -147,26 +147,35 @@ void friendlies(){
 	initWireless();
 	initLocalization();
 	updateLocalization();
-	_delay_ms(100);
+	_delay_ms(500);
 	while(1){
 		updateLocalization();
 		updateLED();
+		sendRobotLocation();
+		sendPuckPose();
 		switch(getThisRobot()){
 			case Robot::ROBOT1:
 			updatePlayer(Player::GOALIE);
+			setLED(LEDColor::RED);
 			break;
 			case Robot::ROBOT2:
 			updatePlayer(Player::SCORER);
+			setLED(LEDColor::BLUE);
 			break;
 			case Robot::ROBOT3:
 			updatePlayer(Player::DEFENSE);
+			setLED(LEDColor::PURPLE);
 			break;
 			default:
 			updatePlayer(Player::NONE);
 			break;
 		}
-		if (allowedToMove()){
+		//if (allowedToMove()){
+			
 			playerLogic(getPlayer());
-		}
+			
+			
+			//playerLogic(getPlayer());
+		//}
 	}
 }
