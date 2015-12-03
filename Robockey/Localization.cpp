@@ -211,7 +211,10 @@ void locationFilter(Location &location, Velocity &velocity, Location measuredLoc
 //	return enemyLocations;
 //}
 Location getPuckLocation(){
-	return puckLocation;
+	if(puckCertainty > 4)
+		return puckLocation;
+	else
+		return UNKNOWN_LOCATION;
 }
 Location* getAllyLocations(){
 	return allyLocations;
@@ -346,7 +349,7 @@ Location findPuck(){
 			break;
 		}
 	}
-	if(distance == 0xFF || (getSelectedResistor() == Resistor::R330K && values[photo] < 315)){
+	if(distance == 0xFF || (getSelectedResistor() == Resistor::R330K && values[photo] < 320)){
 		seePuck = false;
 		return UNKNOWN_LOCATION;
 	}

@@ -11,11 +11,11 @@
 #include "Digital.h"
 #include "time.h"
 
-uint8_t redScore;
-uint8_t blueScore;
-GameState gameState = GameState::NONE;
+volatile uint8_t redScore;
+volatile uint8_t blueScore;
+volatile GameState gameState = GameState::NONE;
 Team team = Team::UNKNOWN;
-bool pastHalfTime = false;
+volatile bool pastHalfTime = false;
 
 GameState getGameState(){
 	return gameState;

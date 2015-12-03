@@ -43,6 +43,7 @@ void faceoff();
 
 int main(void)
 {
+	friendlies();
 	m_clockdivide(0);
 	m_disableJTAG();
 	sei();
@@ -50,7 +51,6 @@ int main(void)
 	initDigital();
 	initClock();
 	initADC();
-	_delay_ms(200);
 	initWireless();
 	initLocalization();
 	updateLocalization();
@@ -187,53 +187,54 @@ void friendlies(){
 	m_clockdivide(0);
 	m_disableJTAG();
 	sei();
-	
+	m_bus_init();
 	initDigital();
 	initClock();
 	initADC();
-	//initWireless();
+	initWireless();
 	initLocalization();
 	updateLocalization();
 	_delay_ms(500);
-	//m_usb_init();
+	updateLocalization();
 	Location initPuck = getPuckLocation();
 	while(1){
 		updateLocalization();
-		//updateLED();
-		//sendRobotLocation();
-		//sendPuckPose();
+		updateLED();
+		sendRobotLocation();
+		sendPuckPose();
 		switch(getThisRobot()){
 			case Robot::ROBOT1:
-			updatePlayer(Player::GOALIE);
-			setLED(LEDColor::RED);
-			break;
+				updatePlayer(Player::GOALIE);
+				//setLED(LEDColor::RED);
+				break;
 			case Robot::ROBOT2:
-			updatePlayer(Player::SCORER);
-			setLED(LEDColor::BLUE);
-			break;
+				updatePlayer(Player::SCORER);
+				//setLED(LEDColor::BLUE);
+				break;
 			case Robot::ROBOT3:
-			updatePlayer(Player::DEFENSE);
-			setLED(LEDColor::PURPLE);
-			break;
+				updatePlayer(Player::DEFENSE);
+				//setLED(LEDColor::PURPLE);
+				break;
 			default:
-			updatePlayer(Player::NONE);
+				updatePlayer(Player::NONE);
 			break;
 		}
-		//if (allowedToMove()){
-		if(stuck()&&!hasPuck()){
-			m_green(1);
+		if (allowedToMove()){
+			if(stuck()&&!hasPuck()){
+				m_green(1);
 				setMotors(-900,-900);
 				_delay_ms(10);
-		}
-		else{
-			m_green(0);
-			if (first == 0 && getPuckLocation().x-initPuck.x<3 && getPuckLocation().x-initPuck.x>-3 &&  getPuckLocation().y-initPuck.y<3 && getPuckLocation().y-initPuck.y>-3){
-				faceoff();
 			}
 			else{
-				if (first == 0) first++;
-				//goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
-				playerLogic(getPlayer());
+				m_green(0);
+				if (first == 0 && getPuckLocation().x-initPuck.x<3 && getPuckLocation().x-initPuck.x>-3 &&  getPuckLocation().y-initPuck.y<3 && getPuckLocation().y-initPuck.y>-3){
+					faceoff();
+				}
+				else{
+					if (first == 0) first++;
+						//goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+					playerLogic(getPlayer());
+				}
 			}
 		}
 	}
