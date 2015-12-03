@@ -38,9 +38,9 @@ void sleep(){
 
 ISR(TIMER3_COMPA_vect){
 	currentTime++;
-	if(currentTime & 0x10){
+	/*if(currentTime & 0x10){
 		sendNextMessage();
-	}
+	}*/
 	//Start the next ADC cycle
 	ADCSRA |= 1 << ADSC;
 }

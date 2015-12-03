@@ -82,6 +82,7 @@ public:
 
 void initLocalization();
 void updateLocalization();
+void coordinatesFlipped();
 
 bool puckVisible();
 angle getPuckHeading();

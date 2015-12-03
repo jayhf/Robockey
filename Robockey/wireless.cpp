@@ -11,31 +11,31 @@ extern "C"{
 	#include "m_rf.h"
 }
 
-volatile Robot recipients[8];
+/*volatile Robot recipients[8];
 uint8_t messageQueue[8][10];
 volatile uint8_t messageCount = 0;
-volatile uint8_t firstMessageIndex = 0;
+volatile uint8_t firstMessageIndex = 0;*/
 
 void initWireless(){
 	m_rf_open(1, static_cast<uint8_t>(getThisRobot()),10);
 }
 
-void sendNextMessage(){
+/*void sendNextMessage(){
 	if(messageCount==0)
 		return;
 	firstMessageIndex++;
 	messageCount--;
-}
+}*/
 
 void sendPacket(Robot robot, uint8_t messageID, uint8_t *packet){
-	if(messageCount == 8)
-		return;
+	//if(messageCount == 8)
+	//	return;
 	packet[0]=static_cast<uint8_t>(getThisRobot());
 	packet[1]=messageID;
-	uint8_t messageIndex = (messageCount + firstMessageIndex)&0x7;
+	/*uint8_t messageIndex = (messageCount + firstMessageIndex)&0x7;
 	memcpy(messageQueue[messageIndex],packet,10);
 	recipients[messageIndex] = robot;
-	messageCount++;
+	messageCount++;*/
 	m_rf_send(static_cast<uint8_t>(robot), (char*)packet, 10);
 	_delay_ms(10);
 }

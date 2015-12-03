@@ -45,14 +45,13 @@ int main(void)
 	initDigital();
 	initClock();
 	initADC();
+	_delay_ms(200);
 	initWireless();
 	initLocalization();
 	updateLocalization();
 	_delay_ms(500);
 	updateLocalization();
 	while(1){
-		updateLED();
-		
 		updateLocalization();
 		sendRobotLocation();
 		sendPuckPose();
@@ -102,6 +101,7 @@ void oldMain(){
 	Pose robot;
 	Location puck;
 	while (1) {
+		m_red(flipCoordinates());
 		beginADC();
 		updateLocalization();
 		/*if(i<300){

@@ -83,9 +83,14 @@ void determineTeam(){
 }
 
 void updateGameState(GameState state){
-	gameState = state;
-	if(state == GameState::HALFTIME)
+	if(state == GameState::HALFTIME){
 		pastHalfTime = !pastHalfTime;
+		state = GameState::PAUSE;
+		coordinatesFlipped();
+	}
+	else{
+		gameState = state;
+	}
 }
 
 bool flipCoordinates(){

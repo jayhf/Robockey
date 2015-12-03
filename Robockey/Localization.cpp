@@ -68,39 +68,47 @@ void updateLocalization(){
 	Pose newRobotPose = localizeRobot(buffer);
 	if(newRobotPose != UNKNOWN_POSE){
 		static uint8_t wrongSide = 0;
-		if(abs(robotPose.x)>10 && ((robotPose.x > 0) ^ (newRobotPose.x > 0))){
-			wrongSide++;
-			newRobotPose.x = -newRobotPose.x;
-			newRobotPose.y = -newRobotPose.y;
-			newRobotPose.o = PI + newRobotPose.o;
-		}
-		else{
-			if(wrongSide > 0)
-				wrongSide--;
-		}
-		if(wrongSide >= 8){
-			robotPose.x = -robotPose.x;
-			robotPose.y = -robotPose.y;
-			robotPose.o = robotPose.o + PI;
-			wrongSide = 0;
+		bool oldPoseUnknown = robotPose == UNKNOWN_POSE;
+		if(!oldPoseUnknown){
+			if(abs(robotPose.x)>10 && ((robotPose.x > 0) ^ (newRobotPose.x > 0))){
+				wrongSide++;
+				newRobotPose.x = -newRobotPose.x;
+				newRobotPose.y = -newRobotPose.y;
+				newRobotPose.o = PI + newRobotPose.o;
+			}
+			else{
+				if(wrongSide > 0)
+					wrongSide--;
+			}
+			if(wrongSide >= 16){
+				robotPose.x = -robotPose.x;
+				robotPose.y = -robotPose.y;
+				robotPose.o = robotPose.o + PI;
+				wrongSide = 0;
+			}
 		}
 		Location robotLocation = robotPose.getLocation();
 		locationFilter(robotLocation, robotVelocity, newRobotPose.getLocation(), robotUpdateTime, getTime(),robotPoseCertainty,15);
 		robotPose.x = robotLocation.x;
 		robotPose.y = robotLocation.y;
 		static uint8_t headingWrong = 0;
-		if(abs(robotPose.o - newRobotPose.o) > PI/2 ){
-			headingWrong++;
-			robotPose.o = PI + newRobotPose.o;
+		if(oldPoseUnknown){
+			robotPose.o = newRobotPose.o;	
 		}
 		else{
-			if(headingWrong > 0)
-				headingWrong--;
-			robotPose.o = newRobotPose.o;
-		}
-		if(headingWrong >= 8){
-			robotPose.o += PI;
-			headingWrong = 0;
+			if(abs(robotPose.o - newRobotPose.o) > PI/2 ){
+				headingWrong++;
+				robotPose.o = PI + newRobotPose.o;
+			}
+			else{
+				if(headingWrong > 0)
+					headingWrong--;
+				robotPose.o = newRobotPose.o;
+			}
+			if(headingWrong >= 8){
+				robotPose.o += PI;
+				headingWrong = 0;
+			}
 		}
 		if(robotPoseCertainty >= 4)
 			lastKnownRobotPose = robotPose;
@@ -113,6 +121,12 @@ void updateLocalization(){
 	//	locationFilter(enemyLocations[i],enemyVelocities[i],newEnemyLocations[i], enemyUpdateTime, newEnemyUpdateTime);
 }
 
+
+void coordinatesFlipped(){
+	robotPose.x = -robotPose.x;
+	robotPose.y = -robotPose.y;
+	robotPose.o = PI + robotPose.o;
+}
 
 void updatePuckPosition(){
 	puckLocationToSend = findPuck();
