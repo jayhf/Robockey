@@ -177,19 +177,19 @@ void friendlies(){
 		}
 		//if (allowedToMove()){
 		if(stuck()){
-			if(timePassed(350)){
+			if(timePassed(256)){
 				setMotors(-1200,-1200);
 			}
 		}
 		else{
-		if (first == 0 && getPuckLocation().x-initPuck.x<3 && getPuckLocation().x-initPuck.x>-3 &&  getPuckLocation().y-initPuck.y<3 && getPuckLocation().y-initPuck.y>-3){
-			faceoff();
-		}
-		else{
-			if (first == 0) first++;
-			//goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
-			playerLogic(getPlayer());
-		}
+			if (first == 0 && getPuckLocation().x-initPuck.x<3 && getPuckLocation().x-initPuck.x>-3 &&  getPuckLocation().y-initPuck.y<3 && getPuckLocation().y-initPuck.y>-3){
+				faceoff();
+			}
+			else{
+				if (first == 0) first++;
+				//goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+				playerLogic(getPlayer());
+			}
 		}
 		//}
 	}
