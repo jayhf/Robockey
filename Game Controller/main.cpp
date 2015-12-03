@@ -7,9 +7,9 @@
 
 #define F_CPU 16000000
 #define CONTROLLER_ADDR 84
-#define R1_ADDR 85
-#define R2_ADDR 86
-#define R3_ADDR 87
+#define R1_ADDR 0
+#define R2_ADDR 1
+#define R3_ADDR 2
 
 #include <util/delay.h>
 extern "C"{
