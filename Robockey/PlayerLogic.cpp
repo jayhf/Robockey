@@ -259,15 +259,10 @@ void tryKick(){
 			if((goalY <= (YMAX/2 - PUCK_RADIUS)) && (goalY >= (YMIN/2 + PUCK_RADIUS))){
 				Location target = Location(currentPose.x, goalY);
 				//if(!checkIntersection(currentPose.getLocation(), target, PUCK_RADIUS)){
-				//startKick();
-				//setLED(LEDColor::BLUE);
+				startKick();
 				//}
 			}
-			//else
-			//setLED(LEDColor::RED);
 		}
-		//else
-		//setLED(LEDColor::PURPLE);
 	}
 }
 

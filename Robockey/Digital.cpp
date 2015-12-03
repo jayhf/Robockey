@@ -49,14 +49,24 @@ time kickEndTime;
 time kickResetTime;
 bool canKick;
 void startKick(){
-	kickEndTime = getTime() + 50;
-	PORTD &= ~(1 << 7);
+	if(canKick){
+		setLED(LEDColor::BLUE);
+		kickEndTime = getTime() + 50;
+		kickResetTime = getTime() + ONE_SECOND;
+		PORTD &= ~(1 << 7);
+		canKick = false;
+	}
 }
 
 void updateKick(){
 	if(((int16_t)(getTime() - kickEndTime)) >= 0){
 		PORTD |= 1 << 7;
 		kickEndTime = getTime();
+	}
+	if(((int16_t)(getTime() - kickResetTime)) >= 0){
+		setLED(LEDColor::RED);
+		canKick = true;
+		kickResetTime = getTime();
 	}
 }
 
