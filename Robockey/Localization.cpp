@@ -354,6 +354,7 @@ Location findPuck(){
 	float puckX = distance * cosb(heading + robot.o) + robot.x;
 	float puckY = distance * sinb(heading + robot.o) + robot.y;
 	if(puckX > XMAX + 5 || puckX < XMIN - 5 || puckY > YMAX + 5 || puckY < YMIN - 5){
+		seePuck = false;
 		return UNKNOWN_LOCATION;
 	}
 	puckDistance = distance;
@@ -627,4 +628,12 @@ Pose localizeRobot(uint16_t* irData){
 		return Pose(rx,-ry,PI-oo);
 	else
 		return Pose(-rx, ry, -oo);
+}
+
+bool stuck(){
+	bool frontWall = robotPose.x>XMAX-1.5*ROBOT_RADIUS && robotPose.o <3500 && robotPose.o >-3500;
+	bool rightWall = robotPose.y<YMIN+1.5*ROBOT_RADIUS && robotPose.o <3500 - PI/2 && robotPose.o >-3500 - PI/2;
+	bool backWall = robotPose.x<XMIN+1.5*ROBOT_RADIUS  && robotPose.o <3500 + PI && robotPose.o >-3500 + PI;
+	bool leftWall = robotPose.x>YMAX-1.5*ROBOT_RADIUS && robotPose.o <3500 + PI/2 && robotPose.o >-3500 + PI/2;
+	return backWall||frontWall||leftWall||rightWall;
 }

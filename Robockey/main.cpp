@@ -24,12 +24,18 @@
 #include "BAMSMath.h"
 #include "FastMath.h"
 #include "PlayerLogic.h"
+#include <stdlib.h>
 
 
 extern "C"{
 	#include "m_usb.h"
 	#include "m_wii.h"
+	#include "m_bus.h"
+	#include "m_rf.h"
 }
+
+Location initPuck;
+int first = 0;
 
 void qualify();
 void puckLocalizationTest();
@@ -79,6 +85,7 @@ int main(void)
 		*/
 	}
 	//puckLocalizationTest();
+	friendlies();
 }
 
 void puckLocalizationTest(){
@@ -185,13 +192,17 @@ void friendlies(){
 	initDigital();
 	initClock();
 	initADC();
-	initWireless();
+	//initWireless();
 	initLocalization();
 	updateLocalization();
-	_delay_ms(100);
+	_delay_ms(500);
+	//m_usb_init();
+	initPuck = getPuckLocation();
 	while(1){
 		updateLocalization();
-		updateLED();
+		//updateLED();
+		//sendRobotLocation();
+		//sendPuckPose();
 		switch(getThisRobot()){
 			case Robot::ROBOT1:
 			updatePlayer(Player::GOALIE);
@@ -203,10 +214,25 @@ void friendlies(){
 			updatePlayer(Player::DEFENSE);
 			break;
 			default:
+			updatePlayer(Player::NONE);
 			break;
 		}
-		if (allowedToMove()){
-			playerLogic(getPlayer());
+		//if (allowedToMove()){
+		if(stuck()){
+			if(timePassed(400)){
+				setMotors(-900,-900);
+			}
 		}
+		else{
+			if (first == 0 && getPuckLocation().x-initPuck.x<3 && getPuckLocation().x-initPuck.x>-3 &&  getPuckLocation().y-initPuck.y<3 && getPuckLocation().y-initPuck.y>-3){
+				faceoff();
+			}
+			else{
+				if (first == 0) first++;
+				//goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+				playerLogic(getPlayer());
+			}
+		}
+		//}
 	}
 }

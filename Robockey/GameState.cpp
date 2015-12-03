@@ -65,11 +65,11 @@ void determineTeam(){
 	
 	if(team == Team::UNKNOWN){
 		if(robotPose != UNKNOWN_POSE){
-			if(robotPose.x > XMAX/2)
+			if(robotPose.x > 0)
 				teamCount++;
 			else if(teamCount > 0)
 				teamCount = 0;
-			else if(robotPose.x < XMIN/2)
+			else if(robotPose.x < 0)
 				teamCount--;
 			else
 				teamCount = 0;
@@ -94,7 +94,7 @@ void updateGameState(GameState state){
 }
 
 bool flipCoordinates(){
-	return pastHalfTime ^ (getTeam() == Team::RED);
+	return pastHalfTime ^ (getTeam() == Team::BLUE);
 }
 
 void setLEDToTeamColor(){

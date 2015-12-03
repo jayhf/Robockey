@@ -24,6 +24,9 @@ void kick();
 bool helpRequested = false;
 bool inCorner = false;
 Player player = Player::NONE;
+Location lastPuck = getPuckLocation();
+int i = 0;
+int rando = 0;
 
 void updatePlayer(Player play){
 	player = play;
@@ -54,31 +57,21 @@ void playerLogic(Player player){
 		}
 	}
 }
-
 void goalieLogic(){
 	if(puckVisible()){
-		Location puck = getPuckLocation();//predictPuck(getTime()-getPuckUpdateTime());
+		Location puck = getPuckLocation();
+		//predictPuck(getTime()-getPuckUpdateTime());
 		if (puck != UNKNOWN_LOCATION){
-			if (puck.x < 0) { //if puck closer than half field
-				int16_t yPos;
-				if (puck.y >= 0) {
-					yPos = MIN(YMAX/2+ROBOT_RADIUS,puck.y);
+			if(puck.x < XMIN+4*ROBOT_RADIUS+2*PUCK_RADIUS){ //if puck closer than 3/4
+				if(!facingLocation(puck,getRobotPose())){
+					faceLocation(puck, getRobotPose());
 				}
 				else{
-					yPos = MAX(YMIN/2-ROBOT_RADIUS,puck.y);
+					setMotors(600,600);
 				}
-				goToPosition(Pose(XMIN + ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose());
-				faceLocation(puck, getRobotPose());
-				setLED(LEDColor::BLUE);
-			}
-			else if(puck.x < 3*XMIN/4){ //if puck closer than 3/4
-				faceLocation(puck, getRobotPose());
-				setMotors(1200,1200); //charge
-				setLED(LEDColor::RED);
 				//communicate to other robot to fill in
 			}
-			else {
-				setLED(LEDColor::PURPLE);
+			else if (puck.x < 0) { //if puck closer than half field
 				int16_t yPos;
 				if (puck.y >= 0) {
 					yPos = MIN(YMAX/2,puck.y);
@@ -86,15 +79,27 @@ void goalieLogic(){
 				else{
 					yPos = MAX(YMIN/2,puck.y);
 				}
-				//move out a bit
-				goToPosition(Pose(7*XMIN/8, yPos, getPuckHeading()), getRobotPose());
-				faceLocation(puck, getRobotPose());
+				if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
+					faceLocation(puck, getRobotPose());
+				}
+				else{
+					goToPosition(Pose(XMIN + 3*ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose());
+				}
+			}
+			else {
+				if(getRobotPose().x<XMIN+5*ROBOT_RADIUS&&getRobotPose().y<2*ROBOT_RADIUS&&getRobotPose().y>-2*ROBOT_RADIUS){
+					faceLocation(puck, getRobotPose());
+				}
+				else{
+					goToPosition(Pose(XMIN+4*ROBOT_RADIUS,0,0), getRobotPose());
+				}
 			}
 		}
 		else{
 			goToPosition(Pose(-105,0,0),getRobotPose());
 		}
 	}
+	
 }
 
 void leftCorner(){
@@ -113,7 +118,7 @@ void leftCorner(){
 	inCorner = false;
 	}
 	}*/
-	goToPositionPuck(Pose(XMAX,YMAX/2 + ROBOT_RADIUS,0),currentPose); //charge into goal
+	goToPositionPuck(Pose(XMAX,YMAX/2,0),currentPose); //charge into goal
 }
 
 void rightCorner(){
@@ -130,7 +135,7 @@ void rightCorner(){
 	inCorner = false;
 	}
 	}*/
-	goToPositionPuck(Pose(XMAX,YMIN/2 + ROBOT_RADIUS,0),currentPose); //charge into goal
+	goToPositionPuck(Pose(XMAX,YMIN/2,0),currentPose); //charge into goal
 }
 
 /*void avoidGoalie(){
@@ -213,26 +218,32 @@ void fakeGoalie(){
 }
 
 void followWall(){
-	if(!nearWall(getRobotPose())){
-		if(getRobotPose().y >=0){
-			goToPositionPuck(Pose(getRobotPose().x+2*ROBOT_RADIUS,YMAX-2*ROBOT_RADIUS,0), getRobotPose());
-		}
-		else goToPositionPuck(Pose(getRobotPose().x+2*ROBOT_RADIUS,YMIN+2*ROBOT_RADIUS,0), getRobotPose());
-	}
-	else{
-		if(getRobotPose().y >=0){
-			faceAngle(-PI/6,getRobotPose());
+	if(getRobotPose().x>0){
+		if(!nearWall(getRobotPose())){
+			
+			if(getRobotPose().y >=0){
+				goToPositionPuck(Pose(getRobotPose().x+2*ROBOT_RADIUS,YMAX-2*ROBOT_RADIUS,0), getRobotPose());
+			}
+			else goToPositionPuck(Pose(getRobotPose().x+2*ROBOT_RADIUS,YMIN+2*ROBOT_RADIUS,0), getRobotPose());
 		}
 		else{
-			faceAngle(PI/6,getRobotPose());
+			if(getRobotPose().y >=0){
+				faceAngle(-PI/6,getRobotPose());
+			}
+			else{
+				faceAngle(PI/6,getRobotPose());
+			}
+			setMotors(900,900); //full steam ahead
 		}
-		setMotors(900,900); //full steam ahead
+	}
+	else{
+		goToPosition(Pose(XMAX,0,0),getRobotPose());
 	}
 }
 
 void charge(){
-	goToPositionPuck(Pose(XMAX,getRobotPose().y,0),getRobotPose());
-	if (getRobotPose().x > XMAX - 3*ROBOT_RADIUS){
+	goToPositionPuck(Pose(XMAX,getRobotPose().y+2*ROBOT_RADIUS,0),getRobotPose());
+	if (getRobotPose().x > XMAX - 4*ROBOT_RADIUS){
 		startKick();
 	}
 	updateKick();
@@ -265,7 +276,7 @@ void tryKick(){
 
 void defenseLogic(){
 	if(helpRequested){
-		if(getRobotPose().x>-110){
+		if(getRobotPose().x>XMIN+4*ROBOT_RADIUS){
 			Location puck = getPuckLocation();
 			int16_t yPos;
 			if (puck.y >= 0) {
@@ -274,8 +285,10 @@ void defenseLogic(){
 			else{
 				yPos = MAX(YMIN/2,puck.y);
 			}
-			goToPosition(Pose(XMIN + ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose());
-			faceLocation(puck, getRobotPose());
+			goToPosition(Pose(XMIN + 3*ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose());
+			if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
+				faceLocation(puck, getRobotPose());
+			}
 		}
 		else{
 			helpRequested = false;
@@ -283,8 +296,16 @@ void defenseLogic(){
 	}
 	else{ //get in front of puck
 		if(puckVisible()){
-		Location puck = getPuckLocation();
-		goToPosition(Pose(puck.x-2*ROBOT_RADIUS,puck.y,0),getRobotPose());
+			Location puck = getPuckLocation();
+			if(puck != UNKNOWN_LOCATION){
+				if(puck.x>0){
+					scoreLogic();
+				}
+				else{
+					goToPuck(puck.toPose(getPuckHeading()),getRobotPose());
+				}
+			}
+			else goToPosition(Pose(-100,25,0),getRobotPose());
 		}
 		else{
 			goToPosition(Pose(-100,25,0),getRobotPose());
@@ -296,12 +317,20 @@ void requestHelp(){
 }
 
 void scoreLogic(){
-	if(puckVisible()){
+	if(puckVisible()&& getPuckLocation()!=UNKNOWN_LOCATION){
 		if(!hasPuck()){
-			goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+			goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
 		}
 		else{
-			int rando = random() % 4; //change to number of strategies
+			
+			if (i==0){
+				rando = rand() % 3;
+				i++;
+			} //change to number of strategies
+			else if (i==500){
+				i=0;
+			}
+			else i++;
 			switch(rando){
 				case 0:{
 					leftCorner();
@@ -328,4 +357,19 @@ void scoreLogic(){
 	else{
 		goToPosition(Pose(-100,-25,0),getRobotPose());
 	}
+}
+
+void faceoff(){
+	if(player==Player::SCORER){
+		if(!timePassed(2000)){
+			setMotors(1200,1200);
+		}
+		else{
+			goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+		}
+	}
+	else if(player==Player::ASSISTER){
+		goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+	}
+	else playerLogic(player);
 }

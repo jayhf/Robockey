@@ -23,6 +23,7 @@ void initWireless(){
 /*void sendNextMessage(){
 	if(messageCount==0)
 		return;
+	m_rf_send(static_cast<uint8_t>(recipients[firstMessageIndex&0x7]), (char*)messageQueue[firstMessageIndex&0x7], 10);
 	firstMessageIndex++;
 	messageCount--;
 }*/
