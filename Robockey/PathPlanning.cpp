@@ -71,7 +71,7 @@ void goToPosition(Pose target, Pose current){
 		
 
 		uint16_t x = MIN(900,MAX(0,k1 * distance - k3 * (distance - lastDistance)));
-		uint16_t y = MIN(600,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
+		uint16_t y = MIN(550,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
 		
 		if (deltaTheta < 6500 && deltaTheta > -6500){ //if within 0.1 radians ~5* of target angle,
 			setMotors(x,x); //forwards
@@ -120,28 +120,30 @@ void goToPositionSpin(Pose target, Pose current){
 }
 
 void goToPuck(Pose target, Pose current){
+	if(!hasPuck()){}
 	if(target.x > XMIN/2){
-		goToPositionPuck(target,current);
+		goToPosition(target,current);
 	}
 	else{
 		if(target.x>current.x){
-			goToPositionPuck(target,current);
+			goToPosition(target,current);
 		}
 		else{
 			if (target.y>0&&target.y<YMAX-2*ROBOT_RADIUS){
-				goToPositionPuck(Pose(target.x-2*ROBOT_RADIUS,target.y+2*ROBOT_RADIUS,target.o),current);
+				goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y+2*ROBOT_RADIUS,target.o),current);
 			}
 			else if (target.y>0){
-				goToPositionPuck(Pose(target.x-2*ROBOT_RADIUS,target.y-2*ROBOT_RADIUS,target.o),current);
+				goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y-2*ROBOT_RADIUS,target.o),current);
 			}
 			else if(target.y<0 && target.y>YMIN+2*ROBOT_RADIUS){
-				goToPositionPuck(Pose(target.x-2*ROBOT_RADIUS,target.y-2*ROBOT_RADIUS,target.o),current);
+				goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y-2*ROBOT_RADIUS,target.o),current);
 			}
 			else{
-				goToPositionPuck(Pose(target.x-2*ROBOT_RADIUS,target.y+2*ROBOT_RADIUS,target.o),current);
+				goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y+2*ROBOT_RADIUS,target.o),current);
 			}
 		}
 	}
+	
 }
 
 void goToPositionPuck(Pose target, Pose current){
@@ -154,15 +156,15 @@ void goToPositionPuck(Pose target, Pose current){
 		angle deltaTheta = current.o - targetTheta;
 
 		uint16_t k1 = 40; //distance proportional
-		uint16_t k2 = 0.5; //angle proportional
-		uint16_t k3 = 25; //distance derivative
-		uint16_t k4 = 15; //angle derivative
+		uint16_t k2 = 1; //angle proportional
+		uint16_t k3 = 50; //distance derivative
+		uint16_t k4 = 20; //angle derivative
 		
 
-		uint16_t x = MIN(400,k1 * distance - k3 * (distance - lastDistance));
-		uint16_t y = MIN(250,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
+		uint16_t x = MIN(900,k1 * distance - k3 * (distance - lastDistance));
+		uint16_t y = MIN(275,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
 		
-		if (deltaTheta < 4500 && deltaTheta > -4500){ //if within 0.1 radians ~5* of target angle,
+		if (deltaTheta < 6500 && deltaTheta > -6500){ //if within 0.1 radians ~5* of target angle,
 			setMotors(x,x); //forwards
 		}
 		else {
@@ -201,7 +203,7 @@ void faceLocation(Location target, Pose current){
 		angle o = atan2b(-deltaY,-deltaX);
 		//uint8_t buffer[10] = {0,0,(current.o-o)>>8,(current.o-o)&0xFF,(current.o-lastPose.o)>>8,(current.o-lastPose.o)&0xFF,0,0,0,0};
 		//sendPacket(Robot::CONTROLLER,0x21,buffer);
-		uint16_t x = MAX(0,MIN(900,1 * abs((current.o - o)) - 15 * abs(current.o - lastPose.o)));
+		uint16_t x = MAX(0,MIN(500,1 * abs((current.o - o)) - 20 * abs(current.o - lastPose.o)));
 		if(current.o - o > 0){
 			setMotors(-x,x);
 		}

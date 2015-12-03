@@ -24,6 +24,7 @@ void kick();
 bool helpRequested = false;
 bool inCorner = false;
 Player player = Player::NONE;
+Location lastPuck = getPuckLocation();
 
 void updatePlayer(Player play){
 	player = play;
@@ -54,44 +55,54 @@ void playerLogic(Player player){
 		}
 	}
 }
-
+Location a;
 void goalieLogic(){
 	if(puckVisible()){
-		Location puck = getPuckLocation();//predictPuck(getTime()-getPuckUpdateTime());
+		Location puck = getPuckLocation();
+		Location temp = puck;
+		//predictPuck(getTime()-getPuckUpdateTime());
 		if (puck != UNKNOWN_LOCATION){
-			if(puck.x < XMIN+5*ROBOT_RADIUS+2*PUCK_RADIUS){ //if puck closer than 3/4
+			puck.x=temp.x*0.95+lastPuck.x*0.05;
+			puck.y=temp.y*0.95+lastPuck.y*0.05;
+			if(puck.x < XMIN+4*ROBOT_RADIUS+2*PUCK_RADIUS){ //if puck closer than 3/4
 				if(!facingLocation(puck,getRobotPose())){
-				faceLocation(puck, getRobotPose());
+					faceLocation(puck, getRobotPose());
 				}
 				else{
-				setMotors(900,900); //charge
+					setMotors(900,900); //charge
 				}
 				//communicate to other robot to fill in
 			}
 			else if (puck.x < 0) { //if puck closer than half field
 				int16_t yPos;
 				if (puck.y >= 0) {
-					yPos = MIN(YMAX/2,puck.y);
+					yPos = MIN(YMAX/2+2*PUCK_RADIUS,puck.y);
 				}
 				else{
-					yPos = MAX(YMIN/2,puck.y);
+					yPos = MAX(YMIN/2-2*PUCK_RADIUS,puck.y);
 				}
-				goToPosition(Pose(XMIN + 3*ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose());
-				if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
+				if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+3*ROBOT_RADIUS&&getRobotPose().y>yPos-3*ROBOT_RADIUS){
 					faceLocation(puck, getRobotPose());
+				}
+				else{
+					goToPosition(Pose(XMIN + 3*ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose());
 				}
 			}
 			else {
-				goToPosition(Pose(XMIN+3*ROBOT_RADIUS,0,0), getRobotPose());
-				if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<2*ROBOT_RADIUS&&getRobotPose().y>-2*ROBOT_RADIUS){
+				if(getRobotPose().x<XMIN+7*ROBOT_RADIUS&&getRobotPose().y<2*ROBOT_RADIUS&&getRobotPose().y>-2*ROBOT_RADIUS){
 					faceLocation(puck, getRobotPose());
+				}
+				else{
+					goToPosition(Pose(XMIN+5*ROBOT_RADIUS,0,0), getRobotPose());
 				}
 			}
 		}
 		else{
 			goToPosition(Pose(-105,0,0),getRobotPose());
 		}
+		lastPuck = temp;
 	}
+	
 }
 
 void leftCorner(){
@@ -110,7 +121,7 @@ void leftCorner(){
 	inCorner = false;
 	}
 	}*/
-	goToPositionPuck(Pose(XMAX,YMAX/2,0),currentPose); //charge into goal
+	goToPositionPuck(Pose(XMAX,YMAX/2+2*PUCK_RADIUS,0),currentPose); //charge into goal
 }
 
 void rightCorner(){
@@ -127,7 +138,7 @@ void rightCorner(){
 	inCorner = false;
 	}
 	}*/
-	goToPositionPuck(Pose(XMAX,YMIN/2,0),currentPose); //charge into goal
+	goToPositionPuck(Pose(XMAX,YMIN/2-2*PUCK_RADIUS,0),currentPose); //charge into goal
 }
 
 /*void avoidGoalie(){
@@ -262,7 +273,7 @@ void tryKick(){
 
 void defenseLogic(){
 	if(helpRequested){
-		if(getRobotPose().x>-110){
+		if(getRobotPose().x>XMIN+4*ROBOT_RADIUS){
 			Location puck = getPuckLocation();
 			int16_t yPos;
 			if (puck.y >= 0) {
@@ -271,8 +282,10 @@ void defenseLogic(){
 			else{
 				yPos = MAX(YMIN/2,puck.y);
 			}
-			goToPosition(Pose(XMIN + ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose());
-			faceLocation(puck, getRobotPose());
+			goToPosition(Pose(XMIN + 3*ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose());
+			if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
+				faceLocation(puck, getRobotPose());
+			}
 		}
 		else{
 			helpRequested = false;
@@ -280,8 +293,13 @@ void defenseLogic(){
 	}
 	else{ //get in front of puck
 		if(puckVisible()){
-		Location puck = getPuckLocation();
-		goToPuck(puck.toPose(getPuckHeading()),getRobotPose());
+			Location puck = getPuckLocation();
+			if(puck.x>0){
+				scoreLogic();
+			}
+			else{
+				goToPuck(puck.toPose(getPuckHeading()),getRobotPose());
+			}
 		}
 		else{
 			goToPosition(Pose(-100,25,0),getRobotPose());
@@ -299,7 +317,7 @@ void scoreLogic(){
 		}
 		else{
 			int rando = random() % 4; //change to number of strategies
-			switch(2){
+			switch(0){
 				case 0:{
 					leftCorner();
 					break;

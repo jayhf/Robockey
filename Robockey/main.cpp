@@ -174,8 +174,8 @@ void friendlies(){
 			break;
 		}
 		//if (allowedToMove()){
-			goToPositionPuck(Pose(-100,0,0),getRobotPose());
-			//playerLogic(getPlayer());
+			//goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+			playerLogic(getPlayer());
 		//}
 	}
 }
