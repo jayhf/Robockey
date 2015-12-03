@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "time.h"
 #include "BAMSMath.h"
+#include "GameState.h"
 
 #define YMAX 60
 #define YMIN -60
@@ -116,5 +117,5 @@ void updatePuckPosition();
 Location findPuck();
 Pose localizeRobot(uint16_t* irData);
 void receivedEnemyLocations(int8_t *locations);
-void receivedAllyUpdate(Pose pose, Location puckLocation, uint8_t allyID);
+void receivedAllyUpdate(Location location, Location puckLocation, Ally allyID);
 void locationFilter(Location &location, Velocity &velocity, Location measuredLocation, uint16_t &oldTime, uint16_t newTime, uint8_t &certainty, uint8_t radius);

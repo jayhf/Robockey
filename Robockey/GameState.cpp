@@ -141,13 +141,24 @@ void updateLED(){
 		setLED(LEDColor::OFF);
 }
 
-uint8_t getAllyID(uint8_t address){
-	switch(static_cast<Robot>(address)){
+Ally getAlly(Robot ally){
+	switch(ally){
 		case Robot::ROBOT1:
-			return 0;
+			return Ally::ALLY1;
 		case Robot::ROBOT3:
-			return 1;
+			return Ally::ALLY2;
 		default:
-			return getThisRobot() == Robot::ROBOT3;
+			return getThisRobot() == Robot::ROBOT1 ? Ally::ALLY1 : Ally::ALLY2;
+	}
+}
+
+Robot getAllyRobot(Ally ally){
+	switch(getThisRobot()){
+		case Robot::ROBOT1:
+			return ally == Ally::ALLY1 ? Robot::ROBOT2 : Robot::ROBOT3;
+		case Robot::ROBOT2:
+			return ally == Ally::ALLY1 ? Robot::ROBOT1 : Robot::ROBOT3;
+		default:
+			return ally == Ally::ALLY1 ? Robot::ROBOT1 : Robot::ROBOT2;
 	}
 }

@@ -10,6 +10,10 @@ enum class Robot : uint8_t{
 	CONTROLLER = 84, ROBOT1 = 0, ROBOT2 = 1, ROBOT3 = 2
 };
 
+enum class Ally : uint8_t{
+	ALLY1 = 1, ALLY2 = 2
+};
+
 enum class Team : uint8_t{
 	UNKNOWN, RED, BLUE
 };
@@ -36,5 +40,6 @@ bool allowedToMove();
 
 bool flipCoordinates();
 
-//A way to identify which ally is which. One ally is alway ally 0. The other is always ally 1.
-uint8_t getAllyID(uint8_t address);
+//A way to identify which ally is which. One ally is always ally 0. The other is always ally 1.
+Ally getAlly(Robot ally);
+Robot getAllyRobot(Ally ally);

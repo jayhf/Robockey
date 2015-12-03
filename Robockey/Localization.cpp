@@ -268,7 +268,8 @@ Location predictPose(uint16_t dt){
 	return predictLocation(robotPose.getLocation(), robotVelocity, dt);
 }
 
-void receivedAllyUpdate(Location location, Location puckLocation, uint8_t allyID){
+void receivedAllyUpdate(Location location, Location puckLocation, Ally ally){
+	uint8_t allyID = static_cast<uint8_t>(ally);
 	newAllyUpdateTimes[allyID] = getTime();
 	newAllyLocations[allyID] = location;
 	newAllyPuckLocations[allyID] = puckLocation;

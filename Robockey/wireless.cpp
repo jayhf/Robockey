@@ -28,17 +28,22 @@ void initWireless(){
 	messageCount--;
 }*/
 
-void sendPacket(Robot robot, uint8_t messageID, uint8_t *packet){
+void sendPacket(Robot robot, uint8_t *packet){
 	//if(messageCount == 8)
 	//	return;
 	packet[0]=static_cast<uint8_t>(getThisRobot());
-	packet[1]=messageID;
 	/*uint8_t messageIndex = (messageCount + firstMessageIndex)&0x7;
 	memcpy(messageQueue[messageIndex],packet,10);
 	recipients[messageIndex] = robot;
 	messageCount++;*/
 	m_rf_send(static_cast<uint8_t>(robot), (char*)packet, 10);
 	_delay_ms(10);
+}
+
+
+void sendPacket(Robot robot, uint8_t messageID, uint8_t *packet){
+	packet[1]=messageID;
+	sendPacket(robot,packet);
 }
 
 void sendRobotLocation(){
@@ -97,7 +102,7 @@ ISR(INT2_vect){
 		case static_cast<uint8_t>(Robot::ROBOT3):
 			{
 				//Received a message from another team robot
-				processTeamMessage(getAllyID(buffer[0]),buffer+1);
+				processTeamMessage(getAlly(static_cast<Robot>(buffer[0])),buffer);
 				break;
 			}
 		case 0xA0:
@@ -129,10 +134,21 @@ ISR(INT2_vect){
 	}
 }
 
-void sendRobotMessage(Robot otherRobot, Pose location, uint8_t thisStrategy, uint8_t suggestedStrategy){
-	
+void sendAllyMessage(Ally ally){
+	Pose robotPose = getRobotPose();
+	Location puckLocation = getPuckLocation();
+	uint8_t packet[10];
+	packet[1] = robotPose.x;
+	packet[2] = robotPose.y;
+	packet[3] = puckLocation.x;
+	packet[4] = puckLocation.y;
+	packet[5] = hasPuck();
+	sendPacket(getAllyRobot(ally),packet);
 }
 
-void processTeamMessage(uint8_t allyID, uint8_t *data){
-	
+void processTeamMessage(Ally ally, uint8_t *data){
+	Location allyLocation = Location(data[1],data[2]);
+	Location allyPuckLocation = Location(data[3],data[4]);
+	bool allyHasPuck = data[5];
+	receivedAllyUpdate(allyLocation, allyPuckLocation, ally);
 }
