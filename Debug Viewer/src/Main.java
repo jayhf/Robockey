@@ -58,11 +58,11 @@ public class Main {
 		try{
 			RobotCommunicationThread robotConnection = new RobotCommunicationThread((Byte id)->{
 				switch(id){
-					case 0:
+					case 85:
 						return robots[0];
-					case 1:
+					case 86:
 						return robots[1];
-					case 2:
+					case 87:
 						return robots[2];
 					default:
 						return null;

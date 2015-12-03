@@ -41,8 +41,7 @@ int main(void)
 	m_clockdivide(0);
 	m_disableJTAG();
 	sei();
-	
-	//m_usb_init();
+	m_bus_init();
 	initDigital();
 	initClock();
 	initADC();
@@ -52,8 +51,7 @@ int main(void)
 	_delay_ms(500);
 	updateLocalization();
 	while(1){
-		//setLED(LEDColor::RED);
-		//updateLED();
+		updateLED();
 		
 		updateLocalization();
 		sendRobotLocation();
