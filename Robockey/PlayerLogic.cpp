@@ -60,11 +60,8 @@ void playerLogic(Player player){
 void goalieLogic(){
 	if(puckVisible()){
 		Location puck = getPuckLocation();
-		Location temp = puck;
 		//predictPuck(getTime()-getPuckUpdateTime());
 		if (puck != UNKNOWN_LOCATION){
-			puck.x=temp.x*0.90+lastPuck.x*0.10;
-			puck.y=temp.y*0.90+lastPuck.y*0.10;
 			if(puck.x < XMIN+4*ROBOT_RADIUS+2*PUCK_RADIUS){ //if puck closer than 3/4
 				if(!facingLocation(puck,getRobotPose())){
 					faceLocation(puck, getRobotPose());
@@ -101,7 +98,6 @@ void goalieLogic(){
 		else{
 			goToPosition(Pose(-105,0,0),getRobotPose());
 		}
-		lastPuck = temp;
 	}
 	
 }

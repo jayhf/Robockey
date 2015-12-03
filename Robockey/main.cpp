@@ -177,8 +177,8 @@ void friendlies(){
 		}
 		//if (allowedToMove()){
 		if(stuck()){
-			if(timePassed(256)){
-				setMotors(-1200,-1200);
+			if(timePassed(400)){
+				setMotors(-900,-900);
 			}
 		}
 		else{
