@@ -147,7 +147,7 @@ void updatePuckPosition(){
 }
 
 bool hasPuck(){
-	if(puckVisible() && (puckHeading >= -2048) && (puckHeading <= 2048)&&(puckDistance<12)){
+	if(puckVisible() && (puckHeading >= -2048) && (puckHeading <= 2048)&&(puckDistance<11)){
 		return true;
 	}
 	return false;
@@ -321,6 +321,7 @@ Location findPuck(){
 			break;
 		default://never gets here, but need to keep the compiler happy
 			return UNKNOWN_LOCATION;
+			seePuck = false;
 	}
 	uint16_t intensity = values[photo];
 	uint8_t distance = 0xFF;

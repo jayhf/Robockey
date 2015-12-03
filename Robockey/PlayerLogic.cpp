@@ -25,8 +25,6 @@ bool helpRequested = false;
 bool inCorner = false;
 Player player = Player::NONE;
 Location lastPuck = getPuckLocation();
-int i = 0;
-int rando = 0;
 
 void updatePlayer(Player play){
 	player = play;
@@ -79,7 +77,7 @@ void goalieLogic(){
 				else{
 					yPos = MAX(YMIN/2,puck.y);
 				}
-				if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
+				if(getRobotPose().x<XMIN+3*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
 					faceLocation(puck, getRobotPose());
 				}
 				else{
@@ -118,7 +116,9 @@ void leftCorner(){
 	inCorner = false;
 	}
 	}*/
+
 	goToPositionPuck(Pose(XMAX,YMAX/2,0),currentPose); //charge into goal
+
 }
 
 void rightCorner(){
@@ -135,7 +135,9 @@ void rightCorner(){
 	inCorner = false;
 	}
 	}*/
+
 	goToPositionPuck(Pose(XMAX,YMIN/2,0),currentPose); //charge into goal
+
 }
 
 /*void avoidGoalie(){
@@ -242,8 +244,8 @@ void followWall(){
 }
 
 void charge(){
-	goToPositionPuck(Pose(XMAX,getRobotPose().y+2*ROBOT_RADIUS,0),getRobotPose());
-	if (getRobotPose().x > XMAX - 4*ROBOT_RADIUS){
+	goToPositionPuck(Pose(XMAX,getRobotPose().y,0),getRobotPose());
+	if (getRobotPose().x > XMAX - 3*ROBOT_RADIUS){
 		startKick();
 	}
 	updateKick();
@@ -315,7 +317,8 @@ void defenseLogic(){
 void requestHelp(){
 	helpRequested = true;
 }
-
+int i = 0;
+int rando = 0;
 void scoreLogic(){
 	if(puckVisible()&& getPuckLocation()!=UNKNOWN_LOCATION){
 		if(!hasPuck()){
