@@ -110,7 +110,7 @@ void leftCorner(){
 	inCorner = false;
 	}
 	}*/
-	goToPositionPuck(Pose(XMAX,YMAX/2 + ROBOT_RADIUS,0),currentPose); //charge into goal
+	goToPositionPuck(Pose(XMAX,YMAX/2,0),currentPose); //charge into goal
 }
 
 void rightCorner(){
@@ -127,7 +127,7 @@ void rightCorner(){
 	inCorner = false;
 	}
 	}*/
-	goToPositionPuck(Pose(XMAX,YMIN/2 + ROBOT_RADIUS,0),currentPose); //charge into goal
+	goToPositionPuck(Pose(XMAX,YMIN/2,0),currentPose); //charge into goal
 }
 
 /*void avoidGoalie(){
@@ -281,7 +281,7 @@ void defenseLogic(){
 	else{ //get in front of puck
 		if(puckVisible()){
 		Location puck = getPuckLocation();
-		goToPosition(Pose(puck.x-2*ROBOT_RADIUS,puck.y,0),getRobotPose());
+		goToPuck(puck.toPose(getPuckHeading()),getRobotPose());
 		}
 		else{
 			goToPosition(Pose(-100,25,0),getRobotPose());

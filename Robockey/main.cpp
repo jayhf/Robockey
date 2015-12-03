@@ -172,10 +172,9 @@ void friendlies(){
 		}
 		//if (allowedToMove()){
 			
+			
+			
 			playerLogic(getPlayer());
-			
-			
-			//playerLogic(getPlayer());
 		//}
 	}
 }
