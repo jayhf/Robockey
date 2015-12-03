@@ -34,6 +34,7 @@ extern "C"{
 void qualify();
 void puckLocalizationTest();
 Pose getEnemyGoal();
+void friendlies();
 
 int main(void)
 {
@@ -73,9 +74,9 @@ int main(void)
 		/*sendRobotLocation();
 		m_green(0);
 		if(!timePassed(500)){
-			m_green(1);
-			//setMotors(900,550);
-			goToPositionPuck(Pose(0,0,0),getRobotPose());
+		m_green(1);
+		//setMotors(900,550);
+		goToPositionPuck(Pose(0,0,0),getRobotPose());
 		}
 		else setMotors(0,0);
 		*/
@@ -141,14 +142,14 @@ void oldMain(){
 		
 		/*
 		if(i<100){
-			faceAngle(getPuckLocation().o,robot);
+		faceAngle(getPuckLocation().o,robot);
 		//faceAngle(0,robot);
 		m_wait(15);
 		i++;
 		}
 		else setMotors(0,0);
-	*/
-	//real code
+		*/
+		//real code
 		/*
 		beginADC();
 		localizeRobot();
@@ -178,3 +179,36 @@ void qualify(){
 	goTo(Pose(110,0,0),robot);
 }
 
+void friendlies(){
+	m_clockdivide(0);
+	m_disableJTAG();
+	sei();
+	
+	initDigital();
+	initClock();
+	initADC();
+	initWireless();
+	initLocalization();
+	updateLocalization();
+	_delay_ms(100);
+	while(1){
+		updateLocalization();
+		updateLED();
+		switch(getThisRobot()){
+			case Robot::ROBOT1:
+			updatePlayer(Player::GOALIE);
+			break;
+			case Robot::ROBOT2:
+			updatePlayer(Player::SCORER);
+			break;
+			case Robot::ROBOT3:
+			updatePlayer(Player::DEFENSE);
+			break;
+			default:
+			break;
+		}
+		if (allowedToMove()){
+			playerLogic(getPlayer());
+		}
+	}
+}

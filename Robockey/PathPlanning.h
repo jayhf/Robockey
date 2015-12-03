@@ -5,7 +5,7 @@
 
 void goTo(Pose target, Pose current);
 ///Switch to using the Pose class (see Localization.h)
-void goToPosition(Pose target, Pose current, bool faceForward);
+void goToPosition(Pose target, Pose current);
 void goToPositionSpin(Pose target, Pose current);
 void goToPositionPuck(Pose target, Pose current);
 

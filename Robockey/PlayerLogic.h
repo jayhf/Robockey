@@ -9,7 +9,7 @@
 #include <stdint.h>
 
 enum class Player : uint8_t{
-	GOALIE = 0, DEFENSE = 1, SCORER = 2, ASSISTER = 3
+	NONE = 0, GOALIE = 1, DEFENSE = 2, SCORER = 3, ASSISTER = 4
 };
 
 void playerLogic(Player player);
@@ -23,3 +23,6 @@ void charge();
 void tryKick();
 void requestHelp();
 void defenseLogic();
+void updatePlayer(Player player);
+Player getPlayer();
+void scoreLogic();

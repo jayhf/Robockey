@@ -56,7 +56,7 @@ void goTo(Pose target, Pose current){
 	*/
 }
 ///Switch to using the Pose class (see Localization.h)
-void goToPosition(Pose target, Pose current, bool faceForward){
+void goToPosition(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	int16_t distance = sqrt((uint16_t)abs(deltaX*deltaX + deltaY*deltaY));
@@ -64,59 +64,31 @@ void goToPosition(Pose target, Pose current, bool faceForward){
 		int16_t targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
 		angle deltaTheta = current.o - targetTheta;
 
-		uint16_t k1 = 10; //distance proportional
-		uint16_t k2 = 1; //angle proportional
-		uint16_t k3 = 2; //distance derivative
-		uint16_t k4 = 20; //angle derivative
+		uint16_t k1 = 40; //distance proportional
+		uint16_t k2 = 0.5; //angle proportional
+		uint16_t k3 = 25; //distance derivative
+		uint16_t k4 = 15; //angle derivative
 		
 
-		uint16_t x = MIN(600,k1 * distance - k3 * (distance - lastDistance));
+		uint16_t x = MIN(700,k1 * distance - k3 * (distance - lastDistance));
 		uint16_t y = MIN(500,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
-		if (!faceForward){
-			if (deltaTheta < 4500 && deltaTheta > -4500){
-				setMotors(x,x); //forwards
-			}
-			else if (-deltaTheta < 4500 && -deltaTheta > 4500) {
-				setMotors(-x,-x); //backwards
-			}
-			else {
-				if (nearWall(current)) {
-					goToPositionSpin(Pose(current.x, 0.8*current.y,current.o),current);
-				}
-				else{
-					if(deltaTheta < PI/2 && deltaTheta > 0) {
-						setMotors(x-y,x); //spin cw, forwards
-					}
-					else if (deltaTheta < 0 && deltaTheta > -PI/2){
-						setMotors(x,x+y); //spin cw, forwards
-					}
-					else if (deltaTheta < PI && deltaTheta > PI/2){
-						setMotors(-x+y,-x); //spin ccw, backwards
-					}
-					else {
-						setMotors(-x,-x-y); //spin ccw, backwards
-					}
-				}
-			}
+		
+		if (deltaTheta < 4500 && deltaTheta > -4500){ //if within 0.1 radians ~5* of target angle,
+			setMotors(x,x); //forwards
 		}
 		else {
-			if (deltaTheta < 4500 && deltaTheta > -4500){ //if within 0.1 radians ~5* of target angle,
-				setMotors(x,x); //forwards
+			//if (nearWall(current)) {
+			//goToPositionSpin(Pose(current.x, 0.8*current.y,current.o),current);
+			//}
+			//else
+			//{
+			if(deltaTheta >0) {
+				setMotors(x-y,x); //spin cw, forwards
 			}
 			else {
-				if (nearWall(current)) {
-					goToPositionSpin(Pose(current.x, 0.8*current.y,current.o),current);
-				}
-				else
-				{
-					if(deltaTheta >0) {
-						setMotors(x-y,x); //spin cw, forwards
-					}
-					else {
-						setMotors(x,x-y); //spin ccw, forwards
-					}
-				}
+				setMotors(x,x-y); //spin ccw, forwards
 			}
+			//}
 		}
 	}
 	else {
@@ -157,7 +129,7 @@ void goToPuck(Pose target, Pose current){
 		}
 		else{
 			if (target.y>0&&target.y<YMAX-2*ROBOT_RADIUS){
-			goToPositionPuck(Pose(target.x-2*ROBOT_RADIUS,target.y+2*ROBOT_RADIUS,target.o),current);
+				goToPositionPuck(Pose(target.x-2*ROBOT_RADIUS,target.y+2*ROBOT_RADIUS,target.o),current);
 			}
 			else if (target.y>0){
 				goToPositionPuck(Pose(target.x-2*ROBOT_RADIUS,target.y-2*ROBOT_RADIUS,target.o),current);
@@ -190,21 +162,21 @@ void goToPositionPuck(Pose target, Pose current){
 		uint16_t x = MIN(400,k1 * distance - k3 * (distance - lastDistance));
 		uint16_t y = MIN(250,MAX(0,abs(k2*deltaTheta) - k4*abs((targetTheta - lastTheta))));
 		
-		if (deltaTheta < 3500 && deltaTheta > -3500){ //if within 0.1 radians ~5* of target angle,
+		if (deltaTheta < 4500 && deltaTheta > -4500){ //if within 0.1 radians ~5* of target angle,
 			setMotors(x,x); //forwards
 		}
 		else {
 			//if (nearWall(current)) {
-				//goToPositionSpin(Pose(current.x, 0.8*current.y,current.o),current);
+			//goToPositionSpin(Pose(current.x, 0.8*current.y,current.o),current);
 			//}
 			//else
 			//{
-				if(deltaTheta >0) {
-					setMotors(x-y,x); //spin cw, forwards
-				}
-				else {
-					setMotors(x,x-y); //spin ccw, forwards
-				}
+			if(deltaTheta >0) {
+				setMotors(x-y,x); //spin cw, forwards
+			}
+			else {
+				setMotors(x,x-y); //spin ccw, forwards
+			}
 			//}
 		}
 	}
@@ -254,7 +226,7 @@ void faceAngle(angle o,Pose current){
 		}
 	}
 	else{
-	
+		
 		setMotors(0,0);
 	}
 	lastPose = current;
@@ -276,7 +248,7 @@ bool circleIntersectsSegment(Location p1, Location p2, Location c, uint8_t radiu
 		return (int16_t)((uint16_t)radius*d) > n;
 	}
 	else
-		return false;
+	return false;
 }
 
 bool checkIntersection(Location p1, Location p2, uint8_t radius){
@@ -306,7 +278,7 @@ uint8_t findPath(uint8_t *result, Location *vertices, uint8_t vertexCount, Locat
 		scores[i] = 0xffff;
 		Location v1 = vertices[i];
 		for(uint8_t j=i+1; j<vertexCount; j++){
-			Location v2 = vertices[j];	
+			Location v2 = vertices[j];
 			uint8_t dx = abs((int16_t)v1.x-v2.x);
 			uint8_t dy = abs((int16_t)v1.y-v2.y);
 			distances[i][j] = distances[j][i] = sqrt((uint16_t)dx*dx+(uint16_t)dy*dy);
@@ -335,18 +307,18 @@ uint8_t findPath(uint8_t *result, Location *vertices, uint8_t vertexCount, Locat
 		checked[minScoreIndex] = true;
 		for(uint8_t i = 0; i<vertexCount; i++){
 			if(checked[i] || i==minScoreIndex)
-				continue;
+			continue;
 			uint16_t score = minScore + distances[minScoreIndex][i];
 			if(score < scores[i]){
 				bool connected = true;
 				for(int j=0;j<3;j++){
 					if(circleIntersectsSegment(vertices[minScoreIndex],vertices[i],enemies[j],30))
-						connected = false;
+					connected = false;
 				}
 				if(circleIntersectsSegment(vertices[minScoreIndex],vertices[i],allyLocations[0],17))
-					connected = false;
+				connected = false;
 				if(circleIntersectsSegment(vertices[minScoreIndex],vertices[i],allyLocations[1],17))
-					connected = false;
+				connected = false;
 				if(connected){
 					scores[i] = score;
 					previousLocations[i] = minScoreIndex;
