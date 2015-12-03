@@ -359,12 +359,12 @@ void scoreLogic(){
 
 void faceoff(){
 	if(player==Player::SCORER){
-		if(!timePassed(2000)){
+		//if(!timePassed(2000)){
 			setMotors(1200,1200);
-		}
-		else{
-			goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
-		}
+		//}
+		//else{
+		//	goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+		//}
 	}
 	else if(player==Player::ASSISTER){
 		goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
