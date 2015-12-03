@@ -259,15 +259,10 @@ void tryKick(){
 			if((goalY <= (YMAX/2 - PUCK_RADIUS)) && (goalY >= (YMIN/2 + PUCK_RADIUS))){
 				Location target = Location(currentPose.x, goalY);
 				//if(!checkIntersection(currentPose.getLocation(), target, PUCK_RADIUS)){
-				//startKick();
-				//setLED(LEDColor::BLUE);
+				startKick();
 				//}
 			}
-			//else
-			//setLED(LEDColor::RED);
 		}
-		//else
-		//setLED(LEDColor::PURPLE);
 	}
 }
 
@@ -359,12 +354,12 @@ void scoreLogic(){
 
 void faceoff(){
 	if(player==Player::SCORER){
-		if(!timePassed(2000)){
+		//if(!timePassed(2000)){
 			setMotors(1200,1200);
-		}
-		else{
-			goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
-		}
+		//}
+		//else{
+		//	goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+		//}
 	}
 	else if(player==Player::ASSISTER){
 		goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
