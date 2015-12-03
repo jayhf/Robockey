@@ -57,7 +57,6 @@ void playerLogic(Player player){
 		}
 	}
 }
-Location a;
 void goalieLogic(){
 	if(puckVisible()){
 		Location puck = getPuckLocation();
@@ -83,7 +82,7 @@ void goalieLogic(){
 				else{
 					yPos = MAX(YMIN/2,puck.y);
 				}
-				if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+ROBOT_RADIUS&&getRobotPose().y>yPos-ROBOT_RADIUS){
+				if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
 					faceLocation(puck, getRobotPose());
 				}
 				else{
@@ -91,7 +90,7 @@ void goalieLogic(){
 				}
 			}
 			else {
-				if(getRobotPose().x<XMIN+5*ROBOT_RADIUS&&getRobotPose().y<ROBOT_RADIUS&&getRobotPose().y>-ROBOT_RADIUS){
+				if(getRobotPose().x<XMIN+5*ROBOT_RADIUS&&getRobotPose().y<2*ROBOT_RADIUS&&getRobotPose().y>-2*ROBOT_RADIUS){
 					faceLocation(puck, getRobotPose());
 				}
 				else{
@@ -302,12 +301,15 @@ void defenseLogic(){
 	else{ //get in front of puck
 		if(puckVisible()){
 			Location puck = getPuckLocation();
-			if(puck.x>0){
-				scoreLogic();
+			if(puck != UNKNOWN_LOCATION){
+				if(puck.x>0){
+					scoreLogic();
+				}
+				else{
+					goToPuck(puck.toPose(getPuckHeading()),getRobotPose());
+				}
 			}
-			else{
-				goToPuck(puck.toPose(getPuckHeading()),getRobotPose());
-			}
+			else goToPosition(Pose(-100,25,0),getRobotPose());
 		}
 		else{
 			goToPosition(Pose(-100,25,0),getRobotPose());
@@ -319,9 +321,9 @@ void requestHelp(){
 }
 
 void scoreLogic(){
-	if(puckVisible()){
+	if(puckVisible()&& getPuckLocation()!=UNKNOWN_LOCATION){
 		if(!hasPuck()){
-			goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+			goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
 		}
 		else{
 			
@@ -363,15 +365,15 @@ void scoreLogic(){
 
 void faceoff(){
 	if(player==Player::SCORER){
-		if(!timePassed(1000)){
+		if(!timePassed(2000)){
 			setMotors(1200,1200);
 		}
 		else{
-			goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+			goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
 		}
 	}
 	else if(player==Player::ASSISTER){
-		goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+		goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
 	}
 	else playerLogic(player);
 }

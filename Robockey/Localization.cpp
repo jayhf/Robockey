@@ -147,7 +147,7 @@ void updatePuckPosition(){
 }
 
 bool hasPuck(){
-	if(puckVisible() && (puckHeading >= -3500) && (puckHeading <= 3500)&&(puckDistance<12)){
+	if(puckVisible() && (puckHeading >= -2048) && (puckHeading <= 2048)&&(puckDistance<12)){
 		return true;
 	}
 	return false;
@@ -340,6 +340,7 @@ Location findPuck(){
 	float puckX = distance * cosb(heading + robot.o) + robot.x;
 	float puckY = distance * sinb(heading + robot.o) + robot.y;
 	if(puckX > XMAX + 5 || puckX < XMIN - 5 || puckY > YMAX + 5 || puckY < YMIN - 5){
+		seePuck = false;
 		return UNKNOWN_LOCATION;
 	}
 	puckDistance = distance;
