@@ -67,7 +67,7 @@ void goToPosition(Pose target, Pose current){
 		uint16_t k1 = 45; //distance proportional
 		uint16_t k2 = 1; //angle proportional
 		uint16_t k3 = 15; //distance derivative
-		uint16_t k4 = 10; //angle derivative
+		uint16_t k4 = 20; //angle derivative
 		
 
 		uint16_t x = MIN(900,MAX(0,k1 * distance - k3 * (distance - lastDistance)));
@@ -129,17 +129,17 @@ void goToPuck(Pose target, Pose current){
 				goToPosition(target,current);
 			}
 			else{
-				if (target.y>0&&target.y<YMAX-4*ROBOT_RADIUS){
-					goToPosition(Pose(target.x-3*ROBOT_RADIUS,target.y+3*ROBOT_RADIUS,target.o),current);
+				if (target.y>0&&target.y<YMAX-3*ROBOT_RADIUS){
+					goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y+2*ROBOT_RADIUS,target.o),current);
 				}
 				else if (target.y>0){
-					goToPosition(Pose(target.x-3*ROBOT_RADIUS,target.y-3*ROBOT_RADIUS,target.o),current);
+					goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y-2*ROBOT_RADIUS,target.o),current);
 				}
-				else if(target.y<0 && target.y>YMIN+4*ROBOT_RADIUS){
-					goToPosition(Pose(target.x-3*ROBOT_RADIUS,target.y+3*ROBOT_RADIUS,target.o),current);
+				else if(target.y<0 && target.y>YMIN+3*ROBOT_RADIUS){
+					goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y+2*ROBOT_RADIUS,target.o),current);
 				}
 				else{
-					goToPosition(Pose(target.x-3*ROBOT_RADIUS,target.y-3*ROBOT_RADIUS,target.o),current);
+					goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y-2*ROBOT_RADIUS,target.o),current);
 				}
 			}
 		}
@@ -218,7 +218,7 @@ void faceLocation(Location target, Pose current){
 void faceAngle(angle o,Pose current){
 	uint16_t x = MAX(0,MIN(400,1 * abs((current.o - o)) - 60 * abs(current.o - lastPose.o)));
 	
-	if(current.o - o < -4500 || current.o - o > 4500){
+	if(current.o - o < -6500 || current.o - o > 6500){
 		
 		if(current.o - o > 0){
 			setMotors(-x,x);

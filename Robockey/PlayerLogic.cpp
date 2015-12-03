@@ -71,7 +71,7 @@ void goalieLogic(){
 					faceLocation(puck, getRobotPose());
 				}
 				else{
-					goToPosition(puck.toPose(getPuckHeading()),getRobotPose());
+					setMotors(600,600);
 				}
 				//communicate to other robot to fill in
 			}
@@ -83,7 +83,7 @@ void goalieLogic(){
 				else{
 					yPos = MAX(YMIN/2,puck.y);
 				}
-				if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+3*ROBOT_RADIUS&&getRobotPose().y>yPos-3*ROBOT_RADIUS){
+				if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+ROBOT_RADIUS&&getRobotPose().y>yPos-ROBOT_RADIUS){
 					faceLocation(puck, getRobotPose());
 				}
 				else{
@@ -91,11 +91,11 @@ void goalieLogic(){
 				}
 			}
 			else {
-				if(getRobotPose().x<XMIN+7*ROBOT_RADIUS&&getRobotPose().y<2*ROBOT_RADIUS&&getRobotPose().y>-2*ROBOT_RADIUS){
+				if(getRobotPose().x<XMIN+5*ROBOT_RADIUS&&getRobotPose().y<ROBOT_RADIUS&&getRobotPose().y>-ROBOT_RADIUS){
 					faceLocation(puck, getRobotPose());
 				}
 				else{
-					goToPosition(Pose(XMIN+5*ROBOT_RADIUS,0,0), getRobotPose());
+					goToPosition(Pose(XMIN+4*ROBOT_RADIUS,0,0), getRobotPose());
 				}
 			}
 		}
