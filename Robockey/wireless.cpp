@@ -82,6 +82,7 @@ void sendPuckPose(){
 }
 
 ISR(INT2_vect){
+	m_green(2);
 	uint8_t buffer[10];
 	m_rf_read((char*)buffer,10);
 	switch(buffer[0]){

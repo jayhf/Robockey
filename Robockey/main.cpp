@@ -38,50 +38,7 @@ void friendlies();
 
 int main(void)
 {
-	m_clockdivide(0);
-	m_disableJTAG();
-	sei();
-	
-	//m_usb_init();
-	initDigital();
-	initClock();
-	initADC();
 	initWireless();
-	initLocalization();
-	updateLocalization();
-	_delay_ms(500);
-	updateLocalization();
-	while(1){
-		//setLED(LEDColor::RED);
-		//updateLED();
-		
-		updateLocalization();
-		sendRobotLocation();
-		sendPuckPose();
-		sendIR();
-		if(!timePassed(1500)){
-			if(!hasPuck()){
-				setMotors(0,0);
-				//goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
-			}
-			else setMotors(0,0);
-		}
-		else setMotors(0,0);
-		updateLED();
-		//setMotors(-400,400);
-		//tryKick();
-		//updateKick();
-		/*sendRobotLocation();
-		m_green(0);
-		if(!timePassed(500)){
-		m_green(1);
-		//setMotors(900,550);
-		goToPositionPuck(Pose(0,0,0),getRobotPose());
-		}
-		else setMotors(0,0);
-		*/
-	}
-	//puckLocalizationTest();
 }
 
 void puckLocalizationTest(){
@@ -205,6 +162,7 @@ void friendlies(){
 			updatePlayer(Player::DEFENSE);
 			break;
 			default:
+			updatePlayer(Player::NONE);
 			break;
 		}
 		if (allowedToMove()){
