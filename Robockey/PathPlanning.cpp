@@ -120,30 +120,30 @@ void goToPositionSpin(Pose target, Pose current){
 }
 
 void goToPuck(Pose target, Pose current){
-	if(!hasPuck()){}
-	if(target.x > XMIN/2){
-		goToPosition(target,current);
-	}
-	else{
-		if(target.x>current.x){
+	if(!hasPuck()){
+		if(target.x > XMIN/2){
 			goToPosition(target,current);
 		}
 		else{
-			if (target.y>0&&target.y<YMAX-2*ROBOT_RADIUS){
-				goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y+2*ROBOT_RADIUS,target.o),current);
-			}
-			else if (target.y>0){
-				goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y-2*ROBOT_RADIUS,target.o),current);
-			}
-			else if(target.y<0 && target.y>YMIN+2*ROBOT_RADIUS){
-				goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y-2*ROBOT_RADIUS,target.o),current);
+			if(target.x>current.x){
+				goToPosition(target,current);
 			}
 			else{
-				goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y+2*ROBOT_RADIUS,target.o),current);
+				if (target.y>0&&target.y<YMAX-4*ROBOT_RADIUS){
+					goToPosition(Pose(target.x-3*ROBOT_RADIUS,target.y+3*ROBOT_RADIUS,target.o),current);
+				}
+				else if (target.y>0){
+					goToPosition(Pose(target.x-3*ROBOT_RADIUS,target.y-3*ROBOT_RADIUS,target.o),current);
+				}
+				else if(target.y<0 && target.y>YMIN+4*ROBOT_RADIUS){
+					goToPosition(Pose(target.x-3*ROBOT_RADIUS,target.y+3*ROBOT_RADIUS,target.o),current);
+				}
+				else{
+					goToPosition(Pose(target.x-3*ROBOT_RADIUS,target.y-3*ROBOT_RADIUS,target.o),current);
+				}
 			}
 		}
 	}
-	
 }
 
 void goToPositionPuck(Pose target, Pose current){
@@ -340,3 +340,4 @@ uint8_t findPath(uint8_t *result, Location *vertices, uint8_t vertexCount, Locat
 	}
 	return resultLength;
 }
+

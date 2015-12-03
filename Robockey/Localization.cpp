@@ -147,7 +147,7 @@ void updatePuckPosition(){
 }
 
 bool hasPuck(){
-	if(puckVisible() && (puckHeading >= -2048) && (puckHeading <= 2048)&&(puckDistance<12)){
+	if(puckVisible() && (puckHeading >= -3500) && (puckHeading <= 3500)&&(puckDistance<12)){
 		return true;
 	}
 	return false;
@@ -613,4 +613,12 @@ Pose localizeRobot(uint16_t* irData){
 		return Pose(rx,-ry,PI-oo);
 	else
 		return Pose(-rx, ry, -oo);
+}
+
+bool stuck(){
+	bool frontWall = robotPose.x>XMAX-2*ROBOT_RADIUS && robotPose.o <3500 && robotPose.o >-3500;
+	bool rightWall = robotPose.y<YMIN+2*ROBOT_RADIUS && robotPose.o <3500 - PI/2 && robotPose.o >-3500 - PI/2;
+	bool backWall = robotPose.x<XMIN+2*ROBOT_RADIUS  && robotPose.o <3500 + PI && robotPose.o >-3500 + PI;
+	bool leftWall = robotPose.x>YMAX-2*ROBOT_RADIUS && robotPose.o <3500 + PI/2 && robotPose.o >-3500 + PI/2;
+	return backWall||frontWall||leftWall||rightWall;
 }

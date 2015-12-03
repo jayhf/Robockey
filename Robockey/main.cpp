@@ -42,7 +42,6 @@ void puckLocalizationTest();
 Pose getEnemyGoal();
 void friendlies();
 
-
 int main(void)
 {
 	friendlies();
@@ -177,6 +176,12 @@ void friendlies(){
 			break;
 		}
 		//if (allowedToMove()){
+		if(stuck()){
+			if(timePassed(350)){
+				setMotors(-1200,-1200);
+			}
+		}
+		else{
 		if (first == 0 && getPuckLocation().x-initPuck.x<3 && getPuckLocation().x-initPuck.x>-3 &&  getPuckLocation().y-initPuck.y<3 && getPuckLocation().y-initPuck.y>-3){
 			faceoff();
 		}
@@ -184,6 +189,7 @@ void friendlies(){
 			if (first == 0) first++;
 			//goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
 			playerLogic(getPlayer());
+		}
 		}
 		//}
 	}
