@@ -29,6 +29,8 @@
 extern "C"{
 	#include "m_usb.h"
 	#include "m_wii.h"
+	#include "m_bus.h"
+	#include "m_rf.h"
 }
 
 void qualify();
@@ -144,15 +146,16 @@ void friendlies(){
 	initDigital();
 	initClock();
 	initADC();
-	initWireless();
+	//initWireless();
 	initLocalization();
 	updateLocalization();
 	_delay_ms(500);
+	//m_usb_init();
 	while(1){
 		updateLocalization();
-		updateLED();
-		sendRobotLocation();
-		sendPuckPose();
+		//updateLED();
+		//sendRobotLocation();
+		//sendPuckPose();
 		switch(getThisRobot()){
 			case Robot::ROBOT1:
 			updatePlayer(Player::GOALIE);
@@ -171,10 +174,8 @@ void friendlies(){
 			break;
 		}
 		//if (allowedToMove()){
-			
-			
-			
-			playerLogic(getPlayer());
+			goToPositionPuck(Pose(-100,0,0),getRobotPose());
+			//playerLogic(getPlayer());
 		//}
 	}
 }
