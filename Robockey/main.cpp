@@ -178,6 +178,13 @@ void friendlies(){
 			break;
 		}
 		//if (allowedToMove()){
+		if(stuck()&&!hasPuck()){
+			m_green(1);
+				setMotors(-900,-900);
+				_delay_ms(10);
+		}
+		else{
+			m_green(0);
 			if (first == 0 && getPuckLocation().x-initPuck.x<3 && getPuckLocation().x-initPuck.x>-3 &&  getPuckLocation().y-initPuck.y<3 && getPuckLocation().y-initPuck.y>-3){
 				faceoff();
 			}
@@ -186,6 +193,6 @@ void friendlies(){
 				//goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
 				playerLogic(getPlayer());
 			}
-
+		}
 	}
 }

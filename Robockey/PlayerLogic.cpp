@@ -61,12 +61,7 @@ void goalieLogic(){
 		//predictPuck(getTime()-getPuckUpdateTime());
 		if (puck != UNKNOWN_LOCATION){
 			if(puck.x < XMIN+4*ROBOT_RADIUS+2*PUCK_RADIUS){ //if puck closer than 3/4
-				if(!facingLocation(puck,getRobotPose())){
-					faceLocation(puck, getRobotPose());
-				}
-				else{
-					setMotors(600,600);
-				}
+				goToPuck(puck.toPose(getPuckHeading()),getRobotPose());
 				//communicate to other robot to fill in
 			}
 			else if (puck.x < 0) { //if puck closer than half field
@@ -77,7 +72,7 @@ void goalieLogic(){
 				else{
 					yPos = MAX(YMIN/2,puck.y);
 				}
-				if(getRobotPose().x<XMIN+3*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
+				if(getRobotPose().x<XMIN+3.5*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
 					faceLocation(puck, getRobotPose());
 				}
 				else{
