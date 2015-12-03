@@ -129,17 +129,12 @@ void goToPuck(Pose target, Pose current){
 				goToPosition(target,current);
 			}
 			else{
-				if (target.y>0&&target.y<YMAX-3*ROBOT_RADIUS){
-					goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y+2*ROBOT_RADIUS,target.o),current);
+				if (target.y>0){
+					goToPosition(Pose(MAX(target.x-2*ROBOT_RADIUS,XMIN+2*ROBOT_RADIUS),target.y-2*ROBOT_RADIUS,target.o),current);
 				}
-				else if (target.y>0){
-					goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y-2*ROBOT_RADIUS,target.o),current);
-				}
-				else if(target.y<0 && target.y>YMIN+3*ROBOT_RADIUS){
-					goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y+2*ROBOT_RADIUS,target.o),current);
-				}
+				
 				else{
-					goToPosition(Pose(target.x-2*ROBOT_RADIUS,target.y-2*ROBOT_RADIUS,target.o),current);
+					goToPosition(Pose(MAX(target.x-2*ROBOT_RADIUS,XMIN+2*ROBOT_RADIUS),target.y+2*ROBOT_RADIUS,target.o),current);
 				}
 			}
 		}

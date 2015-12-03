@@ -24,7 +24,6 @@
 #include "BAMSMath.h"
 #include "FastMath.h"
 #include "PlayerLogic.h"
-#include <stdlib.h>
 
 
 extern "C"{
@@ -33,14 +32,14 @@ extern "C"{
 	#include "m_bus.h"
 	#include "m_rf.h"
 }
-
-Location initPuck;
 int first = 0;
+
 
 void qualify();
 void puckLocalizationTest();
 Pose getEnemyGoal();
 void friendlies();
+void faceoff();
 
 int main(void)
 {
@@ -197,7 +196,7 @@ void friendlies(){
 	updateLocalization();
 	_delay_ms(500);
 	//m_usb_init();
-	initPuck = getPuckLocation();
+	Location initPuck = getPuckLocation();
 	while(1){
 		updateLocalization();
 		//updateLED();
@@ -206,24 +205,28 @@ void friendlies(){
 		switch(getThisRobot()){
 			case Robot::ROBOT1:
 			updatePlayer(Player::GOALIE);
+			setLED(LEDColor::RED);
 			break;
 			case Robot::ROBOT2:
 			updatePlayer(Player::SCORER);
+			setLED(LEDColor::BLUE);
 			break;
 			case Robot::ROBOT3:
 			updatePlayer(Player::DEFENSE);
+			setLED(LEDColor::PURPLE);
 			break;
 			default:
 			updatePlayer(Player::NONE);
 			break;
 		}
 		//if (allowedToMove()){
-		if(stuck()){
-			if(timePassed(400)){
+		if(stuck()&&!hasPuck()){
+			m_green(1);
 				setMotors(-900,-900);
-			}
+				_delay_ms(10);
 		}
 		else{
+			m_green(0);
 			if (first == 0 && getPuckLocation().x-initPuck.x<3 && getPuckLocation().x-initPuck.x>-3 &&  getPuckLocation().y-initPuck.y<3 && getPuckLocation().y-initPuck.y>-3){
 				faceoff();
 			}
@@ -233,6 +236,5 @@ void friendlies(){
 				playerLogic(getPlayer());
 			}
 		}
-		//}
 	}
 }

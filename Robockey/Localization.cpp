@@ -161,7 +161,7 @@ void updatePuckPosition(){
 }
 
 bool hasPuck(){
-	if(puckVisible() && (puckHeading >= -2048) && (puckHeading <= 2048)&&(puckDistance<12)){
+	if(puckVisible() && (puckHeading >= -2048) && (puckHeading <= 2048)&&(puckDistance<11)){
 		return true;
 	}
 	return false;
@@ -335,6 +335,7 @@ Location findPuck(){
 			break;
 		default://never gets here, but need to keep the compiler happy
 			return UNKNOWN_LOCATION;
+			seePuck = false;
 	}
 	uint16_t intensity = values[photo];
 	uint8_t distance = 0xFF;
@@ -631,9 +632,9 @@ Pose localizeRobot(uint16_t* irData){
 }
 
 bool stuck(){
-	bool frontWall = robotPose.x>XMAX-1.5*ROBOT_RADIUS && robotPose.o <3500 && robotPose.o >-3500;
-	bool rightWall = robotPose.y<YMIN+1.5*ROBOT_RADIUS && robotPose.o <3500 - PI/2 && robotPose.o >-3500 - PI/2;
-	bool backWall = robotPose.x<XMIN+1.5*ROBOT_RADIUS  && robotPose.o <3500 + PI && robotPose.o >-3500 + PI;
-	bool leftWall = robotPose.x>YMAX-1.5*ROBOT_RADIUS && robotPose.o <3500 + PI/2 && robotPose.o >-3500 + PI/2;
+	bool frontWall = robotPose.x>XMAX-2*ROBOT_RADIUS && robotPose.o <3500 && robotPose.o >-3500;
+	bool rightWall = robotPose.y<YMIN+2*ROBOT_RADIUS && robotPose.o <3500 - PI/2 && robotPose.o >-3500 - PI/2;
+	bool backWall = robotPose.x<XMIN+2*ROBOT_RADIUS  && robotPose.o <3500 + PI && robotPose.o >-3500 + PI;
+	bool leftWall = robotPose.x>YMAX-2*ROBOT_RADIUS && robotPose.o <3500 + PI/2 && robotPose.o >-3500 + PI/2;
 	return backWall||frontWall||leftWall||rightWall;
 }
