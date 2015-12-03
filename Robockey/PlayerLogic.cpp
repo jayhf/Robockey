@@ -25,6 +25,8 @@ bool helpRequested = false;
 bool inCorner = false;
 Player player = Player::NONE;
 Location lastPuck = getPuckLocation();
+int i = 0;
+int rando = 0;
 
 void updatePlayer(Player play){
 	player = play;
@@ -122,6 +124,10 @@ void leftCorner(){
 	}
 	}*/
 	goToPositionPuck(Pose(XMAX,YMAX/2+2*PUCK_RADIUS,0),currentPose); //charge into goal
+	if (getRobotPose().x > XMAX - 4*ROBOT_RADIUS){
+		startKick();
+	}
+	updateKick();
 }
 
 void rightCorner(){
@@ -139,6 +145,10 @@ void rightCorner(){
 	}
 	}*/
 	goToPositionPuck(Pose(XMAX,YMIN/2-2*PUCK_RADIUS,0),currentPose); //charge into goal
+	if (getRobotPose().x > XMAX - 4*ROBOT_RADIUS){
+		startKick();
+	}
+	updateKick();
 }
 
 /*void avoidGoalie(){
@@ -236,11 +246,15 @@ void followWall(){
 		}
 		setMotors(900,900); //full steam ahead
 	}
+	if (getRobotPose().x > XMAX - 4*ROBOT_RADIUS){
+		startKick();
+	}
+	updateKick();
 }
 
 void charge(){
-	goToPositionPuck(Pose(XMAX,getRobotPose().y,0),getRobotPose());
-	if (getRobotPose().x > XMAX - 3*ROBOT_RADIUS){
+	goToPositionPuck(Pose(XMAX,getRobotPose().y+2*ROBOT_RADIUS,0),getRobotPose());
+	if (getRobotPose().x > XMAX - 4*ROBOT_RADIUS){
 		startKick();
 	}
 	updateKick();
@@ -316,8 +330,17 @@ void scoreLogic(){
 			goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
 		}
 		else{
-			int rando = random() % 4; //change to number of strategies
-			switch(0){
+			
+			if (i==0){
+				rando = rand() % 3;
+				i++;
+				setLED(LEDColor::OFF);
+				} //change to number of strategies
+				else if (i==1000){
+					i=0;
+				}
+				else i++;
+			switch(rando){
 				case 0:{
 					leftCorner();
 					break;
@@ -343,4 +366,20 @@ void scoreLogic(){
 	else{
 		goToPosition(Pose(-100,-25,0),getRobotPose());
 	}
+}
+
+void faceoff(){
+	setLED(LEDColor::RED);
+	if(player==Player::SCORER){
+		if(!timePassed(1000)){
+		setMotors(1200,1200);
+		}
+		else{
+			goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+		}
+	}
+	else if(player==Player::ASSISTER){
+		goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+	}
+	else playerLogic(player);
 }
