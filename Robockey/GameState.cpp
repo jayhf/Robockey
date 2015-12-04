@@ -33,15 +33,34 @@ bool allowedToMove(){
 }
 
 Robot getThisRobot(){
-	switch(switchPosition()){
-		case SwitchPosition::DOWN:
-			return Robot::ROBOT1;
-		case SwitchPosition::MIDDLE:
-			return Robot::ROBOT2;
-		case SwitchPosition::UP:
-			return Robot::ROBOT3;
+	static uint8_t robotCount = 0;
+	static Robot thisRobot = Robot::CONTROLLER;
+	while(robotCount < 10){
+		Robot selectedRobot;
+		switch(switchPosition()){
+			case SwitchPosition::DOWN:
+				setLED(LEDColor::RED);
+				selectedRobot = Robot::ROBOT1;
+				break;
+			case SwitchPosition::MIDDLE:
+				setLED(LEDColor::BLUE);
+				selectedRobot = Robot::ROBOT2;
+				break;
+			case SwitchPosition::UP:
+				setLED(LEDColor::PURPLE);
+				selectedRobot = Robot::ROBOT3;
+				break;
+		}
+		if(thisRobot != selectedRobot){
+			robotCount = 0;
+			thisRobot = selectedRobot;
+		}
+		else
+			robotCount++;
+		_delay_ms(100);
+		updateLED();
 	}
-	return Robot::ROBOT1;
+	return thisRobot;
 }
 
 Team getTeam(){
