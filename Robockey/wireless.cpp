@@ -11,50 +11,40 @@ extern "C"{
 	#include "m_rf.h"
 }
 
-/*volatile Robot recipients[8];
-uint8_t messageQueue[8][10];
-volatile uint8_t messageCount = 0;
-volatile uint8_t firstMessageIndex = 0;*/
-
 void initWireless(){
 	m_rf_open(1, static_cast<uint8_t>(getThisRobot()),10);
 }
 
 void sendNextMessage(){
+	static time lastSend = 0;
+	if(!timePassed(lastSend+(ONE_SECOND/64)))
+		return;
+	else
+		lastSend = getTime();
 	static uint8_t nextMessage = 0;
 	nextMessage = nextMessage + 1;
 	switch(nextMessage){
-		case0:
+		case_0:
 		case 0:
 			sendRobotLocation();
 			break;
 		case 1:
 			sendPuckPose();
 			break;
+		case 2:
+			sendIR();
+			break;
 		default:
 			nextMessage = 0;
-			goto case0;
+			goto case_0;
 	}
-	
-	/*if(messageCount==0)
-		return;
-	m_rf_send(static_cast<uint8_t>(recipients[firstMessageIndex&0x7]), (char*)messageQueue[firstMessageIndex&0x7], 10);
-	firstMessageIndex++;
-	messageCount--;*/
 }
 
 
 
 void sendPacket(Robot robot, uint8_t *packet){
-	//if(messageCount == 8)
-	//	return;
 	packet[0]=static_cast<uint8_t>(getThisRobot());
-	/*uint8_t messageIndex = (messageCount + firstMessageIndex)&0x7;
-	memcpy(messageQueue[messageIndex],packet,10);
-	recipients[messageIndex] = robot;
-	messageCount++;*/
 	m_rf_send(static_cast<uint8_t>(robot), (char*)packet, 10);
-	_delay_ms(10);
 }
 
 
@@ -166,6 +156,6 @@ void sendAllyMessage(Ally ally){
 void processTeamMessage(Ally ally, uint8_t *data){
 	Location allyLocation = Location(data[1],data[2]);
 	Location allyPuckLocation = Location(data[3],data[4]);
-	bool allyHasPuck = data[5];
+	//bool allyHasPuck = data[5];
 	receivedAllyUpdate(allyLocation, allyPuckLocation, ally);
 }

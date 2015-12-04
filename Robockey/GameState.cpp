@@ -10,6 +10,7 @@
 #include "Localization.h"
 #include "Digital.h"
 #include "time.h"
+#include <util/delay.h>
 
 volatile uint8_t redScore;
 volatile uint8_t blueScore;
