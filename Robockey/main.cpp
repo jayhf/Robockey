@@ -179,25 +179,25 @@ void friendlies(){
 			break;
 		}
 		if (allowedToMove()){
-			/*
+			
 			if(stuck()&&!hasPuck()){
-				setMotors(-400,-400);
+				faceLocation(Location(XMAX,0),getRobotPose());
 			}
 			else{
-			*/	
-			/*
+			
+			
 				if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
 					faceoff();
 					m_green(1);
 				}
 				else{
 					m_green(0);
-					if (first == 0) first++;*/
+					if (first == 0) first++;
 						//goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
 					//goToPositionSpin(Pose(0,0,0),getRobotPose());
 					playerLogic(getPlayer());
-				//}
-			//}
+				}
+			}
 		}
 		else setMotors(0,0);
 	}
