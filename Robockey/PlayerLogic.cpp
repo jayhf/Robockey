@@ -90,6 +90,7 @@ void goalieLogic(){
 		}
 		else{
 			goToPosition(Pose(XMIN+3*ROBOT_RADIUS,0,0),getRobotPose());
+			if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().x>XMIN+2*ROBOT_RADIUS) faceAngle(0,getRobotPose());
 		}
 	}
 	
@@ -112,7 +113,7 @@ void leftCorner(){
 	}
 	}*/
 
-	goToPositionPuck(Pose(XMAX+5,YMAX/2,0),currentPose); //charge into goal
+	goToPositionPuck(Pose(XMAX+5,YMIN/2,0),currentPose); //charge into goal
 
 }
 
@@ -131,7 +132,7 @@ void rightCorner(){
 	}
 	}*/
 
-	goToPositionPuck(Pose(XMAX+5,YMIN/2,0),currentPose); //charge into goal
+	goToPositionPuck(Pose(XMAX+5,YMAX/2,0),currentPose); //charge into goal
 
 }
 
@@ -301,6 +302,7 @@ void defenseLogic(){
 		}
 		else{
 			goToPosition(Pose(XMIN+4*ROBOT_RADIUS,25,0),getRobotPose());
+			if(getRobotPose().x<XMIN+5*ROBOT_RADIUS&&getRobotPose().x>XMIN+3*ROBOT_RADIUS) faceAngle(0,getRobotPose());
 		}
 	}
 }
@@ -320,7 +322,7 @@ void scoreLogic(){
 				rando = rand() % 3;
 				i++;
 			} //change to number of strategies
-			else if (i==500){
+			else if (i==300){
 				i=0;
 			}
 			else i++;
@@ -334,7 +336,7 @@ void scoreLogic(){
 					break;
 				}
 				case 2:{
-					goToPositionPuck(Pose(XMAX,0,0),getRobotPose());
+					goToPositionPuck(Pose(XMAX+5,0,0),getRobotPose());
 					break;
 				}
 				case 3:{

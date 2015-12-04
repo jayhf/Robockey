@@ -42,6 +42,7 @@ Velocity robotVelocity;
 time robotUpdateTime;
 uint8_t puckCertainty = 0;
 bool seePuck = false;
+uint8_t photo = 0;
 uint8_t puckDistance;
 angle puckHeading;
 Location puckLocationToSend;
@@ -165,6 +166,9 @@ void updatePuckPosition(){
 }
 
 bool hasPuck(){
+	if(getSelectedResistor() == Resistor::R1K && (photo == 7 || photo == 8)){
+		return true;
+	}
 	if(puckVisible() && (puckHeading >= -2048) && (puckHeading <= 2048)&&(puckDistance<12)){
 		return true;
 	}
@@ -295,10 +299,9 @@ uint16_t intensities47K[] = {0,150,290,400,500,650,850,1023};
 uint8_t distances47K[] = {34,30,26,22,20,18,16,14};
 uint16_t intensities330K[] = {0,315,320,340,360,410,450,525,600,700,775,850,1023};
 uint8_t distances330K[] = {255,200,150,120,100,80,70,60,50,45,40,35,31};
-	
 Location findPuck(){
 	uint16_t val = 0;
-	uint8_t photo = 0;
+	
 
 	uint16_t * values = getIRData(); // loop through transistors
 	for (uint8_t i = 0; i < 16; i++){
