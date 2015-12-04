@@ -13,7 +13,7 @@ bool facingLocation(Location target, Pose current);
 void faceLocation(Location target, Pose current);
 void faceAngle(angle o, Pose current);
 void goToPuck(Pose target, Pose current);
-bool stuck();
+void goToBackwards(Pose target,Pose current);
 
 bool circleIntersectsSegment(Location p1, Location p2, Location c, uint8_t radius);
 bool checkIntersection(Location p1, Location p2, uint8_t radius);

@@ -60,7 +60,7 @@ void goalieLogic(){
 		Location puck = getPuckLocation();
 		//predictPuck(getTime()-getPuckUpdateTime());
 		if (puck != UNKNOWN_LOCATION){
-			if(puck.x < XMIN+4*ROBOT_RADIUS+2*PUCK_RADIUS){ //if puck closer than 3/4
+			if(puck.x < XMIN+5*ROBOT_RADIUS+PUCK_RADIUS){ //if puck closer than 3/4
 				goToPuck(puck.toPose(getPuckHeading()),getRobotPose());
 				//communicate to other robot to fill in
 			}
@@ -72,11 +72,11 @@ void goalieLogic(){
 				else{
 					yPos = MAX(YMIN/2,puck.y);
 				}
-				if(getRobotPose().x<XMIN+3.5*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
+				if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
 					faceLocation(puck, getRobotPose());
 				}
 				else{
-					goToPosition(Pose(XMIN + 3*ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose());
+					goToPositionSpin(Pose(XMIN + 3*ROBOT_RADIUS, yPos,getPuckHeading()),getRobotPose());
 				}
 			}
 			else {
@@ -89,7 +89,7 @@ void goalieLogic(){
 			}
 		}
 		else{
-			goToPosition(Pose(-105,0,0),getRobotPose());
+			goToPosition(Pose(XMIN+3*ROBOT_RADIUS,0,0),getRobotPose());
 		}
 	}
 	
@@ -112,7 +112,7 @@ void leftCorner(){
 	}
 	}*/
 
-	goToPositionPuck(Pose(XMAX,YMAX/2,0),currentPose); //charge into goal
+	goToPositionPuck(Pose(XMAX+5,YMAX/2,0),currentPose); //charge into goal
 
 }
 
@@ -131,7 +131,7 @@ void rightCorner(){
 	}
 	}*/
 
-	goToPositionPuck(Pose(XMAX,YMIN/2,0),currentPose); //charge into goal
+	goToPositionPuck(Pose(XMAX+5,YMIN/2,0),currentPose); //charge into goal
 
 }
 
@@ -297,10 +297,10 @@ void defenseLogic(){
 					goToPuck(puck.toPose(getPuckHeading()),getRobotPose());
 				}
 			}
-			else goToPosition(Pose(-100,25,0),getRobotPose());
+			else goToPosition(Pose(XMIN+4*ROBOT_RADIUS,25,0),getRobotPose());
 		}
 		else{
-			goToPosition(Pose(-100,25,0),getRobotPose());
+			goToPosition(Pose(XMIN+4*ROBOT_RADIUS,25,0),getRobotPose());
 		}
 	}
 }
@@ -334,7 +334,7 @@ void scoreLogic(){
 					break;
 				}
 				case 2:{
-					followWall();
+					goToPositionPuck(Pose(XMAX,0,0),getRobotPose());
 					break;
 				}
 				case 3:{
@@ -348,14 +348,14 @@ void scoreLogic(){
 		}
 	}
 	else{
-		goToPosition(Pose(-100,-25,0),getRobotPose());
+		goToPosition(Pose(XMAX-4*ROBOT_RADIUS,-25,0),getRobotPose());
 	}
 }
 
 void faceoff(){
 	if(player==Player::SCORER){
 		//if(!timePassed(2000)){
-			setMotors(1200,1200);
+		setMotors(1200,1200);
 		//}
 		//else{
 		//	goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());

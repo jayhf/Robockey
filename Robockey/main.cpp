@@ -44,47 +44,6 @@ void faceoff();
 int main(void)
 {
 	friendlies();
-	m_clockdivide(0);
-	m_disableJTAG();
-	sei();
-	m_bus_init();
-	initDigital();
-	initClock();
-	initADC();
-	initWireless();
-	initLocalization();
-	updateLocalization();
-	_delay_ms(500);
-	updateLocalization();
-	while(1){
-		updateLocalization();
-		sendRobotLocation();
-		sendPuckPose();
-		sendIR();
-		if(!timePassed(1500)){
-			if(!hasPuck()){
-				setMotors(0,0);
-				//goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
-			}
-			else setMotors(0,0);
-		}
-		else setMotors(0,0);
-		updateLED();
-		//setMotors(-400,400);
-		//tryKick();
-		//updateKick();
-		/*sendRobotLocation();
-		m_green(0);
-		if(!timePassed(500)){
-		m_green(1);
-		//setMotors(900,550);
-		goToPositionPuck(Pose(0,0,0),getRobotPose());
-		}
-		else setMotors(0,0);
-		*/
-	}
-	//puckLocalizationTest();
-	friendlies();
 }
 
 void puckLocalizationTest(){
@@ -220,22 +179,26 @@ void friendlies(){
 			break;
 		}
 		if (allowedToMove()){
+			/*
 			if(stuck()&&!hasPuck()){
-				m_green(1);
-				setMotors(-900,-900);
-				_delay_ms(10);
+				setMotors(-400,-400);
 			}
 			else{
-				m_green(0);
+			*/	
+			/*
 				if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
 					faceoff();
+					m_green(1);
 				}
 				else{
-					if (first == 0) first++;
+					m_green(0);
+					if (first == 0) first++;*/
 						//goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+					//goToPositionSpin(Pose(0,0,0),getRobotPose());
 					playerLogic(getPlayer());
-				}
-			}
+				//}
+			//}
 		}
+		else setMotors(0,0);
 	}
 }
