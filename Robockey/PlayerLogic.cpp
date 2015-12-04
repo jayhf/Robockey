@@ -314,7 +314,7 @@ int rando = 0;
 void scoreLogic(){
 	if(puckVisible()&& getPuckLocation()!=UNKNOWN_LOCATION){
 		if(!hasPuck()){
-			goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
+			goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
 		}
 		else{
 			

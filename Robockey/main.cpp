@@ -177,12 +177,12 @@ void friendlies(){
 				updatePlayer(Player::NONE);
 			break;
 		}
-		if (allowedToMove()){
+		//if (allowedToMove()){
 			
-			if(stuck()&&!hasPuck()){
+			/*if(stuck()&&!hasPuck()){
 				faceLocation(Location(XMAX,0),getRobotPose());
 			}
-			else{
+			else{*/
 			
 			
 				if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
@@ -193,11 +193,12 @@ void friendlies(){
 					m_green(0);
 					if (first == 0) first++;
 						//goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
-					//goToPositionSpin(Pose(0,0,0),getRobotPose());
-					playerLogic(getPlayer());
+					goToPosition(Pose(0,0,0),getRobotPose());
+					//playerLogic(getPlayer());
 				}
-			}
-		}
-		else setMotors(0,0);
+			//}
+			
+		//}
+		//else setMotors(0,0);
 	}
 }
