@@ -61,6 +61,7 @@ void goToBackwards(Pose target, Pose current){
 			//}
 		}
 		lastDistance = distance;
+		lastTheta = deltaTheta;
 	}
 	else {
 		setMotors(0,0);
@@ -158,7 +159,7 @@ void goToPositionSpin(Pose target, Pose current){
 		int16_t deltaY = current.y - target.y;
 		int16_t distance = sqrt((uint16_t)abs(deltaX*deltaX + deltaY*deltaY));
 		if(distance>6){
-			int16_t x = MAX(0,MIN(1600,k1 * distance - k2 * (distance - lastDistance)));
+			int16_t x = MAX(0,MIN(1600,k1 * distance - k3 * (distance - lastDistance)));
 			setMotors(x,x);
 			lastDistance = distance;
 		}
@@ -223,6 +224,7 @@ void goToPositionPuck(Pose target, Pose current){
 			//}
 		}
 		lastDistance = distance;
+		lastTheta = deltaTheta;
 	}
 	else {
 		setMotors(0,0);
@@ -245,20 +247,23 @@ void faceLocation(Location target, Pose current){
 		angle o = atan2b(-deltaY,-deltaX);
 		//uint8_t buffer[10] = {0,0,(current.o-o)>>8,(current.o-o)&0xFF,(current.o-lastPose.o)>>8,(current.o-lastPose.o)&0xFF,0,0,0,0};
 		//sendPacket(Robot::CONTROLLER,0x21,buffer);
-		uint16_t x = MAX(0,MIN(1400,k3 * abs((current.o - o)) - k4 * abs(current.o - lastPose.o)));
+		uint16_t x = MAX(0,MIN(1400,k2 * abs((current.o - o)) - k4 * abs(o - lastTheta)));
 		if(current.o - o > 0){
 			setMotors(-x,x);
 		}
 		else if(current.o - o < 0){
 			setMotors(x,-x);
 		}
+		lastTheta = o;
 	}
-	else setMotors(0,0);
-	lastPose = current;
+	else {
+	setMotors(0,0);
+	lastTheta = 0;
+	}
 }
 
 void faceAngle(angle o,Pose current){
-	uint16_t x = MAX(0,MIN(1400,k3 * abs((current.o - o)) - k4 * abs(current.o - lastPose.o)));
+	uint16_t x = MAX(0,MIN(1600,k2 * abs((current.o - o)) - k4 * abs(current.o - lastPose.o)));
 	
 	if(current.o - o < -4500 || current.o - o > 4500){
 		
