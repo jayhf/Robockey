@@ -7,6 +7,8 @@
 #include <avr/interrupt.h>
 #include <string.h>
 
+#define MAX_MESSAGES_PER_SECOND 32
+
 extern "C"{
 	#include "m_rf.h"
 }
@@ -17,7 +19,7 @@ void initWireless(){
 
 void sendNextMessage(){
 	static time lastSend = 0;
-	if(!timePassed(lastSend+(ONE_SECOND/64)))
+	if(!timePassed(lastSend+(ONE_SECOND/MAX_MESSAGES_PER_SECOND)))
 		return;
 	else
 		lastSend = getTime();
