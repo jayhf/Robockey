@@ -20,13 +20,30 @@ void initWireless(){
 	m_rf_open(1, static_cast<uint8_t>(getThisRobot()),10);
 }
 
-/*void sendNextMessage(){
-	if(messageCount==0)
+void sendNextMessage(){
+	static uint8_t nextMessage = 0;
+	nextMessage = nextMessage + 1;
+	switch(nextMessage){
+		case0:
+		case 0:
+			sendRobotLocation();
+			break;
+		case 1:
+			sendPuckPose();
+			break;
+		default:
+			nextMessage = 0;
+			goto case0;
+	}
+	
+	/*if(messageCount==0)
 		return;
 	m_rf_send(static_cast<uint8_t>(recipients[firstMessageIndex&0x7]), (char*)messageQueue[firstMessageIndex&0x7], 10);
 	firstMessageIndex++;
-	messageCount--;
-}*/
+	messageCount--;*/
+}
+
+
 
 void sendPacket(Robot robot, uint8_t *packet){
 	//if(messageCount == 8)

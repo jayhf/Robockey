@@ -158,9 +158,8 @@ void friendlies(){
 	Location initPuck = getPuckLocation();
 	while(1){
 		updateLocalization();
+		sendNextMessage();
 		updateLED();
-		sendRobotLocation();
-		sendPuckPose();
 		switch(getThisRobot()){
 			case Robot::ROBOT1:
 				updatePlayer(Player::GOALIE);
