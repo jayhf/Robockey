@@ -56,7 +56,7 @@ void puckLocalizationTest(){
 		sendIR();
 		sendPuckPose();
 		_delay_ms(100);
-		m_green(2);
+		//m_green(2);
 	}
 }
 void oldMain(){
@@ -199,9 +199,9 @@ void friendlies(){
 					*/
 					//m_green(0);
 					if (first == 0) first++;
-					//goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),false);
+					goToPositionSpin(Pose(0,0,0),getRobotPose());
 					//goToPuck(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
-					playerLogic(getPlayer());
+				//playerLogic(getPlayer());
 				//}
 			//}
 			}

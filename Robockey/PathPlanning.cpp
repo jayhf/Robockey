@@ -114,8 +114,8 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 	uint16_t x = MIN(900,MAX(0,k1 * distance - k3 * (distance - lastDistance)));
 	uint16_t y = MIN(600,MAX(0,abs(k2*deltaTheta) - k4*abs((deltaTheta - lastTheta))));
 	int d1;
-	if(toPuck) d1 = 5+ROBOT_RADIUS;
-	else d1 = 5;
+	if(toPuck) d1 = 4+ROBOT_RADIUS;
+	else d1 = 4;
 	if(distance>d1){ //if not within 5 pixels in both x and y
 		/*
 		uint16_t r = k1*distance;
@@ -150,7 +150,7 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 			}
 			else{
 				setLED(LEDColor::PURPLE);
-				setMotors(900,800);
+				setMotors(800,800);
 			}
 		}
 		else{
@@ -255,7 +255,7 @@ bool facingLocation(Location target, Pose current){
 }
 
 bool facingHeading(angle target, Pose current){
-	return current.o - target < 3500 && current.o - target > -3500;
+	return current.o - target < 4500 && current.o - target > -4500;
 }
 
 void faceLocation(Location target, Pose current){
@@ -266,7 +266,7 @@ void faceLocation(Location target, Pose current){
 		angle deltaTheta = current.o - o;
 		//uint8_t buffer[10] = {0,0,(current.o-o)>>8,(current.o-o)&0xFF,(current.o-lastPose.o)>>8,(current.o-lastPose.o)&0xFF,0,0,0,0};
 		//sendPacket(Robot::CONTROLLER,0x21,buffer);
-		uint16_t x = MAX(0,MIN(1200,k2 * abs(deltaTheta) - k4 * abs(deltaTheta - lastTheta)));
+		uint16_t x = MAX(0,MIN(500,k2 * abs(deltaTheta) - k4 * abs(current.o - lastPose.o)));
 		if(current.o - o > 0){
 			setMotors(-x,x);
 		}
@@ -282,7 +282,7 @@ void faceLocation(Location target, Pose current){
 }
 
 void faceAngle(angle o,Pose current){
-	uint16_t x = MAX(0,MIN(1200,k2 * abs((current.o - o)) - k4 * abs(current.o - lastPose.o)));
+	uint16_t x = MAX(0,MIN(500,k2 * abs((current.o - o)) - k4 * abs(current.o - lastPose.o)));
 	
 	if(!facingHeading(o,current)){
 		
