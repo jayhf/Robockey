@@ -107,7 +107,7 @@ char m_rf_read(char* buffer, char packet_length)
 char m_rf_send(char TXaddress, char* buffer, char packet_length)
 {
 	// START | MRFTWIADDR | MRFSEND | TXaddress | DATA_0 | ... | DATA_N | STOP
-	
+	m_red(1);
 	int i;
 	
 	// DISABLE INTERRUPTS
@@ -149,7 +149,7 @@ char m_rf_send(char TXaddress, char* buffer, char packet_length)
 	
 	// RE-ENABLE INTERRUPTS
 	sei();
-	
+	m_red(0);
 	return 1;
 }
 

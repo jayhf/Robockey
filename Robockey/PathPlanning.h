@@ -5,9 +5,10 @@
 
 void goTo(Pose target, Pose current);
 ///Switch to using the Pose class (see Localization.h)
-void goToPosition(Pose target, Pose current);
+void goToPosition(Pose target, Pose current, bool toPuck);
 void goToPositionSpin(Pose target, Pose current);
 void goToPositionPuck(Pose target, Pose current);
+bool facingHeading(angle target, Pose current);
 
 bool facingLocation(Location target, Pose current);
 void faceLocation(Location target, Pose current);

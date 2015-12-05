@@ -407,8 +407,11 @@ public class Robot {
 				System.out.println(" ("+buffer.get()+","+buffer.get()+")");
 				break;
 			case 0x21:
-				System.out.print("Proportional: "+buffer.getShort());
-				System.out.println("Derivative: "+buffer.getShort());
+				System.out.print("x: "+buffer.getShort()+ ", ");
+				System.out.print("y: "+buffer.getShort() + ", ");
+				System.out.print("d: "+buffer.getShort()+", ");
+				System.out.print("w: "+buffer.getShort()+"\n");
+				
 				break;
 		}
 	}

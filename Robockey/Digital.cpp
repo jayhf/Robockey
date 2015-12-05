@@ -2,7 +2,9 @@
 #include "time.h"
 #include "avr/io.h"
 #include "stdlib.h"
+#include "GameState.h"
 #include "miscellaneous.h"
+#include "BAMSMath.h"
 
 int16_t previousLeft = 0;
 int16_t previousRight = 0;
@@ -36,9 +38,8 @@ void setEnabled(bool enabled){
 }
 
 void setMotors(int16_t right, int16_t left){
-	
-	OCR1B = abs(right)+(right==0?0:400);
-	OCR1C = abs(left)+(left==0?0:400);
+	OCR1B = abs(right);//abs(right)+(right==0?0:400);
+	OCR1C = abs(left);//abs(left)+(left==0?0:400);
 	PORTC = ((PORTC & ~(0b11 << 6))) | ((bool)(right>0) << 6) | ((bool)(left>0) << 7);
 	//previousLeft = left;
 	//previousRight = right;

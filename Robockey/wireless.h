@@ -11,6 +11,7 @@ void sendRobotLocation();
 void sendIR();
 void sendBattery();
 void sendPuckPose();
+void updateWireless();
 void sendAllyMessage(Robot ally);
 void processTeamMessage(Ally ally, uint8_t *data);
 void sendNextMessage();

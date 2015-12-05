@@ -24,6 +24,7 @@
 #include "BAMSMath.h"
 #include "FastMath.h"
 #include "PlayerLogic.h"
+#include <stdlib.h>
 
 
 extern "C"{
@@ -44,10 +45,9 @@ void localizationCalibration();
 
 int main(void)
 {
-	localizationCalibration();
 	friendlies();
 }
-#include "m_wii.h"
+
 void localizationCalibration(){
 	m_clockdivide(0);
 	m_disableJTAG();
@@ -78,7 +78,7 @@ void puckLocalizationTest(){
 		sendIR();
 		sendPuckPose();
 		_delay_ms(100);
-		m_green(2);
+		//m_green(2);
 	}
 }
 void oldMain(){
@@ -182,6 +182,7 @@ void friendlies(){
 		updateLocalization();
 		sendNextMessage();
 		updateLED();
+		
 		switch(getThisRobot()){
 			case Robot::ROBOT1:
 				updatePlayer(Player::GOALIE);
@@ -199,27 +200,34 @@ void friendlies(){
 				updatePlayer(Player::NONE);
 			break;
 		}
-		if (allowedToMove()){
-			
-			if(stuck()&&!hasPuck()){
-				faceLocation(Location(XMAX,0),getRobotPose());
+		//if (allowedToMove()){
+			if(getRobotPose()==UNKNOWN_POSE){
+				setMotors(0,0);
+				m_red(1);
 			}
 			else{
 			
+			/*if(stuck()&&!hasPuck()){
+				faceLocation(Location(XMAX,0),getRobotPose());
+			}
+			else{*/
 			
+			/*
 				if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
 					faceoff();
 					m_green(1);
 				}
 				else{
-					m_green(0);
+					*/
+					//m_green(0);
 					if (first == 0) first++;
-						//goToPuck(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
-					//goToPositionSpin(Pose(0,0,0),getRobotPose());
-					playerLogic(getPlayer());
-				}
+					goToPositionSpin(Pose(0,0,0),getRobotPose());
+					//goToPuck(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
+				//playerLogic(getPlayer());
+				//}
+			//}
 			}
-		}
-		else setMotors(0,0);
+		//}
+		//else setMotors(0,0);
 	}
 }

@@ -37,6 +37,7 @@ extern "C"{
 #include "ADC.h"
 #include "stdio.h"
 #include "GameState.h"
+#include "Digital.h"
 
 Location newAllyLocations[2];
 Location newAllyPuckLocations[2];
@@ -148,6 +149,7 @@ void coordinatesFlipped(){
 
 void updatePuckPosition(){
 	puckLocationToSend = findPuck();
+	
 	Location averagePuckLocation = puckLocationToSend;
 	time currentTime = getTime();
 	time dt;
@@ -183,12 +185,12 @@ void updatePuckPosition(){
 }
 
 bool hasPuck(){
-	if(getSelectedResistor() == Resistor::R1K && (photo == 7 || photo == 8)){
+	
+	if(puckVisible() && (puckHeading >= -2048) && (puckHeading <= 2048)&&(puckDistance<11)){
+		//m_green(1);
 		return true;
 	}
-	if(puckVisible() && (puckHeading >= -2048) && (puckHeading <= 2048)&&(puckDistance<12)){
-		return true;
-	}
+	//m_green(0);
 	return false;
 }
 
@@ -222,7 +224,7 @@ void locationFilter(Location &location, Velocity &velocity, Location measuredLoc
 			int8_t nextY = ((int16_t)predictedLocation.y+(int16_t)measuredLocation.y)>>1;
 			Location nextLocation(nextX,nextY);
 			Velocity estimatedVelocity((((int16_t)nextX-location.x)<<8)/dt,(((int16_t)nextY-location.y)<<8)/dt);
-			velocity = Velocity((velocity.x+estimatedVelocity.x)>>1,(velocity.y+estimatedVelocity.y)>>1);
+			velocity = Velocity((3*velocity.x+estimatedVelocity.x)>>2,(3*velocity.y+estimatedVelocity.y)>>2);
 			location = nextLocation;
 			oldTime = newTime;
 			if(certainty < 8)
@@ -316,6 +318,7 @@ uint16_t intensities47K[] = {0,150,290,400,500,650,850,1023};
 uint8_t distances47K[] = {34,30,26,22,20,18,16,14};
 uint16_t intensities330K[] = {0,315,320,340,360,410,450,525,600,700,775,850,1023};
 uint8_t distances330K[] = {255,200,150,120,100,80,70,60,50,45,40,35,31};
+
 Location findPuck(){
 	uint16_t val = 0;
 	
