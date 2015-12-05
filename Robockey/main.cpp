@@ -182,52 +182,49 @@ void friendlies(){
 		updateLocalization();
 		sendNextMessage();
 		updateLED();
-		
+		updateWireless();
 		switch(getThisRobot()){
 			case Robot::ROBOT1:
-				updatePlayer(Player::GOALIE);
-				//setLED(LEDColor::RED);
-				break;
+			updatePlayer(Player::GOALIE);
+			//setLED(LEDColor::RED);
+			break;
 			case Robot::ROBOT2:
-				updatePlayer(Player::SCORER);
-				//setLED(LEDColor::BLUE);
-				break;
+			updatePlayer(Player::SCORER);
+			//setLED(LEDColor::BLUE);
+			break;
 			case Robot::ROBOT3:
-				updatePlayer(Player::DEFENSE);
-				//setLED(LEDColor::PURPLE);
-				break;
+			updatePlayer(Player::DEFENSE);
+			//setLED(LEDColor::PURPLE);
+			break;
 			default:
-				updatePlayer(Player::NONE);
+			updatePlayer(Player::NONE);
 			break;
 		}
-		//if (allowedToMove()){
+		if (allowedToMove()){
 			if(getRobotPose()==UNKNOWN_POSE){
 				setMotors(0,0);
-				m_red(1);
 			}
 			else{
 			
-			/*if(stuck()&&!hasPuck()){
+				/*if(stuck()&&!hasPuck()){
 				faceLocation(Location(XMAX,0),getRobotPose());
-			}
-			else{*/
-			
-			/*
-				if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
-					faceoff();
-					m_green(1);
 				}
-				else{
-					*/
-					//m_green(0);
-					if (first == 0) first++;
-					goToPositionSpin(Pose(0,0,0),getRobotPose());
-					//goToPuck(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
-				//playerLogic(getPlayer());
-				//}
-			//}
+				else{*/
+					
+				
+					if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
+						faceoff();
+					}
+					else{
+						
+						if (first == 0) first++;
+						//goToPositionSpin(Pose(0,0,0),getRobotPose());
+						//goToPuck(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
+						playerLogic(getPlayer());
+					}
+				}
 			}
-		//}
-		//else setMotors(0,0);
+			//}
+			else setMotors(0,0);
+		}
 	}
-}

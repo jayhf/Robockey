@@ -123,7 +123,10 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 		uint8_t packet[10]={0,0,x>>8,x&0xFF,y>>8,y&0xFF,r>>8,r&0xFF,q>>8,q&0xFF};
 		sendPacket(Robot::CONTROLLER,0x21,packet);
 		*/
-		
+		if(abs(deltaTheta)>PI/4){
+			faceLocation(Location(target.x,target.y),current);
+		}
+		else{
 		if (deltaTheta < 5500 && deltaTheta > -5500){ //if within 0.1 radians ~5* of target angle,
 
 			setMotors(x,x); //forwards
@@ -138,23 +141,19 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 		}
 		lastDistance = distance;
 		lastTheta = deltaTheta;
-		setLED(LEDColor::RED);
+		}
 	}
 	else {
-		setLED(LEDColor::OFF);
 		if(toPuck){
 			
 			if (!facingHeading(getPuckHeading()+current.o,getRobotPose())){
-				setLED(LEDColor::BLUE);
 				faceAngle(getPuckHeading()+current.o,getRobotPose());
 			}
 			else{
-				setLED(LEDColor::PURPLE);
 				setMotors(800,800);
 			}
 		}
 		else{
-			setLED(LEDColor::OFF);
 			setMotors(0,0);
 			lastDistance = 0;
 			lastTheta = 0;

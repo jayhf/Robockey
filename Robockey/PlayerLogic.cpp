@@ -113,7 +113,7 @@ void leftCorner(){
 	}
 	}*/
 
-	goToPositionPuck(Pose(XMAX+5,YMIN/2,0),currentPose); //charge into goal
+	goToPositionPuck(Pose(XMAX+10,YMIN/2+ROBOT_RADIUS,0),currentPose); //charge into goal
 
 }
 
@@ -132,7 +132,7 @@ void rightCorner(){
 	}
 	}*/
 
-	goToPositionPuck(Pose(XMAX+5,YMAX/2,0),currentPose); //charge into goal
+	goToPositionPuck(Pose(XMAX+10,YMAX/2-ROBOT_RADIUS,0),currentPose); //charge into goal
 
 }
 
@@ -322,7 +322,7 @@ void scoreLogic(){
 				rando = rand() % 3;
 				i++;
 			} //change to number of strategies
-			else if (i==3500){
+			else if (i==3000){
 				i=0;
 			}
 			else i++;
@@ -357,7 +357,7 @@ void scoreLogic(){
 void faceoff(){
 	if(player==Player::SCORER){
 		//if(!timePassed(2000)){
-		setMotors(1200,1200);
+		setMotors(1600,1600);
 		//}
 		//else{
 		//	goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
