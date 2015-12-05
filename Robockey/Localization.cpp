@@ -20,6 +20,7 @@ extern "C"{
 #include "ADC.h"
 #include "stdio.h"
 #include "GameState.h"
+#include "Digital.h"
 
 Location newAllyLocations[2];
 Location newAllyPuckLocations[2];
@@ -167,12 +168,12 @@ void updatePuckPosition(){
 }
 
 bool hasPuck(){
-	if(puckDistance<12 && (photo == 7 || photo == 8)){
+	
+	if(puckVisible() && (puckHeading >= -2048) && (puckHeading <= 2048)&&(puckDistance<11)){
+		m_green(1);
 		return true;
 	}
-	/*if(puckVisible() && (puckHeading >= -2048) && (puckHeading <= 2048)&&(puckDistance<11)){
-		return true;
-	}*/
+	m_green(0);
 	return false;
 }
 
