@@ -14,7 +14,7 @@ extern "C"{
 }
 
 void initWireless(){
-	m_rf_open(1, static_cast<uint8_t>(getThisRobot()),10);
+	m_rf_open(1, static_cast<uint8_t>(getThisRobot()), 10);
 }
 
 void sendNextMessage(){

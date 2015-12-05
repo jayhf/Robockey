@@ -40,10 +40,32 @@ void puckLocalizationTest();
 Pose getEnemyGoal();
 void friendlies();
 void faceoff();
+void localizationCalibration();
 
 int main(void)
 {
+	localizationCalibration();
 	friendlies();
+}
+#include "m_wii.h"
+void localizationCalibration(){
+	m_clockdivide(0);
+	m_disableJTAG();
+	initLocalization();
+	m_usb_init();
+	m_bus_init();
+	m_wii_open();
+	while(1){
+		uint16_t buffer[12];
+		m_wii_read(buffer);
+		for(int i=0;i<12;i++){
+			m_usb_tx_int(buffer[i]);
+			m_usb_tx_char(',');
+		}
+		m_usb_tx_char('\n');
+		m_usb_tx_char('\r');
+		_delay_ms(100);
+	}
 }
 
 void puckLocalizationTest(){

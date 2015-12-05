@@ -7,6 +7,23 @@
 
 #include "Localization.h"
 
+#define WU_AND_CHEN
+//#define GM_LAB
+
+#if defined(GM_LAB)
+	#if defined(WU_AND_CHEN)
+		#error "GM_LAB and WU_AND_CHEN cannot be defined together!"
+	#else
+		#pragma message "GM_LAB Selected"
+	#endif
+#else
+	#if defined(WU_AND_CHEN)
+		#pragma message "WU_AND_CHEN Selected"
+	#else
+		#error "Either GM_LAB or WU_AND_CHEN must be defined!"
+	#endif
+#endif
+
 #ifdef _MSC_VER
 #include "../Simulator/m_wii.h"
 #else
@@ -436,6 +453,7 @@ Pose localizeRobot(uint16_t* irData){
 			int16_t d = dx*dx + dy*dy;
 
 			int8_t id;
+			#ifdef GM_LAB
 			if(d>4500){
 				if (d > 7500) {
 					if (d > 9000)
@@ -457,6 +475,31 @@ Pose localizeRobot(uint16_t* irData){
 				id = 0;
 			else
 				continue;
+			#endif
+			#ifdef WU_AND_CHEN
+			if(d>5050){
+				if (d > 8300) {
+					if (d > 10000)
+						continue;
+					else
+						id = 5;
+					}
+				else {
+					if (d > 6500)
+						id = 4;
+					else
+						id = 3;
+				}
+			} else if (d > 2300) {
+				if (d > 3600)
+					id = 2;
+				else
+					id = 1;
+			} else if (d > 1350)
+				id = 0;
+			else
+			continue;
+			#endif
 			/*if(d>5500){
 				if(d>8950){
 					if(d>11000) continue;
