@@ -59,8 +59,8 @@ Robot getThisRobot(){
 		else
 			robotCount++;
 		_delay_ms(100);
-		updateLED();
 	}
+	updateLED();
 	return thisRobot;
 }
 

@@ -96,7 +96,7 @@ void sendPuckPose(){
 	sendPacket(Robot::CONTROLLER, 0x14, buffer);
 }
 
-bool hasMessage = false;
+volatile bool hasMessage = false;
 void updateWireless(){
 	if(hasMessage){
 		hasMessage = false;
