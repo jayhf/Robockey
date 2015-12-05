@@ -96,51 +96,59 @@ void sendPuckPose(){
 	sendPacket(Robot::CONTROLLER, 0x14, buffer);
 }
 
-ISR(INT2_vect){
-	uint8_t buffer[10];
-	m_rf_read((char*)buffer,10);
-	switch(buffer[0]){
-		case 0x20:
+bool hasMessage = false;
+void updateWireless(){
+	if(hasMessage){
+		hasMessage = false;
+		uint8_t buffer[10];
+		m_rf_read((char*)buffer,10);
+		switch(buffer[0]){
+			case 0x20:
 			//Set variable
 			break;
-		case 0x21:
+			case 0x21:
 			//Send back requested variable
 			break;
-		case static_cast<uint8_t>(Robot::ROBOT1):
-		case static_cast<uint8_t>(Robot::ROBOT2):
-		case static_cast<uint8_t>(Robot::ROBOT3):
+			case static_cast<uint8_t>(Robot::ROBOT1):
+			case static_cast<uint8_t>(Robot::ROBOT2):
+			case static_cast<uint8_t>(Robot::ROBOT3):
 			{
 				//Received a message from another team robot
 				processTeamMessage(getAlly(static_cast<Robot>(buffer[0])),buffer);
 				break;
 			}
-		case 0xA0:
+			case 0xA0:
 			updateGameState(GameState::COMM_TEST);
 			break;
-		case 0xA1:
+			case 0xA1:
 			updateGameState(GameState::PLAY);
 			break;
-		case 0xA2:
+			case 0xA2:
 			goalScored(Team::RED);
 			updateScores(buffer[0],buffer[1]);
 			break;
-		case 0xA3:
+			case 0xA3:
 			goalScored(Team::BLUE);
 			updateScores(buffer[0],buffer[1]);
 			break;
-		case 0xA4:
+			case 0xA4:
 			updateGameState(GameState::PAUSE);
 			break;
-		case 0xA6:
+			case 0xA6:
 			updateGameState(GameState::HALFTIME);
 			break;
-		case 0xA7:
+			case 0xA7:
 			updateGameState(GameState::GAME_OVER);
 			break;
-		case 0xA8:
+			case 0xA8:
 			//receivedEnemyLocations((int8_t*)(buffer + 1));
 			break;
+		}
 	}
+}
+
+ISR(INT2_vect){
+	hasMessage = true;
 }
 
 void sendAllyMessage(Ally ally){
