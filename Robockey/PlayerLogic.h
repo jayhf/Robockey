@@ -20,6 +20,8 @@ void avoidGoalie();
 void fakeGoalie();
 void followWall();
 void charge();
+void bluffKick(bool corner);
+void goAndKick(Pose target);
 void tryKick();
 void requestHelp();
 void defenseLogic();

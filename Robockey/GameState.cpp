@@ -153,6 +153,9 @@ void updateLED(){
 					setLED(LEDColor::OFF);
 			}
 		}
+		else{
+			setLED(LEDColor::OFF);
+		}
 	}
 	else if(gameState == GameState::PLAY){
 		setLEDToTeamColor();

@@ -406,3 +406,9 @@ uint8_t findPath(uint8_t *result, Location *vertices, uint8_t vertexCount, Locat
 	return resultLength;
 }
 
+bool atLocation(Location target, Location current){
+	int16_t deltaX = current.x - target.x;
+	int16_t deltaY = current.y - target.y;
+	int16_t distance = sqrt((uint16_t)abs(deltaX*deltaX + deltaY*deltaY));
+	return distance < 4;
+}
