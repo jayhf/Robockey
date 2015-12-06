@@ -200,7 +200,7 @@ void friendlies(){
 			updatePlayer(Player::NONE);
 			break;
 		}
-		if (allowedToMove()){
+		//if (allowedToMove()){
 			if(getRobotPose()==UNKNOWN_POSE){
 				setMotors(0,0);
 			}
@@ -211,20 +211,20 @@ void friendlies(){
 				}
 				else{*/
 					
-				
+				/*
 					if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
 						faceoff();
 					}
 					else{
-						
+						*/
 						if (first == 0) first++;
-						//goToPositionSpin(Pose(0,0,0),getRobotPose());
+						goToPositionPuck(Pose(0,0,0),getRobotPose());
 						//goToPuck(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
-						playerLogic(getPlayer());
-					}
+						//playerLogic(getPlayer());
+					//}
 				}
-			}
 			//}
-			else setMotors(0,0);
+			//}
+			//else setMotors(0,0);
 		}
 	}
