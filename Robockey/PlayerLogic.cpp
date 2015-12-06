@@ -113,7 +113,7 @@ void leftCorner(){
 	}
 	}*/
 
-	goToPositionPuck(Pose(XMAX+5,YMIN/2,0),currentPose); //charge into goal
+	goToPositionPuck(Pose(XMAX+10,YMIN/2+ROBOT_RADIUS,0),currentPose); //charge into goal
 
 }
 
@@ -132,7 +132,7 @@ void rightCorner(){
 	}
 	}*/
 
-	goToPositionPuck(Pose(XMAX+5,YMAX/2,0),currentPose); //charge into goal
+	goToPositionPuck(Pose(XMAX+10,YMAX/2-ROBOT_RADIUS,0),currentPose); //charge into goal
 
 }
 
@@ -247,10 +247,45 @@ void charge(){
 	updateKick();
 }
 
+void bluffKick(bool corner){
+	int yTarget = 20;
+	int xBluff = XMAX - 40;
+	if(!corner){
+		yTarget = -yTarget;
+	}
+	if(hasPuck()){
+		if(getRobotPose().x < xBluff){
+			goToPositionPuck(Pose(xBluff, -yTarget, -PI/2), getRobotPose());
+		}
+		else{
+			if(facingLocation(Location(XMAX, yTarget),getRobotPose())){	
+				tryKick();
+				goToPositionPuck(Pose(XMAX,yTarget,-PI/2),getRobotPose());	
+			}
+			else{
+				faceLocation(Location(XMAX, yTarget),getRobotPose());
+			}
+		}
+	}
+	else{
+		goToPuck(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
+	}
+}
+
+void goAndKick(Pose target){
+	if(hasPuck()){
+		tryKick();
+		goToPositionPuck(target, getRobotPose());
+	}
+	else{
+		goToPuck(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
+	}
+}
+
 //Should be called in the move with puck
 void tryKick(){
 	Pose currentPose = getRobotPose();
-	uint8_t dMax = ROBOT_RADIUS + 20;
+	uint8_t dMax = ROBOT_RADIUS + 40;
 	uint8_t dX = XMAX - currentPose.x;
 	if(dX <= dMax){
 		float dL = dX/cosb(currentPose.o);
@@ -259,9 +294,19 @@ void tryKick(){
 			int16_t goalY = currentPose.y + dY;
 			if((goalY <= (YMAX/2 - PUCK_RADIUS)) && (goalY >= (YMIN/2 + PUCK_RADIUS))){
 				Location target = Location(currentPose.x, goalY);
-				//if(!checkIntersection(currentPose.getLocation(), target, PUCK_RADIUS)){
+				if(currentPose.y > YMAX/2 - PUCK_RADIUS || currentPose.y < YMIN/2 + PUCK_RADIUS){
+					Location corner = Location(XMAX,YMAX/2);
+					if(currentPose.y < 0){
+						corner = Location(XMAX,YMIN/2);
+					}
+					if(!circleIntersectsSegment(currentPose.getLocation(),Location(XMAX, goalY), corner, PUCK_RADIUS)){
+						startKick();
+					}
+				}
+				else{
+					startKick();
+				}
 				startKick();
-				//}
 			}
 		}
 	}
@@ -322,7 +367,7 @@ void scoreLogic(){
 				rando = rand() % 3;
 				i++;
 			} //change to number of strategies
-			else if (i==3500){
+			else if (i==3000){
 				i=0;
 			}
 			else i++;
@@ -357,7 +402,7 @@ void scoreLogic(){
 void faceoff(){
 	if(player==Player::SCORER){
 		//if(!timePassed(2000)){
-		setMotors(1200,1200);
+		setMotors(1600,1600);
 		//}
 		//else{
 		//	goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
