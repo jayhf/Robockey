@@ -1,5 +1,7 @@
 ﻿#include "Strategies.h"
 #include "Digital.h"
+#include "stdlib.h"
+#include "wireless.h"
 
 Strategy::Strategy(StrategyType strategyType, uint8_t strategyId) : 
 	strategyType(strategyType),
@@ -8,20 +10,6 @@ Strategy::Strategy(StrategyType strategyType, uint8_t strategyId) :
 
 StrategyType Strategy::getStrategyType(){
 	return strategyType;
-}
-
-uint8_t Strategy::getSuccessCount(){
-	return successCount;
-}
-uint8_t Strategy::getFailCount(){
-	return failCount;
-}
-
-void Strategy::strategyFailed(){
-	failCount++;
-}
-void Strategy::strategyWorked(){
-	successCount++;
 }
 
 uint8_t Strategy::getID(){
@@ -34,28 +22,101 @@ public:
 		
 	}
 
-	void run() override{
+	uint8_t run() override{
 		setMotors(0,0);
+		return PICK_STRATEGY;
 	}
+	
+	void getSuggestedAllyStrategies(uint8_t *strategyIDs){
 		
-	bool possible() override{
-		return true;
+	}
+	
+	uint8_t getPriority(){
+		return 0;
+	}
+	
+};
+
+class LEDStrategy : public Strategy{
+public:
+	LEDStrategy(StrategyType strategyType, uint8_t id) : Strategy(strategyType, id){
+		
+	}
+	uint8_t run() override{
+		switch(strategyType){
+			case StrategyType::DEFENSE:
+				setLED(LEDColor::BLUE);
+			case StrategyType::OFFENSE:
+				setLED(LEDColor::RED);
+			case StrategyType::SCORER:
+				setLED(LEDColor::PURPLE);
+			case StrategyType::GOALIE:
+				setLED(LEDColor::OFF);
+		}
+		return 1 | static_cast<uint8_t>(StrategyType::SCORER);
+	}
+	
+	void getSuggestedAllyStrategies(uint8_t *strategyIDs){
+		strategyIDs[0] = PICK_DEFENSE;
+		strategyIDs[1] = PICK_OFFENSE;
+	}
+	
+	uint8_t getPriority(){
+		return 10;
 	}
 };
 
+DoNothingStrategy doNothingOffense(StrategyType::OFFENSE, 0);
+DoNothingStrategy doNothingDefense(StrategyType::DEFENSE, 0);
+DoNothingStrategy doNothingScorer(StrategyType::SCORER, 0);
+DoNothingStrategy doNothingGoalie(StrategyType::GOALIE, 0);
 
-DoNothingStrategy doNothingOffense = DoNothingStrategy(StrategyType::OFFENSE, 0);
-DoNothingStrategy doNothingDefense = DoNothingStrategy(StrategyType::DEFENSE, 0);
-DoNothingStrategy doNothingScorer = DoNothingStrategy(StrategyType::SCORER, 0);
-DoNothingStrategy doNothingGoalie = DoNothingStrategy(StrategyType::GOALIE, 0);
-
+LEDStrategy ledOffense(StrategyType::OFFENSE, 1);
+LEDStrategy ledDefense(StrategyType::DEFENSE, 1);
+LEDStrategy ledScorer(StrategyType::SCORER, 1);
+LEDStrategy ledGoalie(StrategyType::GOALIE, 1);
 
 Strategy *offenseStrategies[] = {&doNothingOffense};
 Strategy *defenseStrategies[] = {&doNothingDefense};
 Strategy *scorerStrategies[] = {&doNothingScorer};
 Strategy *goalieStrategies[] = {&doNothingGoalie};
 
+StrategySelector offenseSelector(offenseStrategies,sizeof(offenseStrategies)/sizeof(Strategy*), &doNothingOffense);
+StrategySelector defenseSelector(defenseStrategies,sizeof(defenseStrategies)/sizeof(Strategy*), &doNothingDefense);
+StrategySelector scorerSelector(scorerStrategies,sizeof(scorerStrategies)/sizeof(Strategy*), &doNothingScorer);
+StrategySelector goalieSelector(goalieStrategies,sizeof(goalieStrategies)/sizeof(Strategy*), &doNothingGoalie);
+
+uint8_t suggestedAllyStrategies[2];
+Strategy *currentStrategy = &doNothingDefense;
+
+uint8_t getOurSuggestedStrategy(Ally ally){
+	return suggestedAllyStrategies[static_cast<uint8_t>(ally)];
+}
+
+Strategy *getCurrentStrategy(){
+	return currentStrategy;
+}
+
 Strategy *getStrategy(uint8_t strategyID){
+	if(strategyID == PICK_SOMETHING || strategyID == UNKNOWN_STRATEGY){
+		if(hasPuck())
+			return scorerSelector.pickStrategy();
+		if(hasPuck(Ally::ALLY1) || hasPuck(Ally::ALLY2))
+			return offenseSelector.pickStrategy();
+		return defenseSelector.pickStrategy();
+	}
+	if((strategyID & PICK_STRATEGY) == PICK_STRATEGY){
+		switch(strategyID){
+			case PICK_OFFENSE:
+				return offenseSelector.pickStrategy();
+			case PICK_DEFENSE:
+				return defenseSelector.pickStrategy();
+			case PICK_SCORER:
+				return scorerSelector.pickStrategy();
+			case PICK_GOALIE:
+				return goalieSelector.pickStrategy();
+		}
+	}
 	switch(static_cast<StrategyType>(strategyID & 0b11000000)){
 		case StrategyType::OFFENSE:
 			for(uint8_t i = 0; i < sizeof(offenseStrategies)/sizeof(Strategy*); i++)
@@ -84,12 +145,86 @@ Strategy *getStrategy(uint8_t strategyID){
 	return &doNothingDefense;
 }
 
-void StrategySelector::previousSucceeded(){
+Strategy *StrategySelector::pickStrategy(){
+	uint8_t priorities[strategyCount];
+	uint8_t max = 0;
+	for(uint8_t i=0; i<strategyCount; i++){
+		priorities[i] = strategies[i]->getPriority();
+		max = MAX(max,priorities[i]);
+	}
+	uint8_t cutoff = max >> 2;
+	uint16_t total = 0;
+	for(uint8_t i=0;i<strategyCount;i++){
+		if(priorities[i] < cutoff)
+			priorities[i]=0;
+		total += priorities[i];
+	}
+	uint16_t totalMultiple = total;
+	uint8_t shiftCount = 0;
+	while(totalMultiple<RAND_MAX){
+		shiftCount++;
+		totalMultiple <<= 1;
+	}
+	totalMultiple >>= 1;
 	
+	uint16_t r;
+	do{
+		r = rand();
+	} while(r>=totalMultiple);
+	
+	r >>= shiftCount;
+	for(uint8_t i=0;i<strategyCount;i++){
+		if(priorities[i]!=0){
+			r -= priorities[i];
+			if(r<=0)
+				return strategies[i];
+		}
+	}
+	return defaultStrategy;
 }
-void StrategySelector::previousFailed(){
-	
+
+bool isOffense(uint8_t strategyID){
+	return (strategyID & 0b11000000) == static_cast<uint8_t>(StrategyType::OFFENSE);
 }
-Strategy *StrategySelector::pickStrategy(StrategyType strategyType){
+
+bool isDefense(uint8_t strategyID){
+	return (strategyID & 0b11000000) == static_cast<uint8_t>(StrategyType::DEFENSE);
+}
+
+bool isScorer(uint8_t strategyID){
+	return (strategyID & 0b11000000) == static_cast<uint8_t>(StrategyType::SCORER);
+}
+
+bool isGoalie(uint8_t strategyID){
+	return (strategyID & 0b11000000) == static_cast<uint8_t>(StrategyType::GOALIE);
+}
+
+void updateStrategies(){
+	Ally highestPriorityAlly = getHighestPriorityAlly();
+	Strategy *newStrategy = currentStrategy;
+	if(allyHigherPriorittyThanMe(highestPriorityAlly)){
+		uint8_t suggestion = getAllySuggestedStrategy(highestPriorityAlly);
+		if(currentStrategy->getID() != suggestion && suggestion != PICK_SOMETHING && suggestion != UNKNOWN_STRATEGY){
+			newStrategy = getStrategy(suggestion);
+		}
+		else{
+			uint8_t newID = currentStrategy->run();
+			if(newID != currentStrategy->getID())
+				newStrategy = getStrategy(newID);
+		}
+	}
+	else{
+		uint8_t newID = currentStrategy->run();
+		if(newID != currentStrategy->getID())
+		newStrategy = getStrategy(newID);
+	}
 	
+	if(newStrategy != currentStrategy){
+		currentStrategy = newStrategy;
+		currentStrategy->prepare();
+		currentStrategy->run();
+	}
+	suggestedAllyStrategies[0] = UNKNOWN_STRATEGY;
+	suggestedAllyStrategies[1] = UNKNOWN_STRATEGY;
+	currentStrategy->getSuggestedAllyStrategies(suggestedAllyStrategies);
 }

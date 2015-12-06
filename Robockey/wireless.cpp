@@ -2,6 +2,8 @@
 #include "GameState.h"
 #include "Localization.h"
 #include "ADC.h"
+#include "Strategies.h"
+
 #define F_CPU 16000000
 #include <util/delay.h>
 #include <avr/interrupt.h>
@@ -35,6 +37,12 @@ void sendNextMessage(){
 			break;
 		case 2:
 			sendIR();
+			break;
+		case 3:
+			sendAllyMessage(Ally::ALLY1);
+			break;
+		case 4:
+			sendAllyMessage(Ally::ALLY2);
 			break;
 		default:
 			nextMessage = 0;
@@ -137,10 +145,39 @@ void updateWireless(){
 			break;
 		}
 	}
+	sendNextMessage();
 }
 
 ISR(INT2_vect){
 	hasMessage = true;
+}
+
+time lastAllyUpdateTime[] = {(time)-1000,(time)-1000};
+bool allyHasPuck[] = {0,0};
+bool allyIsGoalie[] = {0,0};
+uint8_t allyStrategies[] = {PICK_SOMETHING,PICK_SOMETHING};
+uint8_t allyStrategySuggestions[] = {PICK_SOMETHING,PICK_SOMETHING};
+
+
+uint8_t getAllyStrategy(Ally ally){
+	return allyStrategies[static_cast<uint8_t>(ally)];
+}
+uint8_t getAllySuggestedStrategy(Ally ally){
+	return allyStrategySuggestions[static_cast<uint8_t>(ally)];
+}
+
+bool hasPuck(Ally ally){
+	if(allyUpToDate(ally))
+		return allyHasPuck[static_cast<uint8_t>(ally)];
+	return false;
+}
+
+bool allyUpToDate(Ally ally){
+	if(timePassed(lastAllyUpdateTime[static_cast<uint8_t>(ally)]+1000)){
+		lastAllyUpdateTime[static_cast<uint8_t>(ally)] = getTime() - 1000;
+		return false;
+	}
+	return true;
 }
 
 void sendAllyMessage(Ally ally){
@@ -152,12 +189,61 @@ void sendAllyMessage(Ally ally){
 	packet[3] = puckLocation.x;
 	packet[4] = puckLocation.y;
 	packet[5] = hasPuck();
+	packet[6] = getCurrentStrategy()->getID();
+	packet[7] = getOurSuggestedStrategy(ally);
 	sendPacket(getAllyRobot(ally),packet);
 }
 
 void processTeamMessage(Ally ally, uint8_t *data){
 	Location allyLocation = Location(data[1],data[2]);
 	Location allyPuckLocation = Location(data[3],data[4]);
-	//bool allyHasPuck = data[5];
 	receivedAllyUpdate(allyLocation, allyPuckLocation, ally);
+	uint8_t allyID = static_cast<uint8_t>(ally);
+	allyHasPuck[allyID] = data[5];
+	allyIsGoalie[allyID] = isGoalie(data[6]) && data[6] != UNKNOWN_STRATEGY && data[6] != PICK_SOMETHING;
+	allyStrategies[allyID] = data[6];
+	allyStrategySuggestions[allyID] = data[7];
+}
+
+Ally getHighestPriorityAlly(){
+	if(!allyUpToDate(Ally::ALLY2))
+		return Ally::ALLY1;
+	if(!allyUpToDate(Ally::ALLY1))
+		return Ally::ALLY2;
+	if(allyHasPuck[0])
+		return Ally::ALLY1;
+	if(allyHasPuck[1])
+		return Ally::ALLY2;
+	if(allyIsGoalie[0])
+		return Ally::ALLY1;
+	if(allyIsGoalie[1])
+		return Ally::ALLY2;
+	return Ally::ALLY1;
+}
+
+bool allyHigherPriorityThanMe(Ally ally){
+	if(!allyUpToDate(ally))
+		return false;
+	bool allyAddressHigher = static_cast<uint8_t>(getAllyRobot(ally)) > static_cast<uint8_t>(getThisRobot());
+	uint8_t allyID = static_cast<uint8_t>(ally);
+	if(allyAddressHigher){
+		if(allyHasPuck[allyID])
+			return true;
+		if(hasPuck())
+			return false;
+		if(allyIsGoalie[allyID])
+			return true;
+		if(isGoalie(getCurrentStrategy()->getID()))
+			return false;
+		return true;
+	}
+	if(hasPuck())
+		return false;
+	if(allyHasPuck[allyID])
+		return true;
+	if(isGoalie(getCurrentStrategy()->getID()))
+		return false;
+	if(allyIsGoalie[allyID])
+		return true;
+	return false;
 }

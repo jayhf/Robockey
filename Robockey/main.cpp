@@ -24,6 +24,7 @@
 #include "BAMSMath.h"
 #include "FastMath.h"
 #include "PlayerLogic.h"
+#include "Strategies.h"
 #include <stdlib.h>
 
 
@@ -163,7 +164,24 @@ void qualify(){
 	Pose robot = getRobotPose();
 	goTo(Pose(110,0,0),robot);
 }
-
+void strategyWirelessTest(){
+	m_clockdivide(0);
+	m_disableJTAG();
+	sei();
+	m_bus_init();
+	initDigital();
+	initClock();
+	initADC();
+	initWireless();
+	initLocalization();
+	updateLocalization();
+	_delay_ms(500);
+	updateLocalization();
+	while(1){
+		updateWireless();
+		updateStrategies();
+	}
+}
 void friendlies(){
 	m_clockdivide(0);
 	m_disableJTAG();
@@ -180,7 +198,7 @@ void friendlies(){
 	Location initPuck = getPuckLocation();
 	while(1){
 		updateLocalization();
-		sendNextMessage();
+		updateWireless();
 		updateLED();
 		
 		switch(getThisRobot()){

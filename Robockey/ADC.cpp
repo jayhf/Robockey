@@ -64,7 +64,7 @@ ISR(ADC_vect){
 				irWriteBuffer = irReadBuffer;
 				irReadBuffer = temp;
 				irResistor = nextResistor;
-				ADMUX |= 7 << MUX0;
+				ADMUX |= 1 << MUX0;
 				updateResistor();
 			}
 			break;
@@ -89,7 +89,7 @@ ISR(ADC_vect){
 			ADMUX |= 6 << MUX0;
 			break;
 		default:
-			ADMUX |= 7 << MUX0;
+			ADMUX |= 1 << MUX0;
 			break;
 	}
 }

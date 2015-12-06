@@ -88,7 +88,7 @@ char m_wii_open()
 
 char m_wii_read(unsigned int* blob_data)
 {
-	m_green(1);
+	//m_green(1);
 	int i;
 	unsigned char temp[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	
@@ -118,7 +118,7 @@ char m_wii_read(unsigned int* blob_data)
 		blob_data[i+2] = temp[i+3] & 0b00001111;										// size
 	}
 	return 1;
-	m_green(0);
+	//m_green(0);
 }
 
 

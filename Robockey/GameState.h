@@ -11,7 +11,7 @@ enum class Robot : uint8_t{
 };
 
 enum class Ally : uint8_t{
-	ALLY1 = 1, ALLY2 = 2
+	ALLY1 = 0, ALLY2 = 1
 };
 
 enum class Team : uint8_t{

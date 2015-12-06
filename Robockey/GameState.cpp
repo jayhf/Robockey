@@ -10,6 +10,8 @@
 #include "Localization.h"
 #include "Digital.h"
 #include "time.h"
+#include <avr/io.h>
+#define F_CPU 16000000
 #include <util/delay.h>
 
 volatile uint8_t redScore;
@@ -51,6 +53,8 @@ Robot getThisRobot(){
 				setLED(LEDColor::PURPLE);
 				selectedRobot = Robot::ROBOT3;
 				break;
+			default:
+				selectedRobot = Robot::CONTROLLER;
 		}
 		if(thisRobot != selectedRobot){
 			robotCount = 0;
@@ -60,7 +64,6 @@ Robot getThisRobot(){
 			robotCount++;
 		_delay_ms(100);
 	}
-	updateLED();
 	return thisRobot;
 }
 
@@ -153,6 +156,8 @@ void updateLED(){
 					setLED(LEDColor::OFF);
 			}
 		}
+		else
+			setLED(LEDColor::OFF);
 	}
 	else if(gameState == GameState::PLAY){
 		setLEDToTeamColor();
