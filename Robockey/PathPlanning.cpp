@@ -36,7 +36,7 @@ void goToBackwards(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	int16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
-	if(distance>12){ //if not within 5 pixels in both x and y
+	if(distance>16){ //if not within 5 pixels in both x and y
 		int16_t targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
 		angle deltaTheta = (current.o - targetTheta)/4;
 		int16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
@@ -109,11 +109,11 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 	angle deltaTheta = (current.o - targetTheta)/4;
 	int16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 	int16_t temp2 = abs(k2*deltaTheta) - k4*abs((deltaTheta - lastTheta));
-	uint16_t x = MIN(1600,MAX(0,temp1));
-	uint16_t y = MIN(1400,MAX(0,temp2));
+	uint16_t x = MIN(1200,MAX(0,temp1));
+	uint16_t y = MIN(1000,MAX(0,temp2));
 	int d1;
-	if(toPuck) d1 = 12+ROBOT_RADIUS;
-	else d1 = 12;
+	if(toPuck) d1 = 16+ROBOT_RADIUS*ROBOT_RADIUS;
+	else d1 = 16;
 	if(distance>d1){ //if not within 5 pixels in both x and y
 		/*
 		uint16_t r = k1*distance;
@@ -203,7 +203,7 @@ void goToPositionPuck(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	int16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
-	if(distance>12){ //if not within 5 pixels in both x and y
+	if(distance>16){ //if not within 5 pixels in both x and y
 		int16_t targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
 		angle deltaTheta = (current.o - targetTheta)/4;
 		int16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
@@ -412,5 +412,5 @@ bool atLocation(Location target, Location current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	int16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
-	return distance < 12;
+	return distance < 16;
 }
