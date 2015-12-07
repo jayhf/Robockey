@@ -28,3 +28,4 @@ void defenseLogic();
 void updatePlayer(Player player);
 Player getPlayer();
 void scoreLogic();
+void center();

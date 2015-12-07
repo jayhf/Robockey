@@ -11,7 +11,9 @@ void goToPositionPuck(Pose target, Pose current);
 bool facingHeading(angle target, Pose current);
 
 bool facingLocation(Location target, Pose current);
+bool facingLocation(Location target, Pose current,angle o);
 void faceLocation(Location target, Pose current);
+void faceLocation(Location target, Pose current,angle o);
 void faceAngle(angle o, Pose current);
 void goToPuck(Pose target, Pose current);
 void goToBackwards(Pose target,Pose current);

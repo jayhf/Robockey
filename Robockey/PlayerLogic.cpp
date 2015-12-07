@@ -195,7 +195,10 @@ void rightCorner(){
 	goToPositionPuck(Pose(XMAX+10,YMAX/2-ROBOT_RADIUS,0),currentPose); //charge into goal
 
 }
-
+void center(){
+	Pose currentPose = getRobotPose();
+	goToPositionPuck(Pose(XMAX+10,0,0),currentPose);
+}
 /*void avoidGoalie(){
 //find if one of their players is in the goal and go towards the larger space based on his position
 Location* enemies = getEnemyLocations();
