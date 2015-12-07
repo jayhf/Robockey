@@ -13,6 +13,7 @@
 #include "Digital.h"
 #include "PlayerLogic.h"
 #include "Strategies.h"
+#include "wireless.h"
 
 void goalieLogic();
 void leftCorner();
@@ -207,23 +208,22 @@ void center(){
 void sPattern(){
 	setLED(LEDColor::OFF);
 	Pose currentPose = getRobotPose();
-	Pose targetPose;
 	if(currentPose.x<XMAX-4*ROBOT_RADIUS&&(point1==false||point2==false)){
 		if(!targetSet){
 			if(currentPose.y<=0 && point1 == false){
-				targetPose = Pose(currentPose.x+8*ROBOT_RADIUS,YMAX-3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+4*ROBOT_RADIUS,YMAX-3*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
 			else if(point1 == false){
-				targetPose = Pose(currentPose.x+8*ROBOT_RADIUS,YMIN+3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+4*ROBOT_RADIUS,YMIN+3*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
 			else if (currentPose.y>=0&&point2 == false){
-				targetPose = Pose(currentPose.x+8*ROBOT_RADIUS,YMIN+3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+4*ROBOT_RADIUS,YMIN+3*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
 			else if(point2==false){
-				targetPose = Pose(currentPose.x+8*ROBOT_RADIUS,YMAX-3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+4*ROBOT_RADIUS,YMAX-3*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
 			else{
@@ -232,18 +232,25 @@ void sPattern(){
 		}
 		if(!atLocation(Location(targetPose.x,targetPose.y),Location(currentPose.x,currentPose.y))&&point1 == false){
 			goToPositionPuck(targetPose,currentPose);
+			
 		}
 		else {
 			point1 = true;
+			
 		}
 		if(point1 == true && !atLocation(Location(targetPose.x,targetPose.y),Location(currentPose.x,currentPose.y)) &&point2 == false){
 			goToPositionPuck(targetPose,currentPose);
+			
 		}
 		else {
 			point2 = true;
+			
 		}
 	}
 	else goToPositionPuck(Pose(XMAX+5,0,0),currentPose);
+		//uint8_t packet[10]={0,0,targetPose.x,targetPose.y,targetPose.o>>8,targetPose.o&0xFF,0,0,0,0};
+		//sendPacket(Robot::CONTROLLER,0x22,packet);
+		
 }
 
 
