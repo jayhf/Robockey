@@ -18,7 +18,7 @@ StrategyType Strategy::getStrategyType(){
 uint8_t Strategy::getID(){
 	return id;
 }
-
+/*
 class DoNothingStrategy : public Strategy{
 public:
 	DoNothingStrategy(StrategyType strategyType, uint8_t id) : Strategy(strategyType, id){
@@ -65,7 +65,7 @@ public:
 		return 10;
 	}
 };
-/*
+
 DoNothingStrategy doNothingOffense(StrategyType::OFFENSE, 0);
 DoNothingStrategy doNothingDefense(StrategyType::DEFENSE, 0);
 DoNothingStrategy doNothingScorer(StrategyType::SCORER, 0);
