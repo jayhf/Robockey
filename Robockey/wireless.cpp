@@ -21,7 +21,9 @@ bool allyIsGoalie[] = {0,0};
 uint8_t allyStrategies[] = {PICK_SOMETHING,PICK_SOMETHING};
 uint8_t allyStrategySuggestions[] = {PICK_SOMETHING,PICK_SOMETHING};
 uint8_t gameCommandsToSend[] = {0,0};
-
+uint8_t gameCommandsToSendCount[] = {0,0};
+time lastHalftimeUpdateTime = -10*ONE_SECOND-1;
+	
 void initWireless(){
 	m_rf_open(1, static_cast<uint8_t>(getThisRobot()), 10);
 }
@@ -42,18 +44,18 @@ void sendNextMessage(){
 		case 1:
 			sendPuckPose();
 			break;
-		case 2:
+		/*case 2:
 			sendIR();
 			break;
 		case 3:
 			sendIR2();
-			break;
-		/*case 4:
+			break;*/
+		case 2:
 			sendAllyMessage(Ally::ALLY1);
 			break;
-		case 5:
+		case 3:
 			sendAllyMessage(Ally::ALLY2);
-			break;*/
+			break;
 		default:
 			nextMessage = 0;
 			goto case_0;
@@ -72,7 +74,10 @@ void handleGameStateMessage(uint8_t id){
 			updateGameState(GameState::PAUSE);
 			break;
 		case 0xA6:
-			updateGameState(GameState::HALFTIME);
+			if(!timePassed(lastHalftimeUpdateTime+10*ONE_SECOND)){
+				lastHalftimeUpdateTime = getTime();
+				updateGameState(GameState::HALFTIME);
+			}
 			break;
 		case 0xA7:
 			updateGameState(GameState::GAME_OVER);
@@ -141,6 +146,9 @@ void sendPuckPose(){
 
 volatile bool hasMessage = false;
 void updateWireless(){
+	if(timePassed(lastHalftimeUpdateTime+10*ONE_SECOND)){
+		lastHalftimeUpdateTime = getTime()-10*ONE_SECOND-1;
+	}
 	if(hasMessage){
 		hasMessage = false;
 		uint8_t buffer[10];
@@ -166,6 +174,7 @@ void updateWireless(){
 		}
 		if(buffer[0] == 0xA0 || buffer[0] == 0xA1 || buffer[0] == 0xA4 || buffer[0] == 0xA6 || buffer[0] == 0xA7){
 			gameCommandsToSend[0] = gameCommandsToSend[1] = buffer[0];
+			gameCommandsToSendCount[0] = gameCommandsToSendCount[1] = 5;
 			handleGameStateMessage(buffer[0]);
 		}
 	}
@@ -209,10 +218,13 @@ void sendAllyMessage(Ally ally){
 	packet[3] = puckLocation.x;
 	packet[4] = puckLocation.y;
 	packet[5] = hasPuck();
-	packet[6] = getCurrentStrategy()->getID();
+	packet[6] = getCurrentStrategyID();
 	packet[7] = getOurSuggestedStrategy(ally);
 	packet[8] = gameCommandsToSend[static_cast<uint8_t>(ally)];
-	gameCommandsToSend[static_cast<uint8_t>(ally)] = 0;
+	if(gameCommandsToSendCount[static_cast<uint8_t>(ally)] > 0)
+		gameCommandsToSendCount[static_cast<uint8_t>(ally)]--;
+	else
+		gameCommandsToSend[static_cast<uint8_t>(ally)] = 0;
 	sendPacket(getAllyRobot(ally),packet);
 }
 
@@ -226,7 +238,8 @@ void processTeamMessage(Ally ally, uint8_t *data){
 	allyStrategies[allyID] = data[6];
 	allyStrategySuggestions[allyID] = data[7];
 	lastAllyUpdateTime[allyID] = getTime();
-	handleGameStateMessage(data[8]);
+	if(data[8]!=0)
+		handleGameStateMessage(data[8]);
 }
 
 Ally getHighestPriorityAlly(){

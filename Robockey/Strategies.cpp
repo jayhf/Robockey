@@ -235,3 +235,11 @@ void updateStrategies(){
 		currentStrategy->run(suggestedAllyStrategies);
 	}
 }*/
+
+
+uint8_t getCurrentStrategyID(){
+	return 0;
+}
+uint8_t getOurSuggestedStrategy(Ally ally){
+	return PICK_SOMETHING;
+}

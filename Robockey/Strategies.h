@@ -53,6 +53,7 @@ bool isDefense(uint8_t strategyID);
 bool isScorer(uint8_t strategyID);
 bool isGoalie(uint8_t strategyID);
 Strategy *getCurrentStrategy();
+uint8_t getCurrentStrategyID();
 uint8_t getOurSuggestedStrategy(Ally ally);
 void updateStrategies();
 
