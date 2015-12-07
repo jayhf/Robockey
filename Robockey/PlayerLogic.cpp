@@ -27,6 +27,10 @@ bool needHelp = false;
 bool inCorner = false;
 Player player = Player::NONE;
 Location lastPuck = getPuckLocation();
+bool point1 = false;
+bool point2 = false;
+bool targetSet = false;
+Pose targetPose;
 
 void updatePlayer(Player play){
 	player = play;
@@ -200,10 +204,6 @@ void center(){
 	goToPositionPuck(Pose(XMAX+10,0,0),currentPose);
 }
 
-bool point1 = false;
-bool point2 = false;
-bool targetSet = false;
-Pose targetPose;
 void sPattern(){
 	Pose currentPose = getRobotPose();
 	Pose targetPose;
@@ -421,6 +421,22 @@ void tryKick(){
 				}
 			}
 		}
+	}
+}
+
+void crossD(){
+	//get signal to send left or right. go to 5 times radius of ally position and then cross
+	if(!point1){
+		if(!targetSet) targetPose = Pose(MIN(XMAX,50),YMIN/2,0);
+		if(!atLocation(Location(targetPose.x,targetPose.y),Location(getRobotPose().x,getRobotPose().y))){
+			goToPosition(targetPose,getRobotPose(),false);
+		}
+		else {
+			point1 = true;
+		}
+	}
+	else{
+		goToPosition(Pose(XMAX - 4*ROBOT_RADIUS,YMAX/2,0),getRobotPose(),false);
 	}
 }
 
