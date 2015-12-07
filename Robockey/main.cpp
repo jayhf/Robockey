@@ -244,7 +244,7 @@ void friendlies(){
 					else{
 				*/		
 						if (first == 0) first++;
-						goToPosition(Pose(0,0,0),getRobotPose(),false);
+						//goToPosition(Pose(0,0,0),getRobotPose(),false);
 						//goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true);
 						//goAndKick(Pose(XMAX,0,-PI/2));
 						//goalieLogic();
