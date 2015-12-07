@@ -236,11 +236,9 @@ void sPattern(){
 		}
 		if(!atLocation(Location(targetPose.x,targetPose.y),Location(currentPose.x,currentPose.y))&&point1 == false){
 			goToPositionPuck(targetPose,currentPose);
-			m_red(1);
 		}
 		else {
 			point1 = true;
-			m_red(0);
 		}
 		if(point1 == true && !atLocation(Location(targetPose.x,targetPose.y),Location(currentPose.x,currentPose.y)) &&point2 == false){
 			goToPositionPuck(targetPose,currentPose);
