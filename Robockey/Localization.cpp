@@ -177,10 +177,6 @@ void updatePuckPosition(){
 			dt = (currentTime-allyUpdateTimes[1]+currentTime-allyUpdateTimes[0])>>1;
 		}
 	}
-	if(puckLocation != UNKNOWN_LOCATION){
-		averagePuckLocation.x = (averagePuckLocation.x >> 1) + (puckLocation.x >> 1);
-		averagePuckLocation.y = (averagePuckLocation.y >> 1) + (puckLocation.y >> 1);
-	}
 	locationFilter(puckLocation, puckVelocity, averagePuckLocation, puckUpdateTime, currentTime-(dt>>1), puckCertainty,30);
 }
 
