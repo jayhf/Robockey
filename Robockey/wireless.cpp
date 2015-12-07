@@ -15,6 +15,12 @@ extern "C"{
 	#include "m_rf.h"
 }
 
+time lastAllyUpdateTime[] = {(time)-1000,(time)-1000};
+bool allyHasPuck[] = {0,0};
+bool allyIsGoalie[] = {0,0};
+uint8_t allyStrategies[] = {PICK_SOMETHING,PICK_SOMETHING};
+uint8_t allyStrategySuggestions[] = {PICK_SOMETHING,PICK_SOMETHING};
+
 void initWireless(){
 	m_rf_open(1, static_cast<uint8_t>(getThisRobot()), 10);
 }
@@ -26,7 +32,7 @@ void sendNextMessage(){
 	else
 		lastSend = getTime();
 	static uint8_t nextMessage = 0;
-	nextMessage = nextMessage + 1;
+	nextMessage++;
 	switch(nextMessage){
 		case_0:
 		case 0:
@@ -49,8 +55,6 @@ void sendNextMessage(){
 			goto case_0;
 	}
 }
-
-
 
 void sendPacket(Robot robot, uint8_t *packet){
 	packet[0]=static_cast<uint8_t>(getThisRobot());
@@ -115,6 +119,9 @@ void updateWireless(){
 			case static_cast<uint8_t>(Robot::ROBOT2):
 			case static_cast<uint8_t>(Robot::ROBOT3):
 				//Received a message from another team robot
+				static uint8_t c = 0;
+				if(c++%10 == 0)
+					m_green(2);
 				processTeamMessage(getAlly(static_cast<Robot>(buffer[0])),buffer);
 				break;
 			case 0xA0:
@@ -146,18 +153,18 @@ void updateWireless(){
 		}
 	}
 	sendNextMessage();
+	if(timePassed(lastAllyUpdateTime[0]+ONE_SECOND))
+		lastAllyUpdateTime[0] = getTime() - ONE_SECOND - 1;
+
+	if(timePassed(lastAllyUpdateTime[1]+ONE_SECOND))
+		lastAllyUpdateTime[1] = getTime() - ONE_SECOND - 1;
+		
+	m_red(allyUpToDate(Ally::ALLY2));
 }
 
 ISR(INT2_vect){
 	hasMessage = true;
 }
-
-time lastAllyUpdateTime[] = {(time)-1000,(time)-1000};
-bool allyHasPuck[] = {0,0};
-bool allyIsGoalie[] = {0,0};
-uint8_t allyStrategies[] = {PICK_SOMETHING,PICK_SOMETHING};
-uint8_t allyStrategySuggestions[] = {PICK_SOMETHING,PICK_SOMETHING};
-
 
 uint8_t getAllyStrategy(Ally ally){
 	return allyStrategies[static_cast<uint8_t>(ally)];
@@ -173,11 +180,7 @@ bool hasPuck(Ally ally){
 }
 
 bool allyUpToDate(Ally ally){
-	if(timePassed(lastAllyUpdateTime[static_cast<uint8_t>(ally)]+1000)){
-		lastAllyUpdateTime[static_cast<uint8_t>(ally)] = getTime() - 1000;
-		return false;
-	}
-	return true;
+	return !timePassed(lastAllyUpdateTime[static_cast<uint8_t>(ally)]+ONE_SECOND);
 }
 
 void sendAllyMessage(Ally ally){
@@ -199,10 +202,11 @@ void processTeamMessage(Ally ally, uint8_t *data){
 	Location allyPuckLocation = Location(data[3],data[4]);
 	receivedAllyUpdate(allyLocation, allyPuckLocation, ally);
 	uint8_t allyID = static_cast<uint8_t>(ally);
-	allyHasPuck[allyID] = data[5];
-	allyIsGoalie[allyID] = isGoalie(data[6]) && data[6] != UNKNOWN_STRATEGY && data[6] != PICK_SOMETHING;
+	allyHasPuck[allyID] = 0;//data[5];
+	allyIsGoalie[allyID] = 0;//isGoalie(data[6]) && data[6] != UNKNOWN_STRATEGY && data[6] != PICK_SOMETHING;
 	allyStrategies[allyID] = data[6];
 	allyStrategySuggestions[allyID] = data[7];
+	lastAllyUpdateTime[allyID] = getTime();
 }
 
 Ally getHighestPriorityAlly(){
@@ -221,6 +225,7 @@ Ally getHighestPriorityAlly(){
 	return Ally::ALLY1;
 }
 
+bool allyHigherPriorittyThanMe(Ally ally);
 bool allyHigherPriorityThanMe(Ally ally){
 	if(!allyUpToDate(ally))
 		return false;

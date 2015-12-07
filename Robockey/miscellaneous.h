@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <avr/io.h>
 // -----------------------------------------------------------------------------
 // Useful pre-compile constants
 // -----------------------------------------------------------------------------
@@ -86,7 +87,12 @@
 // Change the state of the green on-board LED:
 // -----------------------------------------------------------------------------
 
-#define m_green(val)		set(DDRE,2); if(val==0){set(PORTE,2);}else if(val==1){clear(PORTE,2);}else if(val==2){toggle(PORTE,2);}
+inline void m_green(int val){
+	set(DDRE,2);
+	if(val==0){set(PORTE,2);}
+	else if(val==1){clear(PORTE,2);}
+	else if(val==2){toggle(PORTE,2);}
+}
 // "val" must be either OFF, ON, or TOGGLE, as defined above
 
 
@@ -94,6 +100,11 @@
 // Change the state of the red on-board LED:
 // -----------------------------------------------------------------------------
 
-#define m_red(val)			set(DDRE,6); if(val==0){set(PORTE,6);}else if(val==1){clear(PORTE,6);}else if(val==2){toggle(PORTE,6);}
+inline void m_red(int val){
+	set(DDRE,6);
+	if(val==0){set(PORTE,6);}
+	else if(val==1){clear(PORTE,6);}
+	else if(val==2){toggle(PORTE,6);}
+}
 // "val" must be either OFF, ON, or TOGGLE, as defined above
 // note that this takes over control of pin E6 and sets it to an output

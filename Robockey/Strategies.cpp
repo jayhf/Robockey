@@ -2,6 +2,9 @@
 #include "Digital.h"
 #include "stdlib.h"
 #include "wireless.h"
+//TODO remove the following
+#include <avr/io.h>
+#include "miscellaneous.h"
 
 Strategy::Strategy(StrategyType strategyType, uint8_t strategyId) : 
 	strategyType(strategyType),
@@ -24,7 +27,7 @@ public:
 
 	uint8_t run() override{
 		setMotors(0,0);
-		return PICK_STRATEGY;
+		return PICK_SOMETHING;
 	}
 	
 	void getSuggestedAllyStrategies(uint8_t *strategyIDs){
@@ -46,12 +49,16 @@ public:
 		switch(strategyType){
 			case StrategyType::DEFENSE:
 				setLED(LEDColor::BLUE);
+				break;
 			case StrategyType::OFFENSE:
 				setLED(LEDColor::RED);
+				break;
 			case StrategyType::SCORER:
 				setLED(LEDColor::PURPLE);
+				break;
 			case StrategyType::GOALIE:
 				setLED(LEDColor::OFF);
+				break;
 		}
 		return 1 | static_cast<uint8_t>(StrategyType::SCORER);
 	}
@@ -76,10 +83,10 @@ LEDStrategy ledDefense(StrategyType::DEFENSE, 1);
 LEDStrategy ledScorer(StrategyType::SCORER, 1);
 LEDStrategy ledGoalie(StrategyType::GOALIE, 1);
 
-Strategy *offenseStrategies[] = {&doNothingOffense};
-Strategy *defenseStrategies[] = {&doNothingDefense};
-Strategy *scorerStrategies[] = {&doNothingScorer};
-Strategy *goalieStrategies[] = {&doNothingGoalie};
+Strategy *offenseStrategies[] = {&doNothingOffense, &ledOffense};
+Strategy *defenseStrategies[] = {&doNothingDefense, &ledDefense};
+Strategy *scorerStrategies[] = {&doNothingScorer, &ledScorer};
+Strategy *goalieStrategies[] = {&doNothingGoalie, &ledGoalie};
 
 StrategySelector offenseSelector(offenseStrategies,sizeof(offenseStrategies)/sizeof(Strategy*), &doNothingOffense);
 StrategySelector defenseSelector(defenseStrategies,sizeof(defenseStrategies)/sizeof(Strategy*), &doNothingDefense);
@@ -103,9 +110,11 @@ Strategy *getStrategy(uint8_t strategyID){
 			return scorerSelector.pickStrategy();
 		if(hasPuck(Ally::ALLY1) || hasPuck(Ally::ALLY2))
 			return offenseSelector.pickStrategy();
+		if(defenseSelector.pickStrategy()->getID() != ledDefense.getID())
+			while(1);
 		return defenseSelector.pickStrategy();
 	}
-	if((strategyID & PICK_STRATEGY) == PICK_STRATEGY){
+	if((strategyID & PICK_STRATEGY_MASK) == PICK_STRATEGY_MASK){
 		switch(strategyID){
 			case PICK_OFFENSE:
 				return offenseSelector.pickStrategy();
@@ -159,6 +168,9 @@ Strategy *StrategySelector::pickStrategy(){
 			priorities[i]=0;
 		total += priorities[i];
 	}
+	if(total == 0)
+		return defaultStrategy;
+	
 	uint16_t totalMultiple = total;
 	uint8_t shiftCount = 0;
 	while(totalMultiple<RAND_MAX){
@@ -166,16 +178,17 @@ Strategy *StrategySelector::pickStrategy(){
 		totalMultiple <<= 1;
 	}
 	totalMultiple >>= 1;
+	shiftCount--;
 	
-	uint16_t r;
+	int16_t r;
 	do{
 		r = rand();
-	} while(r>=totalMultiple);
-	
+	} while((uint16_t)r >= totalMultiple);
 	r >>= shiftCount;
+	
 	for(uint8_t i=0;i<strategyCount;i++){
 		if(priorities[i]!=0){
-			r -= priorities[i];
+			r -= priorities[i];			
 			if(r<=0)
 				return strategies[i];
 		}
@@ -202,7 +215,8 @@ bool isGoalie(uint8_t strategyID){
 void updateStrategies(){
 	Ally highestPriorityAlly = getHighestPriorityAlly();
 	Strategy *newStrategy = currentStrategy;
-	if(allyHigherPriorittyThanMe(highestPriorityAlly)){
+	if(allyHigherPriorityThanMe(highestPriorityAlly)){
+		m_red(1);
 		uint8_t suggestion = getAllySuggestedStrategy(highestPriorityAlly);
 		if(currentStrategy->getID() != suggestion && suggestion != PICK_SOMETHING && suggestion != UNKNOWN_STRATEGY){
 			newStrategy = getStrategy(suggestion);
@@ -214,9 +228,10 @@ void updateStrategies(){
 		}
 	}
 	else{
+		m_red(0);
 		uint8_t newID = currentStrategy->run();
 		if(newID != currentStrategy->getID())
-		newStrategy = getStrategy(newID);
+			newStrategy = getStrategy(newID);
 	}
 	
 	if(newStrategy != currentStrategy){

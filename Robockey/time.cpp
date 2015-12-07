@@ -35,7 +35,7 @@ void sleep(){
 	//Enable sleep
 	SMCR |= 1 << SE;
 }
-
+#include "miscellaneous.h"
 ISR(TIMER3_COMPA_vect){
 	currentTime++;
 	/*if(currentTime & 0x10){

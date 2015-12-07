@@ -43,10 +43,12 @@ Pose getEnemyGoal();
 void friendlies();
 void faceoff();
 void localizationCalibration();
+void strategyWirelessTest();
 
 int main(void)
 {
-	friendlies();
+	strategyWirelessTest();
+	//friendlies();
 }
 
 void localizationCalibration(){
@@ -176,10 +178,14 @@ void strategyWirelessTest(){
 	initLocalization();
 	updateLocalization();
 	_delay_ms(500);
+	setLED(LEDColor::OFF);
 	updateLocalization();
+	//m_red(1);
 	while(1){
 		updateWireless();
 		updateStrategies();
+		//m_green(2);
+		//m_red(2);
 	}
 }
 void friendlies(){

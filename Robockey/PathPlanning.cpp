@@ -111,7 +111,7 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 	int16_t temp2 = abs(k2*deltaTheta) - k4*abs((deltaTheta - lastTheta));
 	uint16_t x = MIN(1200,MAX(0,temp1));
 	uint16_t y = MIN(1000,MAX(0,temp2));
-	int d1;
+	uint8_t d1;
 	if(toPuck) d1 = 49+ROBOT_RADIUS*ROBOT_RADIUS;
 	else d1 = 16;
 	if(distance>d1){ //if not within 5 pixels in both x and y

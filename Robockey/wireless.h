@@ -21,4 +21,4 @@ uint8_t getAllySuggestedStrategy(Ally ally);
 bool allyUpToDate(Ally ally);
 bool hasPuck(Ally ally);
 Ally getHighestPriorityAlly();
-bool allyHigherPriorittyThanMe(Ally ally);
+bool allyHigherPriorityThanMe(Ally ally);
