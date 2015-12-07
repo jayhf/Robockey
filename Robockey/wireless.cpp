@@ -20,8 +20,8 @@ bool allyHasPuck[] = {0,0};
 bool allyIsGoalie[] = {0,0};
 uint8_t allyStrategies[] = {PICK_SOMETHING,PICK_SOMETHING};
 uint8_t allyStrategySuggestions[] = {PICK_SOMETHING,PICK_SOMETHING};
-uint8_t gameCommandsToSend[] = {0,0};
-uint8_t gameCommandsToSendCount[] = {0,0};
+uint8_t gameCommandsToSend[] = {0xA0,0xA0};
+uint8_t gameCommandsToSendCount[] = {10,10};
 time lastHalftimeUpdateTime = -10*ONE_SECOND-1;
 	
 void initWireless(){
@@ -185,7 +185,6 @@ void updateWireless(){
 	if(timePassed(lastAllyUpdateTime[1]+ONE_SECOND))
 		lastAllyUpdateTime[1] = getTime() - ONE_SECOND - 1;
 		
-	m_red(allyUpToDate(Ally::ALLY2));
 }
 
 ISR(INT2_vect){

@@ -100,11 +100,5 @@ inline void m_green(int val){
 // Change the state of the red on-board LED:
 // -----------------------------------------------------------------------------
 
-inline void m_red(int val){
-	set(DDRE,6);
-	if(val==0){set(PORTE,6);}
-	else if(val==1){clear(PORTE,6);}
-	else if(val==2){toggle(PORTE,6);}
-}
 // "val" must be either OFF, ON, or TOGGLE, as defined above
 // note that this takes over control of pin E6 and sets it to an output

@@ -84,84 +84,7 @@ void puckLocalizationTest(){
 		//m_green(2);
 	}
 }
-void oldMain(){
-	//uint8_t batteryLowCount = 0;
-	//uint16_t blobs[12]={0,0,0,0,0,0,0,0,0,0,0,0};
-	uint16_t* values;
-	Pose robot;
-	Location puck;
-	while (1) {
-		m_red(flipCoordinates());
-		beginADC();
-		updateLocalization();
-		/*if(i<300){
-		//goToPuck(Pose(0,0,0),getRobotPose());
-		m_wait(15);
-		i++;
-		}
-		else setMotors(0,0);
-		*/
-		
-		robot = getRobotPose();
-		m_usb_tx_int(robot.x);
-		m_usb_tx_char(',');
-		m_usb_tx_int(robot.y);
-		m_usb_tx_char(',');
-		m_usb_tx_int(robot.o);
-		m_usb_tx_char('\n');
-		
-		findPuck();
-		
-		puck = getPuckLocation();
-		m_usb_tx_int(puck.x);
-		m_usb_tx_char(',');
-		m_usb_tx_int(puck.y);
-		m_usb_tx_char(',');
-		m_usb_tx_int(getPuckHeading());
-		m_usb_tx_char('\n');
-		
-		values = getIRData();
-		for (int i = 0; i<16; i++){
-			m_usb_tx_int(values[i]);
-			m_usb_tx_char(',');
-		}
-		m_usb_tx_char('\n');
-		_delay_ms(1000);
-		
-		/*
-		if(i<100){
-		faceAngle(getPuckLocation().o,robot);
-		//faceAngle(0,robot);
-		m_wait(15);
-		i++;
-		}
-		else setMotors(0,0);
-		*/
-		//real code
-		/*
-		beginADC();
-		localizeRobot();
-		if(getTeam() == Team::UNKNOWN)
-		determineTeam();
-		if(batteryLow())
-		batteryLowCount++;
-		else
-		batteryLowCount = 0;
-		if(batteryLowCount >= 25)
-		sleep();
-		
-		while(!adcUpdateCompleted());
-		Pose location = getRobotPose();
-		findPuck(location);
-		//invert all poses depending on the team. Probably should be dealt with in the localization code itself
-		Pose desiredPose;
-		
-		//behavior code
 
-		//move towards desired pose if allowed by game state
-		*/
-	}
-}
 void qualify(){
 	Pose robot = getRobotPose();
 	goTo(Pose(110,0,0),robot);
@@ -229,7 +152,6 @@ void friendlies(){
 		if (true){
 			if(getRobotPose()==UNKNOWN_POSE){
 				setMotors(0,0);
-				setLED(LEDColor::PURPLE);
 			}
 			else{
 				
@@ -245,11 +167,11 @@ void friendlies(){
 					else{
 				*/		
 						if (first == 0) first++;
-						goToBackwards(Pose(0,0,0),getRobotPose());
+						//goToPosition(Pose(0,0,0),getRobotPose(),false);
 						//goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true);
 						//goAndKick(Pose(XMAX,0,-PI/2));
 						//goalieLogic();
-						//sPattern();
+						sPattern();
 						//setLED(LEDColor::RED);
 					}
 				//}

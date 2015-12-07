@@ -93,8 +93,5 @@
 // Change the state of the red on-board LED:
 // -----------------------------------------------------------------------------
 
-#define m_red(val)			set(DDRE,6); if(val==OFF){set(PORTE,6);}else if(val==ON){clear(PORTE,6);}else if(val==TOGGLE){toggle(PORTE,6);}
-// "val" must be either OFF, ON, or TOGGLE, as defined above
-// note that this takes over control of pin E6 and sets it to an output
 
 #endif

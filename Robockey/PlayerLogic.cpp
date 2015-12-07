@@ -13,7 +13,6 @@
 #include "Digital.h"
 #include "PlayerLogic.h"
 #include "Strategies.h"
-#include "miscellaneous.h"
 
 void goalieLogic();
 void leftCorner();
@@ -206,29 +205,26 @@ void center(){
 }
 
 void sPattern(){
-	//setLED(LEDColor::OFF);
+	setLED(LEDColor::OFF);
 	Pose currentPose = getRobotPose();
+	Pose targetPose;
 	if(currentPose.x<XMAX-4*ROBOT_RADIUS&&(point1==false||point2==false)){
 		if(!targetSet){
 			if(currentPose.y<=0 && point1 == false){
-				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMAX-3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+8*ROBOT_RADIUS,YMAX-3*ROBOT_RADIUS,0);
 				targetSet = true;
-				setLED(LEDColor::RED);
 			}
 			else if(point1 == false){
-				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMIN+3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+8*ROBOT_RADIUS,YMIN+3*ROBOT_RADIUS,0);
 				targetSet = true;
-				setLED(LEDColor::PURPLE);
 			}
 			else if (currentPose.y>=0&&point2 == false){
-				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMIN+3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+8*ROBOT_RADIUS,YMIN+3*ROBOT_RADIUS,0);
 				targetSet = true;
-				setLED(LEDColor::BLUE);
 			}
 			else if(point2==false){
-				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMAX-3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+8*ROBOT_RADIUS,YMAX-3*ROBOT_RADIUS,0);
 				targetSet = true;
-				setLED(LEDColor::OFF);
 			}
 			else{
 				targetPose = Pose(XMAX+5,0,0);
@@ -236,11 +232,9 @@ void sPattern(){
 		}
 		if(!atLocation(Location(targetPose.x,targetPose.y),Location(currentPose.x,currentPose.y))&&point1 == false){
 			goToPositionPuck(targetPose,currentPose);
-			m_red(1);
 		}
 		else {
 			point1 = true;
-			m_red(0);
 		}
 		if(point1 == true && !atLocation(Location(targetPose.x,targetPose.y),Location(currentPose.x,currentPose.y)) &&point2 == false){
 			goToPositionPuck(targetPose,currentPose);
