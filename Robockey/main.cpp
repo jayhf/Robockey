@@ -129,8 +129,8 @@ void friendlies(){
 	while(1){
 		updateLocalization();
 		updateWireless();
+		updateKick();
 		updateLED();
-		updateWireless();
 		switch(getThisRobot()){
 			case Robot::ROBOT1:
 			updatePlayer(Player::GOALIE);
