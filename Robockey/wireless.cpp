@@ -42,7 +42,7 @@ void sendNextMessage(){
 		case 1:
 			sendPuckPose();
 			break;
-		/*case 2:
+		case 2:
 			sendIR();
 			break;
 		case 3:
@@ -50,7 +50,7 @@ void sendNextMessage(){
 			break;
 		case 4:
 			sendAllyMessage(Ally::ALLY2);
-			break;*/
+			break;
 		default:
 			nextMessage = 0;
 			goto case_0;

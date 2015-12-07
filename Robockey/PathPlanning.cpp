@@ -109,8 +109,8 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 	angle deltaTheta = (current.o - targetTheta)/8;
 	int16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 	int16_t temp2 = abs(k2*deltaTheta) - k4*abs((deltaTheta - lastTheta));
-	uint16_t x = MIN(1200,MAX(0,temp1));
-	uint16_t y = MIN(1000,MAX(0,temp2));
+	uint16_t x = MIN(1600,MAX(0,temp1));
+	uint16_t y = MIN(1400,MAX(0,temp2));
 	uint8_t d1;
 	if(toPuck) d1 = 49+ROBOT_RADIUS*ROBOT_RADIUS;
 	else d1 = 16;
@@ -121,10 +121,7 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 		uint8_t packet[10]={0,0,x>>8,x&0xFF,y>>8,y&0xFF,r>>8,r&0xFF,q>>8,q&0xFF};
 		sendPacket(Robot::CONTROLLER,0x21,packet);
 		*/
-		if (abs(deltaTheta)>(PI-1000)/32&&abs(deltaTheta)<(PI+1000)/32){
-			faceAngle(current.o+1000,current);
-		}
-		else if(abs(deltaTheta)>PI/32){
+		if(abs(deltaTheta)>PI/32){
 			faceLocation(Location(target.x,target.y),current);
 		}
 		else{
@@ -143,15 +140,19 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 			lastDistance = distance;
 			lastTheta = deltaTheta;
 		}
+		setLED(LEDColor::RED);
 	}
 	else {
+		setLED(LEDColor::OFF);
 		if(toPuck){
 			
 			if (!facingHeading(getPuckHeading()+current.o,getRobotPose())){
 				faceAngle(getPuckHeading()+current.o,getRobotPose());
+				setLED(LEDColor::BLUE);
 			}
 			else{
 				setMotors(800,800);
+				setLED(LEDColor::PURPLE);
 			}
 		}
 		else{
@@ -248,11 +249,11 @@ bool facingLocation(Location target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	angle o = atan2b(-deltaY,-deltaX);
-	return current.o < o + 6500 && current.o > o - 6500;
+	return abs(current.o-o) < 6500;
 }
 
 bool facingHeading(angle target, Pose current){
-	return current.o - target < 6500 && current.o - target > -6500;
+	return abs(current.o - target) < 6500;
 }
 
 void faceLocation(Location target, Pose current){

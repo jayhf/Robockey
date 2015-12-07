@@ -65,7 +65,7 @@ class GoalieStrategy : public Strategy{
 		
 	}
 
-	uint8_t run() override{
+	uint8_t run(uint8_t* allyStrategies) override{
 		needHelp = false;
 		if(puckVisible()){
 			Location puck = getPuckLocation();
@@ -106,10 +106,6 @@ class GoalieStrategy : public Strategy{
 			}
 		}
 		return getID();
-	}
-	
-	void getSuggestedAllyStrategies(uint8_t *strategyIDs){
-		
 	}
 	
 	uint8_t getPriority(){
@@ -253,7 +249,7 @@ void followWall(){
 			else{
 				faceAngle(PI/6,getRobotPose());
 			}
-			setMotors(900,900); //full steam ahead
+			setMotors(1600,1600); //full steam ahead
 		}
 	}
 	else{
