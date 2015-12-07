@@ -72,7 +72,7 @@ class GoalieStrategy : public Strategy{
 			//predictPuck(getTime()-getPuckUpdateTime());
 			if (puck != UNKNOWN_LOCATION){
 				if(puck.x < XMIN+5*ROBOT_RADIUS+PUCK_RADIUS){ //if puck closer than 3/4
-					goToPuck(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
+					goToPosition(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true);
 					//communicate to other robot to fill in
 					needHelp = true;
 				}
@@ -286,7 +286,7 @@ void bluffKick(bool corner){
 		}
 	}
 	else{
-		goToPuck(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
+		goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),false);
 	}
 }
 
@@ -296,7 +296,7 @@ void goAndKick(Pose target){
 		goToPositionPuck(target, getRobotPose());
 	}
 	else{
-		goToPuck(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
+		goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),false);
 	}
 }
 
@@ -358,7 +358,7 @@ void defenseLogic(){
 					scoreLogic();
 				}
 				else{
-					goToPuck(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
+					goToPosition(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true);
 				}
 			}
 			else goToPosition(Pose(XMIN+4*ROBOT_RADIUS,25,0),getRobotPose(),false);
@@ -377,7 +377,7 @@ int rando = 0;
 void scoreLogic(){
 	if(puckVisible()&& getPuckLocation()!=UNKNOWN_LOCATION){
 		if(!hasPuck()){
-			goToPuck(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
+			goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),false);
 		}
 		else{
 			
