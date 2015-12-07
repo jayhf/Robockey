@@ -9,6 +9,7 @@ void sendPacket(Robot robot, uint8_t *packet);
 void sendPacket(Robot robot, uint8_t messageID, uint8_t *packet);
 void sendRobotLocation();
 void sendIR();
+void sendIR2();
 void sendBattery();
 void sendPuckPose();
 void updateWireless();

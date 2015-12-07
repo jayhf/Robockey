@@ -274,7 +274,7 @@ void faceLocation(Location target, Pose current){
 		if(current.o - o > 0){
 			setMotors(-x,x);
 		}
-		else if(current.o - o < 0){
+		else{
 			setMotors(x,-x);
 		}
 		lastTheta = deltaTheta;

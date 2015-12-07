@@ -46,11 +46,14 @@ void sendNextMessage(){
 			sendIR();
 			break;
 		case 3:
+			sendIR2();
+			break;
+		/*case 4:
 			sendAllyMessage(Ally::ALLY1);
 			break;
-		case 4:
+		case 5:
 			sendAllyMessage(Ally::ALLY2);
-			break;
+			break;*/
 		default:
 			nextMessage = 0;
 			goto case_0;
@@ -108,8 +111,13 @@ void sendIR(){
 	for(int i=0;i<8;i++)
 		buffer[i+2] = (irData[i]>>2)&0xFF;
 	sendPacket(Robot::CONTROLLER, 0x11, buffer);
+}
+
+void sendIR2(){
+	uint8_t buffer[10];
+	uint16_t *irData = getIRData();
 	for(int i=0;i<8;i++)
-		buffer[i+2] = (irData[i+8]>>2)&0xFF;
+	buffer[i+2] = (irData[i+8]>>2)&0xFF;
 	sendPacket(Robot::CONTROLLER, 0x12, buffer);
 }
 

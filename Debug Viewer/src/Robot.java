@@ -382,11 +382,15 @@ public class Robot {
 					lastIRData[i+8]=((0xFF&buffer.get())<<2);
 					//System.out.print(lastIRData[i+8]+",");
 				}
-				int max = 0;
-				for(int i=0;i<16;i++)
-					if(max < lastIRData[i])
+				int max = 0, maxIndex = 0;
+				for(int i=0;i<16;i++){
+					if(max < lastIRData[i]){
+						maxIndex = i;
 						max = lastIRData[i];
-				System.out.print(v= v*.95+.05*max);
+					}
+				}
+				int max2 = Math.max(lastIRData[(maxIndex+15)%16], lastIRData[(maxIndex+1)%16]);
+				System.out.print(v= v*.95+.05*(max+max2));
 				System.out.print("]\n");
 				break;
 			case 0x13:
