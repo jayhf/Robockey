@@ -122,19 +122,19 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 		sendPacket(Robot::CONTROLLER,0x21,packet);
 		*/
 		if(abs(deltaTheta)>PI/32){
-			faceLocation(Location(target.x,target.y),current);
+			//faceLocation(Location(target.x,target.y),current);
 		}
 		else{
 			if (deltaTheta < 650 && deltaTheta > -650){ //if within 0.1 radians ~5* of target angle,
 
-				setMotors(x,x); //forwards
+				//setMotors(x,x); //forwards
 			}
 			else {
 				if(deltaTheta >0) {
-					setMotors(x-y,x); //spin cw, forwards
+				//	setMotors(x-y,x); //spin cw, forwards
 				}
 				else {
-					setMotors(x,x-y); //spin ccw, forwards
+				//	setMotors(x,x-y); //spin ccw, forwards
 				}
 			}
 			lastDistance = distance;
@@ -147,11 +147,11 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 		if(toPuck){
 			
 			if (!facingHeading(getPuckHeading()+current.o,getRobotPose())){
-				faceAngle(getPuckHeading()+current.o,getRobotPose());
+			//	faceAngle(getPuckHeading()+current.o,getRobotPose());
 				setLED(LEDColor::BLUE);
 			}
 			else{
-				setMotors(800,800);
+			//	setMotors(800,800);
 				setLED(LEDColor::PURPLE);
 			}
 		}
