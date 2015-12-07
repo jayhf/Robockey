@@ -13,6 +13,7 @@
 #include "Digital.h"
 #include "PlayerLogic.h"
 #include "Strategies.h"
+#include "miscellaneous.h"
 
 void goalieLogic();
 void leftCorner();
@@ -160,7 +161,7 @@ class GoalieStrategy : public Strategy{
 	
 };
 
-void leftCorner(){
+void rightCorner(){
 	Pose currentPose = getRobotPose();
 	/*if (currentPose.x < XMAX - 3*ROBOT_RADIUS || currentPose.y < YMAX - 3*ROBOT_RADIUS) { //if not in corner go to corner
 	setLED(LEDColor::RED);
@@ -177,11 +178,11 @@ void leftCorner(){
 	}
 	}*/
 
-	goToPositionPuck(Pose(XMAX+10,YMIN/2+2*ROBOT_RADIUS,0),currentPose); //charge into goal
+	goToPosition(Pose(XMAX+5,YMIN/2+2*ROBOT_RADIUS,0),currentPose,false); //charge into goal
 
 }
 
-void rightCorner(){
+void leftCorner(){
 	Pose currentPose = getRobotPose();
 	/*if (currentPose.x < XMAX - 3*ROBOT_RADIUS || currentPose.y > YMIN + 3*ROBOT_RADIUS) {
 	goToPositionPuck(Pose(XMAX - 3*ROBOT_RADIUS, YMIN + 3*ROBOT_RADIUS, -PI/3), currentPose);
@@ -196,44 +197,50 @@ void rightCorner(){
 	}
 	}*/
 
-	goToPositionPuck(Pose(XMAX+10,YMAX/2-2*ROBOT_RADIUS,0),currentPose); //charge into goal
+	goToPositionPuck(Pose(XMAX+5,YMAX/2-2*ROBOT_RADIUS,0),currentPose); //charge into goal
 
 }
 void center(){
 	Pose currentPose = getRobotPose();
-	goToPositionPuck(Pose(XMAX+10,0,0),currentPose);
+	goToPositionPuck(Pose(XMAX+5,0,0),currentPose);
 }
 
 void sPattern(){
+	//setLED(LEDColor::OFF);
 	Pose currentPose = getRobotPose();
-	Pose targetPose;
 	if(currentPose.x<XMAX-4*ROBOT_RADIUS&&(point1==false||point2==false)){
 		if(!targetSet){
 			if(currentPose.y<=0 && point1 == false){
-				targetPose = Pose(currentPose.x+8*ROBOT_RADIUS,YMAX-3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMAX-3*ROBOT_RADIUS,0);
 				targetSet = true;
+				setLED(LEDColor::RED);
 			}
 			else if(point1 == false){
-				targetPose = Pose(currentPose.x+8*ROBOT_RADIUS,YMIN+3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMIN+3*ROBOT_RADIUS,0);
 				targetSet = true;
+				setLED(LEDColor::PURPLE);
 			}
 			else if (currentPose.y>=0&&point2 == false){
-				targetPose = Pose(currentPose.x+8*ROBOT_RADIUS,YMIN+3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMIN+3*ROBOT_RADIUS,0);
 				targetSet = true;
+				setLED(LEDColor::BLUE);
 			}
 			else if(point2==false){
-				targetPose = Pose(currentPose.x+8*ROBOT_RADIUS,YMAX-3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMAX-3*ROBOT_RADIUS,0);
 				targetSet = true;
+				setLED(LEDColor::OFF);
 			}
 			else{
-				targetPose = Pose(XMAX+10,0,0);
+				targetPose = Pose(XMAX+5,0,0);
 			}
 		}
 		if(!atLocation(Location(targetPose.x,targetPose.y),Location(currentPose.x,currentPose.y))&&point1 == false){
 			goToPositionPuck(targetPose,currentPose);
+			m_red(1);
 		}
 		else {
 			point1 = true;
+			m_red(0);
 		}
 		if(point1 == true && !atLocation(Location(targetPose.x,targetPose.y),Location(currentPose.x,currentPose.y)) &&point2 == false){
 			goToPositionPuck(targetPose,currentPose);
@@ -242,7 +249,7 @@ void sPattern(){
 			point2 = true;
 		}
 	}
-	else goToPositionPuck(Pose(XMAX+10,0,0),currentPose);
+	else goToPositionPuck(Pose(XMAX+5,0,0),currentPose);
 }
 
 

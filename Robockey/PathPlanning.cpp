@@ -35,11 +35,11 @@ uint16_t k4 = 55; //angle derivative
 void goToBackwards(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
-	int16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
+	uint16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
 	if(distance>16){ //if not within 5 pixels in both x and y
 		angle targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
 		angle offsetTheta = (current.o - targetTheta)/8;
-		int16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
+		uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 		int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
 		uint16_t x = MIN(1400,MAX(0,temp1));
 		uint16_t y = MIN(1200,MAX(0,temp2));
@@ -107,10 +107,10 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 	uint16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
 	angle targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
 	angle offsetTheta = (current.o - targetTheta)/8;
-	int16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
+	uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 	int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
-	uint16_t x = MIN(1400,MAX(0,temp1));
-	uint16_t y = MIN(1200,MAX(0,temp2));
+	uint16_t x = MIN(1600,MAX(0,temp1));
+	uint16_t y = MIN(1400,MAX(0,temp2));
 	uint16_t d1;
 	if(toPuck) d1 = (ROBOT_RADIUS+PUCK_RADIUS+10)*(ROBOT_RADIUS+PUCK_RADIUS+10);
 	else d1 = 12;
@@ -137,7 +137,7 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 					setMotors(x-y,x); //spin cw, forwards
 				}
 				else {
-					setMotors(x,x-y); //spin ccw, forwards
+					setMotors(MIN(x,1400),MIN(x-y,1200)); //spin ccw, forwards
 				}
 			}
 			lastDistance = distance;
@@ -206,14 +206,14 @@ void goToPuck(Pose target, Pose current){
 void goToPositionPuck(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
-	int16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
+	uint16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
 	if(distance>16){ //if not within 5 pixels in both x and y
 		angle targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
 		angle offsetTheta = (current.o - targetTheta)/8;
-		int16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
+		uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 		int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
 		uint16_t x = MIN(1400,MAX(0,temp1));
-		uint16_t y = MIN(600,MAX(0,temp2));
+		uint16_t y = MIN(500,MAX(0,temp2));
 		
 		/*
 		uint16_t r = k1*distance;
@@ -420,6 +420,6 @@ uint8_t findPath(uint8_t *result, Location *vertices, uint8_t vertexCount, Locat
 bool atLocation(Location target, Location current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
-	int16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
+	uint16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
 	return distance < 16;
 }
