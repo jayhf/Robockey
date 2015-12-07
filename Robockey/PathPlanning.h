@@ -27,3 +27,4 @@ bool checkIntersection(Location p1, Location p2, uint8_t radius);
 //Start is the first vertex and end is the second.
 uint8_t findPath(uint8_t *result, Location *vertices, uint8_t vertexCount, Location *enemies, Pose *allies);
 bool atLocation(Location target, Location current);
+bool atLocationWide(Location target, Location current);

@@ -208,48 +208,48 @@ void center(){
 void sPattern(){
 	setLED(LEDColor::OFF);
 	Pose currentPose = getRobotPose();
-	if(currentPose.x<XMAX-4*ROBOT_RADIUS&&(point1==false||point2==false)){
+	if(currentPose.x<XMAX-6*ROBOT_RADIUS&&(point1==false||point2==false)){
 		if(!targetSet){
 			if(currentPose.y<=0 && point1 == false){
-				targetPose = Pose(currentPose.x+4*ROBOT_RADIUS,YMAX-3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMAX-4*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
 			else if(point1 == false){
-				targetPose = Pose(currentPose.x+4*ROBOT_RADIUS,YMIN+3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMIN+4*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
 			else if (currentPose.y>=0&&point2 == false){
-				targetPose = Pose(currentPose.x+4*ROBOT_RADIUS,YMIN+3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMIN+4*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
 			else if(point2==false){
-				targetPose = Pose(currentPose.x+4*ROBOT_RADIUS,YMAX-3*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMAX-4*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
 			else{
 				targetPose = Pose(XMAX+5,0,0);
+				targetSet = true;
 			}
 		}
-		if(!atLocation(Location(targetPose.x,targetPose.y),Location(currentPose.x,currentPose.y))&&point1 == false){
+		if(!atLocationWide(Location(targetPose.x,targetPose.y),Location(currentPose.x,currentPose.y))){
 			goToPositionPuck(targetPose,currentPose);
 			
 		}
-		else {
+		else if (point1==false){
 			point1 = true;
-			
+			targetSet = false;
 		}
-		if(point1 == true && !atLocation(Location(targetPose.x,targetPose.y),Location(currentPose.x,currentPose.y)) &&point2 == false){
-			goToPositionPuck(targetPose,currentPose);
-			
-		}
-		else {
+		else if (point2==false){
 			point2 = true;
-			
+			targetSet = false;
+		}
+		else{
+			targetPose = Pose(XMAX+5,0,0);
 		}
 	}
 	else goToPositionPuck(Pose(XMAX+5,0,0),currentPose);
-		//uint8_t packet[10]={0,0,targetPose.x,targetPose.y,targetPose.o>>8,targetPose.o&0xFF,0,0,0,0};
-		//sendPacket(Robot::CONTROLLER,0x22,packet);
+		uint8_t packet[10]={0,0,targetPose.x,targetPose.y,targetPose.o>>8,targetPose.o&0xFF,0,0,0,0};
+		sendPacket(Robot::CONTROLLER,0x22,packet);
 		
 }
 

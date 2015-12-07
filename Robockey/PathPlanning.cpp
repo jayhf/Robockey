@@ -36,32 +36,32 @@ void goToBackwards(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	uint16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
+	angle targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
+	angle offsetTheta = (current.o - targetTheta)/8;
+	uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
+	int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
+	uint16_t x = MIN(1400,MAX(0,temp1));
+	uint16_t y = MIN(1200,MAX(0,temp2));
 	if(distance>12){ //if not within 5 pixels in both x and y
-		angle targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
-		angle offsetTheta = (current.o - targetTheta)/8;
-		uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
-		int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
-		uint16_t x = MIN(1400,MAX(0,temp1));
-		uint16_t y = MIN(1200,MAX(0,temp2));
-		
-		if (offsetTheta < 650 + PI/8 && offsetTheta > -650 + PI/8){ //if within 0.1 radians ~5* of target angle,
-			setMotors(-x,-x); //forwards
+
+		if(abs(offsetTheta)>PI/32){
+			faceLocation(Location(target.x,target.y),current,targetTheta);
 		}
-		else {
-			if(abs(offsetTheta)>PI/16+PI){
-				faceLocation(Location(target.x,target.y),current,targetTheta);
+		else{
+			if ((uint16_t) abs(offsetTheta)<650){ //if within 0.1 radians ~5* of target angle,
+				setMotors(-x,-x); //forwards
 			}
-			else{
+			else {
 				if(offsetTheta >0) {
-					setMotors(-x+y,-x); //spin cw, forwards
+					setMotors(x-y,x); //spin cw, forwards
 				}
 				else {
-					setMotors(-x,-x+y); //spin ccw, forwards
+					setMotors(x,x-y); //spin ccw, forwards
 				}
 			}
+			lastDistance = distance;
+			lastTheta = offsetTheta;
 		}
-		lastDistance = distance;
-		lastTheta = offsetTheta;
 	}
 	else {
 		setMotors(0,0);
@@ -184,36 +184,36 @@ void goToPositionSpin(Pose target, Pose current){
 }
 
 void goToPuck(Pose target, Pose current){
-		if(target.x > XMIN/2+ROBOT_RADIUS){
+	if(target.x > XMIN/2+ROBOT_RADIUS){
+		goToPosition(target,current,true);
+	}
+	else{
+		if(target.x>current.x+2*ROBOT_RADIUS){
 			goToPosition(target,current,true);
 		}
 		else{
-			if(target.x>current.x+2*ROBOT_RADIUS){
-				goToPosition(target,current,true);
+			if (target.y>0){
+				goToPosition(Pose(MAX(target.x-2*ROBOT_RADIUS,XMIN+2*ROBOT_RADIUS),target.y-2*ROBOT_RADIUS,target.o),current,true);
 			}
+			
 			else{
-				if (target.y>0){
-					goToPosition(Pose(MAX(target.x-2*ROBOT_RADIUS,XMIN+2*ROBOT_RADIUS),target.y-2*ROBOT_RADIUS,target.o),current,true);
-				}
-				
-				else{
-					goToPosition(Pose(MAX(target.x-2*ROBOT_RADIUS,XMIN+2*ROBOT_RADIUS),target.y+2*ROBOT_RADIUS,target.o),current,true);
-				}
+				goToPosition(Pose(MAX(target.x-2*ROBOT_RADIUS,XMIN+2*ROBOT_RADIUS),target.y+2*ROBOT_RADIUS,target.o),current,true);
 			}
 		}
+	}
 }
 
 void goToPositionPuck(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	uint16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
-	if(distance>16){ //if not within 5 pixels in both x and y
+	if(distance>12){ //if not within 5 pixels in both x and y
 		angle targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
 		angle offsetTheta = (current.o - targetTheta)/8;
 		uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 		int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
-		uint16_t x = MIN(600,MAX(0,temp1));
-		uint16_t y = MIN(300,MAX(0,temp2));
+		uint16_t x = MIN(800,MAX(0,temp1));
+		uint16_t y = MIN(500,MAX(0,temp2));
 		
 		/*
 		uint16_t r = k1*distance;
@@ -422,4 +422,10 @@ bool atLocation(Location target, Location current){
 	int16_t deltaY = current.y - target.y;
 	uint16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
 	return distance < 16;
+}
+bool atLocationWide(Location target, Location current){
+	int16_t deltaX = current.x - target.x;
+	int16_t deltaY = current.y - target.y;
+	uint16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
+	return distance < 500;
 }
