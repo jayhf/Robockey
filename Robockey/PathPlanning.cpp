@@ -30,7 +30,7 @@ Pose lastPose = getRobotPose();
 uint16_t k1 = 2; //distance proportional
 uint16_t k2 = 1; //angle proportional
 uint16_t k3 = 0; //distance derivative
-uint16_t k4 = 32; //angle derivative
+uint16_t k4 = 55; //angle derivative
 
 void goToBackwards(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
@@ -38,11 +38,11 @@ void goToBackwards(Pose target, Pose current){
 	int16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
 	if(distance>16){ //if not within 5 pixels in both x and y
 		int16_t targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
-		angle deltaTheta = (current.o - targetTheta)/4;
+		angle deltaTheta = (current.o - targetTheta)/8;
 		int16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 		int16_t temp2 = abs(k2*deltaTheta) - k4*abs((deltaTheta - lastTheta));
-		uint16_t x = MIN(1600,MAX(0,temp1));
-		uint16_t y = MIN(1400,MAX(0,temp2));
+		uint16_t x = MIN(1400,MAX(0,temp1));
+		uint16_t y = MIN(1200,MAX(0,temp2));
 		
 		if (deltaTheta < 1375 + PI && deltaTheta > -1375 + PI){ //if within 0.1 radians ~5* of target angle,
 			setMotors(-x,-x); //forwards
@@ -106,7 +106,7 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 	int16_t deltaY = current.y - target.y;
 	uint16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
 	int16_t targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
-	angle deltaTheta = (current.o - targetTheta)/4;
+	angle deltaTheta = (current.o - targetTheta)/8;
 	int16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 	int16_t temp2 = abs(k2*deltaTheta) - k4*abs((deltaTheta - lastTheta));
 	uint16_t x = MIN(1200,MAX(0,temp1));
@@ -121,11 +121,14 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 		uint8_t packet[10]={0,0,x>>8,x&0xFF,y>>8,y&0xFF,r>>8,r&0xFF,q>>8,q&0xFF};
 		sendPacket(Robot::CONTROLLER,0x21,packet);
 		*/
-		if(abs(deltaTheta)>PI/16){
+		if (abs(deltaTheta)>(PI-1000)/32&&abs(deltaTheta)<(PI+1000)/32){
+			faceAngle(current.o+1000,current);
+		}
+		else if(abs(deltaTheta)>PI/32){
 			faceLocation(Location(target.x,target.y),current);
 		}
 		else{
-			if (deltaTheta < 1375 && deltaTheta > -1375){ //if within 0.1 radians ~5* of target angle,
+			if (deltaTheta < 650 && deltaTheta > -650){ //if within 0.1 radians ~5* of target angle,
 
 				setMotors(x,x); //forwards
 			}
@@ -205,11 +208,11 @@ void goToPositionPuck(Pose target, Pose current){
 	int16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
 	if(distance>16){ //if not within 5 pixels in both x and y
 		int16_t targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
-		angle deltaTheta = (current.o - targetTheta)/4;
+		angle deltaTheta = (current.o - targetTheta)/8;
 		int16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 		int16_t temp2 = abs(k2*deltaTheta) - k4*abs((deltaTheta - lastTheta));
-		uint16_t x = MIN(900,MAX(0,temp1));
-		uint16_t y = MIN(300,MAX(0,temp2));
+		uint16_t x = MIN(1400,MAX(0,temp1));
+		uint16_t y = MIN(600,MAX(0,temp2));
 		
 		/*
 		uint16_t r = k1*distance;
@@ -257,11 +260,11 @@ void faceLocation(Location target, Pose current){
 		int16_t deltaX = current.x - target.x;
 		int16_t deltaY = current.y - target.y;
 		angle o = atan2b(-deltaY,-deltaX);
-		angle deltaTheta = (current.o - o)/4;
+		angle deltaTheta = (current.o - o)/8;
 		//uint8_t buffer[10] = {0,0,(current.o-o)>>8,(current.o-o)&0xFF,(current.o-lastPose.o)>>8,(current.o-lastPose.o)&0xFF,0,0,0,0};
 		//sendPacket(Robot::CONTROLLER,0x21,buffer);
 		int16_t temp1=k2 * abs(deltaTheta) - k4 * abs(deltaTheta - lastTheta);
-		uint16_t x = MAX(0,MIN(1000,temp1));
+		uint16_t x = MAX(0,MIN(1200,temp1));
 		/*uint16_t r = k2 * abs(deltaTheta);
 		uint16_t q = k4 * abs(deltaTheta - lastTheta);
 		uint16_t y = k2 * abs(deltaTheta) - k4 * abs(deltaTheta - lastTheta);
@@ -282,7 +285,7 @@ void faceLocation(Location target, Pose current){
 }
 
 void faceAngle(angle o,Pose current){
-	int16_t temp1 = k2 * abs((current.o - o)) - k4 * abs(current.o - lastPose.o);
+	int16_t temp1 = k2 * abs((current.o - o)/8) - k4 * abs(current.o - lastPose.o);
 	uint16_t x = MAX(0,MIN(1200,temp1));
 	
 	if(!facingHeading(o,current)){
