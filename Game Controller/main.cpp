@@ -6,7 +6,7 @@
  */ 
 
 #define F_CPU 16000000
-#define CONTROLLER_ADDR 84
+#define CONTROLLER_ADDR 186
 #define R1_ADDR 0
 #define R2_ADDR 1
 #define R3_ADDR 2
