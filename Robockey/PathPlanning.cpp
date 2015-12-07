@@ -36,7 +36,7 @@ void goToBackwards(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	uint16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
-	if(distance>16){ //if not within 5 pixels in both x and y
+	if(distance>12){ //if not within 5 pixels in both x and y
 		angle targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
 		angle offsetTheta = (current.o - targetTheta)/8;
 		uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
@@ -44,7 +44,7 @@ void goToBackwards(Pose target, Pose current){
 		uint16_t x = MIN(1400,MAX(0,temp1));
 		uint16_t y = MIN(1200,MAX(0,temp2));
 		
-		if (offsetTheta < 1375 + PI && offsetTheta > -1375 + PI){ //if within 0.1 radians ~5* of target angle,
+		if (offsetTheta < 650 + PI/8 && offsetTheta > -650 + PI/8){ //if within 0.1 radians ~5* of target angle,
 			setMotors(-x,-x); //forwards
 		}
 		else {
@@ -109,8 +109,8 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 	angle offsetTheta = (current.o - targetTheta)/8;
 	uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 	int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
-	uint16_t x = MIN(1600,MAX(0,temp1));
-	uint16_t y = MIN(1400,MAX(0,temp2));
+	uint16_t x = MIN(1400,MAX(0,temp1));
+	uint16_t y = MIN(1200,MAX(0,temp2));
 	uint16_t d1;
 	if(toPuck) d1 = (ROBOT_RADIUS+PUCK_RADIUS+10)*(ROBOT_RADIUS+PUCK_RADIUS+10);
 	else d1 = 12;
@@ -137,7 +137,7 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 					setMotors(x-y,x); //spin cw, forwards
 				}
 				else {
-					setMotors(MIN(x,1400),MIN(x-y,1200)); //spin ccw, forwards
+					setMotors(x,x-y); //spin ccw, forwards
 				}
 			}
 			lastDistance = distance;

@@ -229,6 +229,7 @@ void friendlies(){
 		if (true){
 			if(getRobotPose()==UNKNOWN_POSE){
 				setMotors(0,0);
+				setLED(LEDColor::PURPLE);
 			}
 			else{
 				
@@ -244,11 +245,11 @@ void friendlies(){
 					else{
 				*/		
 						if (first == 0) first++;
-						//goToPosition(Pose(-100,0,0),getRobotPose(),false);
+						goToBackwards(Pose(0,0,0),getRobotPose());
 						//goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true);
 						//goAndKick(Pose(XMAX,0,-PI/2));
 						//goalieLogic();
-						sPattern();
+						//sPattern();
 						//setLED(LEDColor::RED);
 					}
 				//}
