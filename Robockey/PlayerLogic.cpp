@@ -383,13 +383,13 @@ void bluffKick(bool corner){
 }
 
 void goAndKick(Pose target){
-	//if(hasPuck()){
-	tryKick();
-	goToPositionPuck(target, getRobotPose());
-	/*}
+	if(hasPuck()){
+		tryKick();
+		goToPositionPuck(target, getRobotPose());
+	}
 	else{
-	goToPuck(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
-	}*/
+		goToPuck(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
+	}
 }
 
 //Should be called in the move with puck
