@@ -291,31 +291,34 @@ void bluffKick(bool corner){
 }
 
 void goAndKick(Pose target){
-	if(hasPuck()){
+	//if(hasPuck()){
 		tryKick();
 		goToPositionPuck(target, getRobotPose());
-	}
+	/*}
 	else{
 		goToPuck(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
-	}
+	}*/
 }
 
 //Should be called in the move with puck
 void tryKick(){
 	Pose currentPose = getRobotPose();
 	uint8_t dMax = ROBOT_RADIUS + 40;
+	uint8_t dXMax = ROBOT_RADIUS + PUCK_RADIUS + 15;
 	uint8_t dX = XMAX - currentPose.x;
-	if(dX <= dMax){
+	if(dX <= dMax){		
 		float dL = dX/cosb(currentPose.o);
-		if(dL <= dMax){
+		if(dL <= dMax){			
 			int16_t dY = dL * sinb(currentPose.o);
 			int16_t goalY = currentPose.y + dY;
-			if((goalY <= (YMAX/2 - PUCK_RADIUS)) && (goalY >= (YMIN/2 + PUCK_RADIUS))){
+			int yMax = (YMAX/2) - 5;
+			int yMin = (YMIN/2) + 5;
+			if((goalY <= yMax - PUCK_RADIUS) && (goalY >= yMin + PUCK_RADIUS)){
 				Location target = Location(currentPose.x, goalY);
-				if(currentPose.y > YMAX/2 - PUCK_RADIUS || currentPose.y < YMIN/2 + PUCK_RADIUS){
-					Location corner = Location(XMAX,YMAX/2);
+				if(currentPose.y > yMax - PUCK_RADIUS || currentPose.y < yMin + PUCK_RADIUS){
+					Location corner = Location(XMAX,yMax);
 					if(currentPose.y < 0){
-						corner = Location(XMAX,YMIN/2);
+						corner = Location(XMAX,yMin);
 					}
 					if(!circleIntersectsSegment(currentPose.getLocation(),Location(XMAX, goalY), corner, PUCK_RADIUS)){
 						startKick();
@@ -324,7 +327,6 @@ void tryKick(){
 				else{
 					startKick();
 				}
-				startKick();
 			}
 		}
 	}
