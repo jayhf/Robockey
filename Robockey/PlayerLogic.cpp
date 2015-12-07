@@ -23,6 +23,7 @@ void followWall();
 void charge();
 void kick();
 bool helpRequested = false;
+bool needHelp = false;
 bool inCorner = false;
 Player player = Player::NONE;
 Location lastPuck = getPuckLocation();
@@ -57,6 +58,47 @@ void playerLogic(Player player){
 	}
 }
 
+void goalieLogic(){
+	needHelp = false;
+	if(puckVisible()){
+		Location puck = getPuckLocation();
+		//predictPuck(getTime()-getPuckUpdateTime());
+		if (puck != UNKNOWN_LOCATION){
+			if(puck.x < XMIN+5*ROBOT_RADIUS+PUCK_RADIUS){ //if puck closer than 3/4
+				goToPuck(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
+				//communicate to other robot to fill in
+				needHelp = true;
+			}
+			else if (puck.x < 0) { //if puck closer than half field
+				int16_t yPos;
+				if (puck.y >= 0) {
+					yPos = MIN(YMAX/2-ROBOT_RADIUS,puck.y);
+				}
+				else{
+					yPos = MAX(YMIN/2+ROBOT_RADIUS,puck.y);
+				}
+				if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
+					faceLocation(puck, getRobotPose());
+				}
+				else{
+					goToPosition(Pose(XMIN + 3*ROBOT_RADIUS, yPos,getPuckHeading()+getRobotPose().o),getRobotPose(),false);
+				}
+			}
+			else {
+				if(getRobotPose().x<XMIN+5*ROBOT_RADIUS&&getRobotPose().y<2*ROBOT_RADIUS&&getRobotPose().y>-2*ROBOT_RADIUS){
+					faceLocation(puck, getRobotPose());
+				}
+				else{
+					goToPosition(Pose(XMIN+4*ROBOT_RADIUS,0,0), getRobotPose(),false);
+				}
+			}
+		}
+		else{
+			goToPosition(Pose(XMIN+3*ROBOT_RADIUS,0,0),getRobotPose(),false);
+			if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().x>XMIN+2*ROBOT_RADIUS) faceAngle(0,getRobotPose());
+		}
+	}
+}
 class GoalieStrategy : public Strategy{
 	private:
 	bool needHelp = false;
@@ -276,9 +318,9 @@ void bluffKick(bool corner){
 			goToPositionPuck(Pose(xBluff, -yTarget, -PI/2), getRobotPose());
 		}
 		else{
-			if(facingLocation(Location(XMAX, yTarget),getRobotPose())){	
+			if(facingLocation(Location(XMAX, yTarget),getRobotPose())){
 				tryKick();
-				goToPositionPuck(Pose(XMAX,yTarget,-PI/2),getRobotPose());	
+				goToPositionPuck(Pose(XMAX,yTarget,-PI/2),getRobotPose());
 			}
 			else{
 				faceLocation(Location(XMAX, yTarget),getRobotPose());
@@ -292,11 +334,11 @@ void bluffKick(bool corner){
 
 void goAndKick(Pose target){
 	//if(hasPuck()){
-		tryKick();
-		goToPositionPuck(target, getRobotPose());
+	tryKick();
+	goToPositionPuck(target, getRobotPose());
 	/*}
 	else{
-		goToPuck(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
+	goToPuck(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
 	}*/
 }
 
@@ -306,9 +348,9 @@ void tryKick(){
 	uint8_t dMax = ROBOT_RADIUS + 40;
 	uint8_t dXMax = ROBOT_RADIUS + PUCK_RADIUS + 15;
 	uint8_t dX = XMAX - currentPose.x;
-	if(dX <= dXMax){		
+	if(dX <= dXMax){
 		float dL = dX/cosb(currentPose.o);
-		if(dL <= dMax){			
+		if(dL <= dMax){
 			int16_t dY = dL * sinb(currentPose.o);
 			int16_t goalY = currentPose.y + dY;
 			int yMax = (YMAX/2) - 5;
