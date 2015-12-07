@@ -306,7 +306,7 @@ void tryKick(){
 	uint8_t dMax = ROBOT_RADIUS + 40;
 	uint8_t dXMax = ROBOT_RADIUS + PUCK_RADIUS + 15;
 	uint8_t dX = XMAX - currentPose.x;
-	if(dX <= dMax){		
+	if(dX <= dXMax){		
 		float dL = dX/cosb(currentPose.o);
 		if(dL <= dMax){			
 			int16_t dY = dL * sinb(currentPose.o);
