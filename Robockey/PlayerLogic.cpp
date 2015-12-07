@@ -70,7 +70,12 @@ void goalieLogic(){
 		//predictPuck(getTime()-getPuckUpdateTime());
 		if (puck != UNKNOWN_LOCATION){
 			if(puck.x < XMIN+5*ROBOT_RADIUS+PUCK_RADIUS){ //if puck closer than 3/4
-				goToPositionSpin(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose());
+				if(puck.x<getRobotPose().x-2*ROBOT_RADIUS){
+					goToPositionSpin(Pose(XMIN+ROBOT_RADIUS,0,0),getRobotPose());
+				}
+				else{
+				goToPosition(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true);
+				}
 				//communicate to other robot to fill in
 				needHelp = true;
 			}
@@ -99,9 +104,12 @@ void goalieLogic(){
 			}
 		}
 		else{
-			goToPosition(Pose(XMIN+3*ROBOT_RADIUS,0,0),getRobotPose(),false);
+			goToPositionSpin(Pose(XMIN+3*ROBOT_RADIUS,0,0),getRobotPose());
 			if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().x>XMIN+2*ROBOT_RADIUS) faceAngle(0,getRobotPose());
 		}
+	}
+	else{
+		goToPosition(Pose(XMIN+3*ROBOT_RADIUS,0,0),getRobotPose(),false);
 	}
 }
 class GoalieStrategy : public Strategy{
@@ -248,9 +256,9 @@ void sPattern(){
 		}
 	}
 	else goToPositionPuck(Pose(XMAX+5,0,0),currentPose);
-		uint8_t packet[10]={0,0,targetPose.x,targetPose.y,targetPose.o>>8,targetPose.o&0xFF,0,0,0,0};
-		sendPacket(Robot::CONTROLLER,0x22,packet);
-		
+	uint8_t packet[10]={0,0,targetPose.x,targetPose.y,targetPose.o>>8,targetPose.o&0xFF,0,0,0,0};
+	sendPacket(Robot::CONTROLLER,0x22,packet);
+	
 }
 
 
