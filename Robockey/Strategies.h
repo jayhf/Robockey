@@ -10,6 +10,19 @@
 #define PICK_SOMETHING 0xFE
 #define UNKNOWN_STRATEGY 0xFD
 
+#define BLUFF_KICK_ID 2
+#define GOAL_CORNER_ID 3
+#define GOAL_MIDDLE_ID 4
+#define GOAL_WALL_ID 5
+
+#define SWEEP_ID 6
+#define BLOCK_ID 7
+#define PUSH_ID 8
+
+#define DEFENSE_ID 9
+
+#define GOALIE_ID 10
+
 class Strategy{
 public:
 	Strategy(StrategyType type, uint8_t id);
