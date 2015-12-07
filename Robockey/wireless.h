@@ -22,3 +22,4 @@ bool allyUpToDate(Ally ally);
 bool hasPuck(Ally ally);
 Ally getHighestPriorityAlly();
 bool allyHigherPriorityThanMe(Ally ally);
+void handleGameStateMessage(uint8_t id);

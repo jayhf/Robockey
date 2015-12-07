@@ -25,13 +25,9 @@ public:
 		
 	}
 
-	uint8_t run() override{
+	uint8_t run(uint8_t *strategyIDs) override{
 		setMotors(0,0);
 		return PICK_SOMETHING;
-	}
-	
-	void getSuggestedAllyStrategies(uint8_t *strategyIDs){
-		
 	}
 	
 	uint8_t getPriority(){
@@ -45,7 +41,7 @@ public:
 	LEDStrategy(StrategyType strategyType, uint8_t id) : Strategy(strategyType, id){
 		
 	}
-	uint8_t run() override{
+	uint8_t run(uint8_t *strategyIDs) override{
 		switch(strategyType){
 			case StrategyType::DEFENSE:
 				setLED(LEDColor::BLUE);
@@ -60,12 +56,9 @@ public:
 				setLED(LEDColor::OFF);
 				break;
 		}
-		return 1 | static_cast<uint8_t>(StrategyType::SCORER);
-	}
-	
-	void getSuggestedAllyStrategies(uint8_t *strategyIDs){
 		strategyIDs[0] = PICK_DEFENSE;
 		strategyIDs[1] = PICK_OFFENSE;
+		return 1 | static_cast<uint8_t>(StrategyType::SCORER);
 	}
 	
 	uint8_t getPriority(){
@@ -213,6 +206,8 @@ bool isGoalie(uint8_t strategyID){
 }
 
 void updateStrategies(){
+	suggestedAllyStrategies[0] = UNKNOWN_STRATEGY;
+	suggestedAllyStrategies[1] = UNKNOWN_STRATEGY;
 	Ally highestPriorityAlly = getHighestPriorityAlly();
 	Strategy *newStrategy = currentStrategy;
 	if(allyHigherPriorityThanMe(highestPriorityAlly)){
@@ -222,14 +217,14 @@ void updateStrategies(){
 			newStrategy = getStrategy(suggestion);
 		}
 		else{
-			uint8_t newID = currentStrategy->run();
+			uint8_t newID = currentStrategy->run(suggestedAllyStrategies);
 			if(newID != currentStrategy->getID())
 				newStrategy = getStrategy(newID);
 		}
 	}
 	else{
 		m_red(0);
-		uint8_t newID = currentStrategy->run();
+		uint8_t newID = currentStrategy->run(suggestedAllyStrategies);
 		if(newID != currentStrategy->getID())
 			newStrategy = getStrategy(newID);
 	}
@@ -237,9 +232,6 @@ void updateStrategies(){
 	if(newStrategy != currentStrategy){
 		currentStrategy = newStrategy;
 		currentStrategy->prepare();
-		currentStrategy->run();
+		currentStrategy->run(suggestedAllyStrategies);
 	}
-	suggestedAllyStrategies[0] = UNKNOWN_STRATEGY;
-	suggestedAllyStrategies[1] = UNKNOWN_STRATEGY;
-	currentStrategy->getSuggestedAllyStrategies(suggestedAllyStrategies);
 }

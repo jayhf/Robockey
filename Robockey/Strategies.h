@@ -19,9 +19,8 @@ public:
 	virtual void prepare(){};
 	//Gets called every update cycle to control the robot with this strategy
 	//Returns the next strategy. Free to use one of the above constants or this.
-	virtual uint8_t run() = 0;
-	//Fills the pointer with the suggested ally strategies for ally1 and ally2
-	virtual void getSuggestedAllyStrategies(uint8_t *strategyIDs) = 0;
+	//Fill the pointer with the suggested ally strategies for ally1 and ally2
+	virtual uint8_t run(uint8_t *strategyIDs) = 0;
 	//Returns how good a time it is for this strategy. Don't make it too slow (ie. no trig if possible)
 	//Approximate values:
 	//0 for do not choose this one
