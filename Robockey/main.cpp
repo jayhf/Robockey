@@ -61,7 +61,6 @@ int main(void)
 	_delay_ms(200);
 	updateLocalization();
 	Location initPuck = getPuckLocation();
-	startKick();
 	while(1){
 		updateLocalization();
 		updateWireless();
