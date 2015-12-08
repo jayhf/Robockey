@@ -333,11 +333,11 @@ void fakeGoalie(){
 }
 
 void followWall(){
+	uint8_t yPos;
+	if(getRobotPose().y >=0) yPos = YMAX-ROBOT_RADIUS-2*PUCK_RADIUS;
+	else yPos = YMIN+ROBOT_RADIUS+2*PUCK_RADIUS;
 	if(!nearWall(getRobotPose())){
 		if(!targetSet){
-			uint8_t yPos;
-			if(getRobotPose().y >=0) yPos = YMAX-ROBOT_RADIUS;
-			else yPos = YMIN+ROBOT_RADIUS;
 			targetPose = Pose(getRobotPose().x+4*ROBOT_RADIUS,yPos,0);
 			targetSet = true;
 		}
@@ -346,14 +346,13 @@ void followWall(){
 		}
 	}
 	else{
-		point1 = false;
-		if(getRobotPose().y >=0){
-			faceAngle(-PI/6,getRobotPose());
+		if(getRobotPose().x<XMAX-5*ROBOT_RADIUS){
+			goToPositionPuck(Pose(getRobotPose().x+2*ROBOT_RADIUS,yPos,0),getRobotPose());
 		}
 		else{
-			faceAngle(PI/6,getRobotPose());
+			if(getRobotPose().y>0) goToPositionPuck(Pose(XMAX+5,YMAX/2-ROBOT_RADIUS,0),getRobotPose());
+			else goToPositionPuck(Pose(XMAX+5,YMIN/2+ROBOT_RADIUS,0),getRobotPose());
 		}
-		setMotors(1600,1600); //full steam ahead
 	}
 
 }
