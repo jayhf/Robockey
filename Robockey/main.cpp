@@ -91,7 +91,7 @@ int main(void)
 				//}
 				//else{
 					if (first == 0) first++;
-					pushGoalie();
+					followWall();
 					
 				//}
 			}

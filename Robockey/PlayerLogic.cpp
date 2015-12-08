@@ -333,27 +333,29 @@ void fakeGoalie(){
 }
 
 void followWall(){
-	if(getRobotPose().x>2*ROBOT_RADIUS){
-		if(!nearWall(getRobotPose())){
-			
-			if(getRobotPose().y >=0){
-				goToPositionPuck(Pose(getRobotPose().x+3*ROBOT_RADIUS,YMAX-2*ROBOT_RADIUS,0), getRobotPose());
-			}
-			else goToPositionPuck(Pose(getRobotPose().x+3*ROBOT_RADIUS,YMIN+2*ROBOT_RADIUS,0), getRobotPose());
+	if(!nearWall(getRobotPose())){
+		if(!targetSet){
+			uint8_t yPos;
+			if(getRobotPose().y >=0) yPos = YMAX-ROBOT_RADIUS;
+			else yPos = YMIN+ROBOT_RADIUS;
+			targetPose = Pose(getRobotPose().x+4*ROBOT_RADIUS,yPos,0);
+			targetSet = true;
 		}
-		else{
-			if(getRobotPose().y >=0){
-				faceAngle(-PI/6,getRobotPose());
-			}
-			else{
-				faceAngle(PI/6,getRobotPose());
-			}
-			setMotors(1600,1600); //full steam ahead
+		if(!atLocation(Location(targetPose.x,targetPose.y),Location(getRobotPose().x,getRobotPose().y))){
+			goToPositionPuck(Pose(targetPose.x,targetPose.y,0), getRobotPose());
 		}
 	}
 	else{
-		goToPositionPuck(Pose(XMAX,0,0),getRobotPose());
+		point1 = false;
+		if(getRobotPose().y >=0){
+			faceAngle(-PI/6,getRobotPose());
+		}
+		else{
+			faceAngle(PI/6,getRobotPose());
+		}
+		setMotors(1600,1600); //full steam ahead
 	}
+
 }
 
 void charge(){
@@ -466,7 +468,7 @@ void tryKick(){
 	}
 }
 
-void crossD(){
+void crossDtoLeft(){
 	//get signal to send left or right. go to 5 times radius of ally position and then cross
 	if(!point1){
 		if(!targetSet) {
@@ -489,8 +491,30 @@ void crossD(){
 	}
 }
 
+void crossDtoRight(){
+	//get signal to send left or right. go to 5 times radius of ally position and then cross
+	if(!point1){
+		if(!targetSet) {
+			Location* allies = getAllyLocations();
+			uint8_t xPos;
+			if (hasPuck(Ally::ALLY1)) xPos = allies[0].x+6*ROBOT_RADIUS;
+			else if(hasPuck(Ally::ALLY2)) xPos = allies[1].x+6*ROBOT_RADIUS;
+			else xPos = 50;
+			targetPose = Pose(MIN(XMAX,xPos),YMAX/2,0);
+		}
+		if(!atLocationWide(Location(targetPose.x,targetPose.y),Location(getRobotPose().x,getRobotPose().y))){
+			goToPosition(targetPose,getRobotPose(),false);
+		}
+		else {
+			point1 = true;
+		}
+	}
+	else{
+		goToPosition(Pose(XMAX - 4*ROBOT_RADIUS,YMIN/2,0),getRobotPose(),false);
+	}
+}
 
-void crossO(){
+void crossOtoRight(){
 	//get signal to send left or right. go to 5 times radius of ally position and then cross
 	if(!point1){
 		if(!targetSet) {
@@ -507,10 +531,26 @@ void crossO(){
 	else{
 		goToPositionPuck(Pose(XMAX,YMIN/2+4*ROBOT_RADIUS,0),getRobotPose());
 	}
-	//uint8_t packet[10]={0,0,targetPose.x,targetPose.y,targetPose.o>>8,targetPose.o&0xFF,0,0,0,0};
-	//sendPacket(Robot::CONTROLLER,0x22,packet);
 }
 
+void crossOtoLeft(){
+	//get signal to send left or right. go to 5 times radius of ally position and then cross
+	if(!point1){
+		if(!targetSet) {
+			targetPose = Pose(MIN(XMAX,getRobotPose().x+12*ROBOT_RADIUS),YMIN/2,0);
+			targetSet = true;
+		}
+		if(!atLocationWide(Location(targetPose.x,targetPose.y),Location(getRobotPose().x,getRobotPose().y))){
+			goToPositionPuck(targetPose,getRobotPose());
+		}
+		else {
+			point1 = true;
+		}
+	}
+	else{
+		goToPositionPuck(Pose(XMAX,YMAX/2-4*ROBOT_RADIUS,0),getRobotPose());
+	}
+}
 void defenseLogic(){
 	if(helpRequested){
 		if(getRobotPose().x>XMIN+4*ROBOT_RADIUS){

@@ -449,7 +449,7 @@ bool atLocation(Location target, Location current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	uint16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
-	return distance < 64;
+	return distance < 144;
 }
 bool atLocationWide(Location target, Location current){
 	int16_t deltaX = current.x - target.x;
