@@ -158,8 +158,9 @@ void strategyWirelessTest(){
 		updateWireless();
 		updateKick();
 		m_green(2);
+		//setMotors(800,800);
 		//goToPosition(Pose(0,0,0),getRobotPose(),false,true);
-		goTo(getPuckLocation().toPose(0),getRobotPose(),true);
+		//goTo(getPuckLocation().toPose(0),getRobotPose(),true);
 		//updateStrategies();
 		//m_green(2);
 		//m_red(2);

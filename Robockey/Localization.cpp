@@ -152,34 +152,40 @@ void updatePuckPosition(){
 	else if(timePassed(lastHadPuckTime + ONE_MINUTE)){
 		lastHadPuckTime = getTime() - ONE_MINUTE - 1;
 	}
+
+	int16_t totalPuckX = 0;
+	int16_t totalPuckY = 0;
+	uint16_t totalWeight = 0;
 	
-	Location averagePuckLocation = puckLocationToSend;
-	time currentTime = getTime();
-	//time dt;
-	if(allyPuckLocations[0] == UNKNOWN_LOCATION){
-		if(allyPuckLocations[1] == UNKNOWN_LOCATION){
-			//dt = 0;
-		}
-		else{
-			averagePuckLocation.x = (averagePuckLocation.x>>1) + (allyPuckLocations[1].x>>1);
-			averagePuckLocation.y = (averagePuckLocation.y>>1) + (allyPuckLocations[1].y>>1);
-			//dt = currentTime-allyUpdateTimes[1];
-		}
+	if(allyPuckLocations[0] != UNKNOWN_LOCATION){
+		uint16_t allyPuckLocationWeight1 = 1;
+		totalPuckX += allyPuckLocations[0].x * allyPuckLocationWeight1;
+		totalPuckY += allyPuckLocations[0].y * allyPuckLocationWeight1;
+		totalWeight += allyPuckLocationWeight1;
 	}
+	if(allyPuckLocations[1] != UNKNOWN_LOCATION){
+		uint16_t allyPuckLocationWeight2 = 1;
+		totalPuckX += allyPuckLocations[1].x * allyPuckLocationWeight2;
+		totalPuckY += allyPuckLocations[1].y * allyPuckLocationWeight2;
+		totalWeight += allyPuckLocationWeight2;
+	}
+	if(puckLocationToSend != UNKNOWN_LOCATION){
+		uint16_t puckLocationWeight = 2;
+		totalPuckX += puckLocationToSend.x * puckLocationWeight;
+		totalPuckY += puckLocationToSend.y * puckLocationWeight;
+		totalWeight += puckLocationWeight;
+	}
+	
+	Location averagePuckLocation;
+	
+	if(totalWeight == 0)
+		averagePuckLocation = UNKNOWN_LOCATION;
 	else{
-		averagePuckLocation.x >>= 1;
-		averagePuckLocation.y >>= 1;
-		if(allyPuckLocations[1] == UNKNOWN_LOCATION){
-			averagePuckLocation.x += allyPuckLocations[0].x>>1;
-			averagePuckLocation.y += allyPuckLocations[0].y>>1;
-			//dt = currentTime-allyUpdateTimes[1];
-		}
-		else{
-			averagePuckLocation.x += (allyPuckLocations[0].x>>2) + (allyPuckLocations[1].x>>2);
-			averagePuckLocation.y += (allyPuckLocations[0].y>>2) + (allyPuckLocations[1].y>>2);
-			//dt = (currentTime-allyUpdateTimes[1]+currentTime-allyUpdateTimes[0])>>1;
-		}
+		averagePuckLocation.x = totalPuckX/totalWeight;
+		averagePuckLocation.y = totalPuckY/totalWeight;
 	}
+	
+	time currentTime = getTime();
 	locationFilter(puckLocation, puckVelocity, averagePuckLocation, puckUpdateTime, currentTime/*-(dt>>1)*/, puckCertainty,30);
 }
 
