@@ -12,6 +12,7 @@ uint16_t irBuffer1[16];
 uint16_t irBuffer2[16];
 uint16_t *irReadBuffer = irBuffer1;
 uint16_t *irWriteBuffer = irBuffer2;
+volatile bool irFresh = false;
 uint16_t battery;
 uint16_t boost;
 uint16_t leftMotor;
@@ -65,6 +66,7 @@ ISR(ADC_vect){
 				irReadBuffer = temp;
 				irResistor = nextResistor;
 				ADMUX |= 1 << MUX0;
+				irFresh = true;
 				updateResistor();
 			}
 			break;
@@ -123,8 +125,13 @@ Resistor getSelectedResistor(){
 	return irResistor;
 };
 
-uint16_t* getIRData(){
+uint16_t* getIRData(bool stayFresh){
+	irFresh &= stayFresh;
 	return irReadBuffer;
+}
+
+bool irDataFresh(){
+	return irFresh;
 }
 
 Resistor& operator++(Resistor &r){

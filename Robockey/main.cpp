@@ -47,8 +47,8 @@ void strategyWirelessTest();
 
 int main(void)
 {
-	//strategyWirelessTest();
-	friendlies();
+	strategyWirelessTest();
+	//friendlies();
 }
 
 void localizationCalibration(){
@@ -108,9 +108,10 @@ void strategyWirelessTest(){
 		updateLocalization();
 		updateLED();
 		updateWireless();
+		updateKick();
 		m_green(2);
-		goToPosition(Pose(0,0,0),getRobotPose(),false,true);
-		//goTo(getPuckLocation().toPose(0),getRobotPose(),true);
+		//goToPosition(Pose(0,0,0),getRobotPose(),false,true);
+		goTo(getPuckLocation().toPose(0),getRobotPose(),true);
 		//updateStrategies();
 		//m_green(2);
 		//m_red(2);

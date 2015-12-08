@@ -126,7 +126,8 @@ void updateLocalization(){
 		}
 		if(robotPoseCertainty >= 4)
 			lastKnownRobotPose = robotPose;
-		updatePuckPosition();
+		if(irDataFresh())
+			updatePuckPosition();
 		determineTeam();
 	}
 	//for(int i=0;i<2;i++)
@@ -293,20 +294,18 @@ void receivedAllyUpdate(Location location, Location puckLocation, Ally ally){
 }*/
 
 
-uint16_t intensities1K[] = {0,160,260,1023};
-uint8_t distances1K[] = {11,10,9,8};
-uint16_t intensities6K8[] = {0,150,300,650,1023};
-uint8_t distances6K8[] = {18,16,12,10,9};
-uint16_t intensities47K[] = {0,150,290,400,500,650,850,1023};
-uint8_t distances47K[] = {34,30,26,22,20,18,16,14};
-uint16_t intensities330K[] = {0,315,320,340,360,410,450,525,600,700,775,850,1023};
-uint8_t distances330K[] = {255,200,150,120,100,80,70,60,50,45,40,35,31};
+uint16_t intensities1K[] = {55,65,150,350,1023};
+uint8_t distances1K[] = {12,11,10,9,8};
+uint16_t intensities6K8[] = {0,45,80,190,330,650,1023};
+uint8_t distances6K8[] = {40,25,20,16,12,10,9};
+uint16_t intensities47K[] = {0,67,105,125,180,300,510,860,980,1023};
+uint8_t distances47K[] = {150,50,40,35,30,25,20,16,14,13};
+uint16_t intensities330K[] = {280,315,330,355,380,450,565,750,875,985,1023};
+uint8_t distances330K[] = {210,160,130,100,80,60,50,40,35,30,25};
 
 Location findPuck(){
 	uint16_t val = 0;
-	
-
-	uint16_t * values = getIRData(); // loop through transistors
+	uint16_t * values = getIRData(false); // loop through transistors
 	for (uint8_t i = 0; i < 16; i++){
 		uint16_t thisADC = values[i];
 		if (thisADC > val) {
@@ -360,7 +359,7 @@ Location findPuck(){
 			break;
 		}
 	}
-	if(distance == 0xFF || (getSelectedResistor() == Resistor::R330K && values[photo] < 320)){
+	if(distance == 0xFF || (getSelectedResistor() == Resistor::R330K && values[photo] < 290)){
 		seePuck = false;
 		return UNKNOWN_LOCATION;
 	}

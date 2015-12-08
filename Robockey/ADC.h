@@ -30,5 +30,6 @@ Resistor& operator--(Resistor &r);
 Resistor operator--(Resistor &r, int);
 
 Resistor getSelectedResistor();
-uint16_t* getIRData();
+uint16_t* getIRData(bool stayFresh = true);
+bool irDataFresh();
 uint16_t getBattery();
