@@ -35,6 +35,11 @@ public:
 		return !(*this == p);
 	}
 	inline Location getLocation();
+	
+	uint8_t distanceTo(Location location);
+	uint16_t distanceToSquared(Location location);
+	uint8_t distanceTo(Pose pose);
+	uint16_t distanceToSquared(Pose pose);
 };
 
 class Location{
@@ -63,6 +68,11 @@ class Location{
 	inline Pose toPose(){
 		return toPose(0);
 	}
+	
+	uint8_t distanceTo(Location location);
+	uint16_t distanceToSquared(Location location);
+	uint8_t distanceTo(Pose pose);
+	uint16_t distanceToSquared(Pose pose);
 };
 
 inline Location Pose::getLocation(){
@@ -107,10 +117,18 @@ Location predictPuck(uint8_t dt);
 Location predictAlly(uint8_t allyID, uint8_t dt);
 Location predictPose(uint8_t dt);
 
+uint16_t distanceSquared(Location l1, Location l2);
+uint16_t distanceSquared(Pose p, Location l);
+uint16_t distanceSquared(Pose p1, Pose p2);
+uint8_t distance(Location l1, Location l2);
+uint8_t distance(Pose p, Location l);
+uint8_t distance(Pose p1, Pose p2);
+
 bool nearWall(Pose pose);
 time getPuckUpdateTime();
 bool hasPuck();
 bool recentlyHadPuck(time maxTime = ONE_SECOND);
+bool recentlyMoved(time maxTime = ONE_SECOND);
 bool stuck();
 
 //Used internally.
@@ -120,3 +138,4 @@ Pose localizeRobot(uint16_t* irData);
 void receivedEnemyLocations(int8_t *locations);
 void receivedAllyUpdate(Location location, Location puckLocation, Ally allyID);
 void locationFilter(Location &location, Velocity &velocity, Location measuredLocation, uint16_t &oldTime, uint16_t newTime, uint8_t &certainty, uint8_t radius);
+uint8_t computePuckLocationWeight(uint8_t distance);

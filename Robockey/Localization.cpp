@@ -63,6 +63,8 @@ Location puckLocation;
 Velocity puckVelocity;
 time puckUpdateTime;
 time lastHadPuckTime = -ONE_MINUTE;
+time lastMoveTime = -ONE_MINUTE;
+Location lastMoveLocation = UNKNOWN_LOCATION;
 
 
 void initLocalization(){
@@ -130,6 +132,17 @@ void updateLocalization(){
 		if(irDataFresh())
 			updatePuckPosition();
 		determineTeam();
+		
+		if(lastMoveLocation == UNKNOWN_LOCATION)
+			lastMoveLocation = robotLocation;
+			
+		if(distanceSquared(lastMoveLocation,robotLocation) > 15){
+			lastMoveTime = getTime();
+			lastMoveLocation = robotLocation;
+		}
+		else if(timePassed(lastMoveTime + ONE_MINUTE))
+			lastMoveTime = getTime() - ONE_MINUTE;
+		
 	}
 	//for(int i=0;i<2;i++)
 	//	locationFilter(allyLocations[i],allyVelocities[i],newAllyLocations[i], allyUpdateTimes[i], newAllyUpdateTimes[i],allyLocationCertainty[i],15);
@@ -149,9 +162,8 @@ void updatePuckPosition(){
 	
 	if(hasPuck())
 		lastHadPuckTime = getTime();
-	else if(timePassed(lastHadPuckTime + ONE_MINUTE)){
+	else if(timePassed(lastHadPuckTime + ONE_MINUTE))
 		lastHadPuckTime = getTime() - ONE_MINUTE - 1;
-	}
 
 	int16_t totalPuckX = 0;
 	int16_t totalPuckY = 0;
@@ -201,6 +213,11 @@ bool hasPuck(){
 
 bool recentlyHadPuck(time maxTime){
 	return timePassed(lastHadPuckTime + maxTime);
+}
+
+
+bool recentlyMoved(time maxTime){
+	return timePassed(lastMoveTime + maxTime);
 }
 
 void locationFilter(Location &location, Velocity &velocity, Location measuredLocation, time &oldTime, time newTime, uint8_t &certainty,uint8_t radius){
@@ -696,4 +713,56 @@ bool stuck(){
 	bool backWall = robotPose.x<XMIN+2.5*ROBOT_RADIUS  && robotPose.o <3500 + PI && robotPose.o >-3500 + PI;
 	bool leftWall = robotPose.x>YMAX-2.5*ROBOT_RADIUS && robotPose.o <3500 + PI/2 && robotPose.o >-3500 + PI/2;
 	return backWall||frontWall||leftWall||rightWall;
+}
+
+inline uint16_t distanceSquared(Location l1, Location l2){
+	int16_t dx = (int16_t)(l1.x)-l2.x;
+	int16_t dy = (int16_t)(l1.y)-l2.y;
+	return dx*dx+dy*dy;
+}
+
+uint16_t distanceSquared(Pose p, Location l){
+	return distanceSquared(p.getLocation(),l);
+}
+
+uint16_t distanceSquared(Pose p1, Pose p2){
+	return distanceSquared(p1.getLocation(),p2.getLocation());
+}
+
+uint8_t distance(Location l1, Location l2){
+	return (uint8_t)sqrt(distanceSquared(l1,l2));
+}
+
+uint8_t distance(Pose p, Location l){
+	return (uint8_t)sqrt(distanceSquared(p,l));
+}
+
+uint8_t distance(Pose p1, Pose p2){
+	return (uint8_t)sqrt(distanceSquared(p1,p2));
+}
+
+uint8_t Location::distanceTo(Location location){
+	return distance(*this,location);
+}
+uint16_t Location::distanceToSquared(Location location){
+	return distance(*this,location);
+}
+uint8_t Location::distanceTo(Pose pose){
+	return distance(pose,*this);
+}
+uint16_t Location::distanceToSquared(Pose pose){
+	return distanceSquared(pose,*this);
+}
+
+uint8_t Pose::distanceTo(Location location){
+	return distance(*this,location);
+}
+uint16_t Pose::distanceToSquared(Location location){
+	return distance(*this,location);
+}
+uint8_t Pose::distanceTo(Pose pose){
+	return distance(*this,pose);
+}
+uint16_t Pose::distanceToSquared(Pose pose){
+	return distanceSquared(*this,pose);
 }
