@@ -108,6 +108,7 @@ void goTo(Pose target, Pose current, bool backwards){
 	packet[9] = relativeTarget.y&0xFF;
 	sendPacket(Robot::CONTROLLER, 0x20, packet);
 	*/
+	updateDestination(target);
 }
 
 int k = 0;
@@ -186,7 +187,7 @@ void goToPosition(Pose target, Pose current, bool toPuck, bool backwards){
 			lastTheta = 0;
 		}
 	}
-	
+	updateDestination(target);
 }
 
 void goToPositionSpin(Pose target, Pose current){
@@ -207,8 +208,9 @@ void goToPositionSpin(Pose target, Pose current){
 		}
 		
 	}
+	updateDestination(target);
 }
-
+/*
 void goToPuck(Pose target, Pose current){
 	if(target.x > XMIN/2+ROBOT_RADIUS){
 		goToPosition(target,current,true);
@@ -228,7 +230,7 @@ void goToPuck(Pose target, Pose current){
 		}
 	}
 }
-
+*/
 void goToPositionPuck(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
@@ -268,6 +270,7 @@ void goToPositionPuck(Pose target, Pose current){
 		lastDistance = 0;
 		lastTheta = 0;
 	}
+	updateDestination(target);
 }
 bool facingLocation(Location target, Pose current){
 	int16_t deltaX = current.x - target.x;

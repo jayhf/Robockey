@@ -207,23 +207,22 @@ void center(){
 }
 
 void sPattern(){
-	setLED(LEDColor::OFF);
 	Pose currentPose = getRobotPose();
-	if(currentPose.x<XMAX-6*ROBOT_RADIUS&&(point1==false||point2==false)){
+	if(currentPose.x<XMAX-6*ROBOT_RADIUS&&(!point1||!point2)){
 		if(!targetSet){
-			if(currentPose.y<=0 && point1 == false){
+			if(currentPose.y<=0 && !point1){
 				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMAX-4*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
-			else if(point1 == false){
+			else if(!point1){
 				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMIN+4*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
-			else if (currentPose.y>=0&&point2 == false){
+			else if (currentPose.y>=0&&!point2){
 				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMIN+4*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
-			else if(point2==false){
+			else if(!point2){
 				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMAX-4*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
@@ -235,11 +234,11 @@ void sPattern(){
 		if(!atLocationWide(Location(targetPose.x,targetPose.y),Location(currentPose.x,currentPose.y))){
 			goToPositionPuck(targetPose,currentPose);
 		}
-		else if (point1==false){
+		else if (!point1){
 			point1 = true;
 			targetSet = false;
 		}
-		else if (point2==false){
+		else if (!point2){
 			point2 = true;
 			targetSet = false;
 		}
@@ -416,8 +415,23 @@ void goBehindPuck(){
 	else{
 		goToPosition(puck,getRobotPose(),true);
 	}
-	uint8_t packet[10]={0,0,(uint8_t)targetPose.x,(uint8_t)targetPose.y,(uint8_t)(targetPose.o>>8),(uint8_t)(targetPose.o&0xFF),0,0,0,0};
-	sendDebugPacket(Robot::CONTROLLER,0x22,packet);
+}
+
+void goBehindObject(Location object){
+	if(object.x<getRobotPose().x-2*ROBOT_RADIUS) point1 = false;
+	if(!point1){
+		if(object.y>=0) targetPose = Pose(object.x-4*ROBOT_RADIUS,object.y-4*ROBOT_RADIUS,0);
+		else targetPose = Pose(object.x-4*ROBOT_RADIUS,object.y+4*ROBOT_RADIUS,0);
+		if(!atLocation(Location(targetPose.x,targetPose.y),Location(getRobotPose().x,getRobotPose().y))){
+			goToPosition(targetPose,getRobotPose(),false);
+		}
+		else{
+			point1 = true;
+		}
+	}
+	else{
+		goToPosition(Pose(object.x,object.y,0),getRobotPose(),false);
+	}
 }
 
 //Should be called in the move with puck
@@ -455,7 +469,14 @@ void tryKick(){
 void crossD(){
 	//get signal to send left or right. go to 5 times radius of ally position and then cross
 	if(!point1){
-		if(!targetSet) targetPose = Pose(MIN(XMAX,50),YMIN/2,0);
+		if(!targetSet) {
+			Location* allies = getAllyLocations();
+			uint8_t xPos;
+			if (hasPuck(Ally::ALLY1)) xPos = allies[0].x+6*ROBOT_RADIUS;
+			else if(hasPuck(Ally::ALLY2)) xPos = allies[1].x+6*ROBOT_RADIUS;
+			else xPos = 50;
+			targetPose = Pose(MIN(XMAX,xPos),YMIN/2,0);
+		}
 		if(!atLocationWide(Location(targetPose.x,targetPose.y),Location(getRobotPose().x,getRobotPose().y))){
 			goToPosition(targetPose,getRobotPose(),false);
 		}
@@ -581,16 +602,53 @@ void scoreLogic(){
 }
 
 void faceoff(){
+	Pose puck = getPuckLocation().toPose(getPuckHeading()+getRobotPose().o);
 	if(player==Player::SCORER){
-		//if(!timePassed(2000)){
-		setMotors(1600,1600);
-		//}
-		//else{
-		//	goToPosition(getPuckLocation().toPose(getPuckHeading()),getRobotPose());
-		//}
+		goToPosition(puck,getRobotPose(),true);
 	}
 	else if(player==Player::ASSISTER){
-		goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),false);
+		goToPosition(Pose(puck.x-3*ROBOT_RADIUS,0,0),getRobotPose(),false);
 	}
 	else playerLogic(player);
+}
+
+Pose prevPose = getRobotPose();
+uint16_t counter = 0;
+void pushGoalie(){
+	if(!point1){
+		if(!atLocation(Location(XMAX-ROBOT_RADIUS,YMAX/2),Location(getRobotPose().x,getRobotPose().y))){
+			goToPosition(Pose(XMAX-ROBOT_RADIUS,YMAX/2,0),getRobotPose(),false);
+		}
+		else point1 = true;
+	}
+	else if(!point2){
+		if(!facingHeading(-PI/2,getRobotPose())){
+			faceAngle(-PI/2,getRobotPose());
+		}
+		else {
+			point2 = true;
+			prevPose = getRobotPose();
+		}
+	}
+	else{
+		if(counter<500){
+			setMotors(800,800);
+		}
+		else setMotors(1600,1600);
+		if(abs(getRobotPose().y - prevPose.y)<6){
+			counter++;
+		}
+		if (counter==505) counter = 0;
+	}
+}
+
+void defenseLogic2(){
+	Location* allies = getAllyLocations();
+	if(getPuckLocation().x>0){
+		if(atLocation(Location(XMIN/2,-25),allies[0])||atLocation(Location(XMIN/2,-25),allies[1])){
+			goToPosition(Pose(XMIN/2,25,0),getRobotPose(),false);
+		}
+		else goToPosition(Pose(XMIN/2,-25,0),getRobotPose(),false);
+	}
+	else goBehindPuck();
 }

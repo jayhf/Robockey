@@ -23,6 +23,11 @@ uint8_t allyStrategySuggestions[] = {PICK_SOMETHING,PICK_SOMETHING};
 uint8_t gameCommandsToSend[] = {static_cast<uint8_t>(GameState::HALFTIME),static_cast<uint8_t>(GameState::HALFTIME)};
 uint8_t gameCommandsToSendCount[] = {0,0};
 time lastHalftimeUpdateTime = -10*ONE_SECOND-1;
+Pose destinationPose;
+
+void updateDestination(Pose destination){
+	destinationPose = destination;
+}
 	
 void initWireless(){
 	m_rf_open(1, static_cast<uint8_t>(getThisRobot()), 10);

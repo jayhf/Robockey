@@ -47,8 +47,56 @@ void strategyWirelessTest();
 
 int main(void)
 {
-	strategyWirelessTest();
-	//friendlies();
+	m_clockdivide(0);
+	m_disableJTAG();
+	sei();
+	m_bus_init();
+	initDigital();
+	initClock();
+	initADC();
+	initWireless();
+	initLocalization();
+	updateLocalization();
+	_delay_ms(200);
+	updateLocalization();
+	Location initPuck = getPuckLocation();
+	startKick();
+	while(1){
+		updateLocalization();
+		updateWireless();
+		updateKick();
+		updateLED();
+		switch(getThisRobot()){
+			case Robot::ROBOT1:
+			updatePlayer(Player::GOALIE);
+			break;
+			case Robot::ROBOT2:
+			updatePlayer(Player::SCORER);
+			break;
+			case Robot::ROBOT3:
+			updatePlayer(Player::DEFENSE);
+			break;
+			default:
+			updatePlayer(Player::NONE);
+			break;
+		}
+		if (allowedToMove()){
+			if(getRobotPose()==UNKNOWN_POSE){
+				setMotors(0,0);
+			}
+			else{
+				if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
+					faceoff();
+				}
+				else{
+					if (first == 0) first++;
+					
+					
+				}
+			}
+		}
+		else setMotors(0,0);
+	}
 }
 
 void localizationCalibration(){
@@ -154,34 +202,16 @@ void friendlies(){
 			updatePlayer(Player::NONE);
 			break;
 		}
-		if (true){
+		if (allowedToMove()){
 			if(getRobotPose()==UNKNOWN_POSE){
 				setMotors(0,0);
 			}
 			else{
-				
-				/*if(stuck()&&!hasPuck()){
-				faceLocation(Location(XMAX,0),getRobotPose());
-				}
-				else{*/
-					
-				/*	
-					if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
-						faceoff();
-					}
-					else{
-				*/		
-						if (first == 0) first++;
-						goToPosition(Pose(0,0,0),getRobotPose(),false);
-						//goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true);
-						//goAndKick(Pose(XMAX,0,-PI/2));
-						//goalieLogic();
-						//goBehindPuck();
-						
-					}
-				//}
-				//}
+				if (first == 0) first++;
+				goToPosition(Pose(0,0,0),getRobotPose(),false);
 			}
-			else setMotors(0,0);
 		}
+		
+		else setMotors(0,0);
 	}
+}

@@ -33,3 +33,6 @@ void sPattern();
 void crossD();
 void crossO();
 void goBehindPuck();
+void goBehindObject(Location object);
+void pushGoalie();
+void defenseLogic2();
