@@ -55,16 +55,24 @@ void sendNextMessage(){
 		case 3:
 			sendIR2();
 			break;
-		/*case 2:
+		case 4:
 			sendAllyMessage(Ally::ALLY1);
 			break;
-		case 3:
+		case 5:
 			sendAllyMessage(Ally::ALLY2);
-			break;*/
+			break;
+		case 6:
+			sendDestinationMessage();
+			break;
 		default:
 			nextMessage = 0;
 			goto case_0;
 	}
+}
+
+void sendDestinationMessage(){
+	uint8_t packet[10]={0,0,(uint8_t)destinationPose.x,(uint8_t)destinationPose.y,(uint8_t)(destinationPose.o>>8),(uint8_t)(destinationPose.o&0xFF),0,0,0,0};
+	sendDebugPacket(Robot::CONTROLLER,0x22,packet);
 }
 
 void handleGameStateMessage(uint8_t id){

@@ -26,3 +26,4 @@ bool allyHigherPriorityThanMe(Ally ally);
 void handleGameStateMessage(uint8_t id);
 uint8_t computeChecksum(uint8_t *packet);
 void updateDestination(Pose destination);
+void sendDestinationMessage();
