@@ -179,7 +179,7 @@ void rightCorner(){
 	}
 	}*/
 
-	goToPosition(Pose(XMAX+5,YMIN/2+2*ROBOT_RADIUS,0),currentPose,false); //charge into goal
+	goToPositionPuck(Pose(XMAX+5,YMIN/2+2*ROBOT_RADIUS,0),currentPose); //charge into goal
 
 }
 
@@ -359,10 +359,6 @@ void followWall(){
 
 void charge(){
 	goToPositionPuck(Pose(XMAX,getRobotPose().y,0),getRobotPose());
-	if (getRobotPose().x > XMAX - 3*ROBOT_RADIUS){
-		startKick();
-	}
-	updateKick();
 }
 
 void bluffKick(bool corner){
