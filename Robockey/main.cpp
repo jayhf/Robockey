@@ -47,8 +47,8 @@ void strategyWirelessTest();
 
 int main(void)
 {
-	strategyWirelessTest();
-	//friendlies();
+	//strategyWirelessTest();
+	friendlies();
 }
 
 void localizationCalibration(){
@@ -153,7 +153,6 @@ void friendlies(){
 			updatePlayer(Player::NONE);
 			break;
 		}
-		
 		if (true){
 			if(getRobotPose()==UNKNOWN_POSE){
 				setMotors(0,0);
@@ -172,12 +171,12 @@ void friendlies(){
 					else{
 				*/		
 						if (first == 0) first++;
-						//goToBackwards(Pose(0,0,0),getRobotPose());
+						goToPosition(Pose(0,0,0),getRobotPose(),false);
 						//goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true);
 						//goAndKick(Pose(XMAX,0,-PI/2));
 						//goalieLogic();
-						goBehindPuck();
-						//setLED(LEDColor::RED);
+						//goBehindPuck();
+						
 					}
 				//}
 				//}
