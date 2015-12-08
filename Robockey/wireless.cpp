@@ -195,8 +195,6 @@ void updateWireless(){
 
 	if(timePassed(lastAllyUpdateTime[1]+ONE_SECOND))
 		lastAllyUpdateTime[1] = getTime() - ONE_SECOND - 1;
-		
-	//m_red(allyUpToDate(Ally::ALLY2));
 }
 
 ISR(INT2_vect){

@@ -421,6 +421,7 @@ public class Robot {
 				break;
 			case 0x22:
 				destination = new Pose(buffer.get(),buffer.get(),buffer.getShort()*Math.PI/32768);
+				System.out.println("Destination: "+destination);
 				break;
 		}
 	}

@@ -3,27 +3,25 @@
 // version: 2.1
 // date: Sept 29, 2011
 // author: J. Fiene
-// Modified to remove useless code by Jay 12-1-15
 // -----------------------------------------------------------------------------
+#ifndef m_general__
+#define m_general__
 
-#pragma once
-
-#include <avr/io.h>
 // -----------------------------------------------------------------------------
 // Useful pre-compile constants
 // -----------------------------------------------------------------------------
-/*
+
 #define TRUE	1
 #define FALSE	0
 
 #define OFF		0
 #define ON		1
 #define TOGGLE	2
-*/
+
 // -----------------------------------------------------------------------------
 // General AVR libraries that we'll need at times:
 // -----------------------------------------------------------------------------
-/*
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <avr/io.h>
@@ -31,7 +29,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <math.h>
-*/
+
 
 // -----------------------------------------------------------------------------
 // Bit manipulation and validation:
@@ -78,7 +76,7 @@
 // Wait for a specified number of milliseconds:
 // -----------------------------------------------------------------------------
 
-//#define m_wait(val)			_delay_ms(val)
+#define m_wait(val)			_delay_ms(val)
 // "val" must be an integer from 1 to 65535
 // this function assumes a 16MHz clock
 
@@ -87,9 +85,13 @@
 // Change the state of the green on-board LED:
 // -----------------------------------------------------------------------------
 
-inline void m_green(int val){
-	set(DDRE,2);
-	if(val==0){set(PORTE,2);}
-	else if(val==1){clear(PORTE,2);}
-	else if(val==2){toggle(PORTE,2);}
-}
+#define m_green(val)		set(DDRE,2); if(val==OFF){set(PORTE,2);}else if(val==ON){clear(PORTE,2);}else if(val==TOGGLE){toggle(PORTE,2);}
+// "val" must be either OFF, ON, or TOGGLE, as defined above
+
+
+// -----------------------------------------------------------------------------
+// Change the state of the red on-board LED:
+// -----------------------------------------------------------------------------
+
+
+#endif

@@ -30,3 +30,6 @@ Player getPlayer();
 void scoreLogic();
 void center();
 void sPattern();
+void crossD();
+void crossO();
+void goBehindPuck();
