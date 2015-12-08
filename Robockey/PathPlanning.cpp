@@ -109,8 +109,8 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 	angle offsetTheta = (current.o - targetTheta)/8;
 	uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 	int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
-	uint16_t x = MIN(900,MAX(0,temp1));
-	uint16_t y = MIN(700,MAX(0,temp2));
+	uint16_t x = MIN(1400,MAX(0,temp1));
+	uint16_t y = MIN(1200,MAX(0,temp2));
 	uint16_t d1;
 	if(toPuck) d1 = (ROBOT_RADIUS+PUCK_RADIUS+10)*(ROBOT_RADIUS+PUCK_RADIUS+10);
 	else d1 = 12;
@@ -212,8 +212,8 @@ void goToPositionPuck(Pose target, Pose current){
 		angle offsetTheta = (current.o - targetTheta)/8;
 		uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 		int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
-		uint16_t x = MIN(900,MAX(0,temp1));
-		uint16_t y = MIN(500,MAX(0,temp2));
+		uint16_t x = MIN(1400,MAX(0,temp1));
+		uint16_t y = MIN(600,MAX(0,temp2));
 		
 		/*
 		uint16_t r = k1*distance;
@@ -269,7 +269,7 @@ void faceLocation(Location target, Pose current,angle o){
 		//uint8_t buffer[10] = {0,0,(current.o-o)>>8,(current.o-o)&0xFF,(current.o-lastPose.o)>>8,(current.o-lastPose.o)&0xFF,0,0,0,0};
 		//sendPacket(Robot::CONTROLLER,0x21,buffer);
 		int16_t temp1=k2 * abs(offsetTheta) - k4 * abs(offsetTheta - lastTheta);
-		uint16_t x = MAX(0,MIN(800,temp1));
+		uint16_t x = MAX(0,MIN(1000,temp1));
 		/*uint16_t r = k2 * abs(offsetTheta);
 		uint16_t q = k4 * abs(offsetTheta - lastTheta);
 		uint16_t y = k2 * abs(offsetTheta) - k4 * abs(offsetTheta - lastTheta);
@@ -291,7 +291,7 @@ void faceLocation(Location target, Pose current,angle o){
 
 void faceAngle(angle o,Pose current){
 	int16_t temp1 = k2 * abs((current.o - o)/8) - k4 * abs(current.o - lastPose.o);
-	uint16_t x = MAX(0,MIN(800,temp1));
+	uint16_t x = MAX(0,MIN(1000,temp1));
 	
 	if(!facingHeading(o,current)){
 		
@@ -420,7 +420,7 @@ bool atLocation(Location target, Location current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	uint16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
-	return distance < 16;
+	return distance < 50;
 }
 bool atLocationWide(Location target, Location current){
 	int16_t deltaX = current.x - target.x;
