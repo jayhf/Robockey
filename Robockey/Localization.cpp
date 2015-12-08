@@ -661,6 +661,9 @@ Pose localizeRobot(uint16_t* irData){
 	int16_t rx = (-ox*coso - oy *sino)*(115.0f/768);
 	int16_t ry = (ox*sino - oy *coso)*(115.0f/768);
 	oo = PI/2-(oo-PI/2);
+	#ifdef WU_AND_CHEN
+		ry+=5;
+	#endif
 	if(rx > XMAX + 5 || rx < XMIN - 5 || ry > YMAX + 5 || ry < YMIN - 5){
 		return UNKNOWN_POSE;
 	}

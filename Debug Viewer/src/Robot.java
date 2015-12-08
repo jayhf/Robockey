@@ -364,7 +364,7 @@ public class Robot {
 	public Team getTeam() {
 		return team;
 	}
-	double v = 0;
+	double v = 0, w=0, x = 0;
 	public void receivedDebugMessage(ByteBuffer buffer) {
 		robotActive = true;
 		byte id = buffer.get();
@@ -393,7 +393,9 @@ public class Robot {
 					}
 				}
 				int max2 = Math.max(lastIRData[(maxIndex+15)%16], lastIRData[(maxIndex+1)%16]);
-				System.out.print(v= v*.95+.05*(max+max2));
+				System.out.print((v= v*.8+.2*(max+max2))+",");
+				System.out.print((w= w*.8+.2*max)+",");
+				System.out.print((w+v)/2);
 				System.out.print("]\n");
 				break;
 			case 0x13:
@@ -402,10 +404,10 @@ public class Robot {
 			case 0x14:
 				puckAngle = buffer.getShort()*Math.PI/32768;
 				puckEstimate = new Pose(buffer.get(),buffer.get(),0);
-				System.out.println("Resistor: "+buffer.get());
-				System.out.println(puckEstimate);
+				//System.out.println("Resistor: "+buffer.get());
+				//System.out.println(puckEstimate);
 				puckDistance =  0xFF& buffer.get();
-				System.out.println("Distance " + puckDistance);
+				//System.out.println("Distance " + puckDistance);
 				break;
 			case 0x20:
 				System.out.print("Angle: "+(buffer.getShort()*180/32768+'\t'));

@@ -31,7 +31,7 @@ uint16_t k1 = 2; //distance proportional
 uint16_t k2 = 1; //angle proportional
 uint16_t k3 = 0; //distance derivative
 uint16_t k4 = 55; //angle derivative
-
+/*
 void goToBackwards(Pose target, Pose current){
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
@@ -68,9 +68,11 @@ void goToBackwards(Pose target, Pose current){
 		lastDistance = 0;
 		lastTheta = 0;
 	}
-}
+}*/
 
-void goTo(Pose target, Pose current){
+void goTo(Pose target, Pose current, bool backwards){
+	if(backwards)
+		current.o += PI;
 	Pose relativeTarget = Pose(target.x - current.x,target.y - current.y,target.o - current.o);
 	angle targetAngle = atan2b(relativeTarget.y, relativeTarget.x) - current.o;
 	int16_t d = relativeTarget.x * relativeTarget.x + relativeTarget.y * relativeTarget.y;
@@ -80,12 +82,20 @@ void goTo(Pose target, Pose current){
 	}
 	bool flipControls = targetAngle >= 0;
 	targetAngle = abs(targetAngle);
-	int16_t left = MIN(800,d);
+	int16_t left = MIN(1599,d);
 	int16_t right = left*cosb(targetAngle);
-	if(flipControls)
-	setMotors(left,right);
-	else
-	setMotors(right,left);
+	if(backwards){
+		if(flipControls)
+			setMotors(-right,-left);
+		else
+			setMotors(-left,-right);
+	}
+	else{
+		if(flipControls)
+			setMotors(left,right);
+		else
+			setMotors(right,left);
+	}
 	/*
 	uint8_t packet[10];
 	packet[2] = targetAngle >> 8;
@@ -99,9 +109,11 @@ void goTo(Pose target, Pose current){
 	sendPacket(Robot::CONTROLLER, 0x20, packet);
 	*/
 }
-///Switch to using the Pose class (see Localization.h)
+
 int k = 0;
-void goToPosition(Pose target, Pose current, bool toPuck){
+void goToPosition(Pose target, Pose current, bool toPuck, bool backwards){
+	if(backwards)
+		current.o += PI;
 	int16_t deltaX = current.x - target.x;
 	int16_t deltaY = current.y - target.y;
 	uint16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
@@ -128,16 +140,30 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 			uint16_t d2;
 			if (toPuck) d2 = 750;
 			else d2 = 650;
-			if ((uint16_t) abs(offsetTheta)<d2){ //if within 0.1 radians ~5* of target angle,
-
-				setMotors(x,x); //forwards
-			}
-			else {
-				if(offsetTheta >0) {
-					setMotors(x-y,x); //spin cw, forwards
+			if(backwards){
+				if ((uint16_t) abs(offsetTheta)<d2){ //if within 0.1 radians ~5* of target angle,
+					setMotors(-x,-x); //forwards
 				}
 				else {
-					setMotors(x,x-y); //spin ccw, forwards
+					if(offsetTheta >0) {
+						setMotors(-x,y-x); //spin cw, forwards
+					}
+					else {
+						setMotors(y-x,-x); //spin ccw, forwards
+					}
+				}
+			}
+			else{
+				if ((uint16_t) abs(offsetTheta)<d2){ //if within 0.1 radians ~5* of target angle,
+					setMotors(x,x); //forwards
+				}
+				else {
+					if(offsetTheta >0) {
+						setMotors(x-y,x); //spin cw, forwards
+					}
+					else {
+						setMotors(x,x-y); //spin ccw, forwards
+					}
 				}
 			}
 			lastDistance = distance;

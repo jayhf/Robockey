@@ -3,9 +3,8 @@
 #include "Localization.h"
 #include "BAMSMath.h"
 
-void goTo(Pose target, Pose current);
-///Switch to using the Pose class (see Localization.h)
-void goToPosition(Pose target, Pose current, bool toPuck);
+void goTo(Pose target, Pose current, bool backwards = false);
+void goToPosition(Pose target, Pose current, bool toPuck, bool backwards = false);
 void goToPositionSpin(Pose target, Pose current);
 void goToPositionPuck(Pose target, Pose current);
 bool facingHeading(angle target, Pose current);

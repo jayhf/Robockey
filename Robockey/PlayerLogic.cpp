@@ -418,8 +418,8 @@ void goBehindPuck(){
 		goToPosition(puck,getRobotPose(),true);
 		setLED(LEDColor::RED);
 	}
-	uint8_t packet[10]={0,0,targetPose.x,targetPose.y,targetPose.o>>8,targetPose.o&0xFF,0,0,0,0};
-	sendPacket(Robot::CONTROLLER,0x22,packet);
+	uint8_t packet[10]={0,0,(uint8_t)targetPose.x,(uint8_t)targetPose.y,(uint8_t)(targetPose.o>>8),(uint8_t)(targetPose.o&0xFF),0,0,0,0};
+	sendDebugPacket(Robot::CONTROLLER,0x22,packet);
 }
 
 //Should be called in the move with puck

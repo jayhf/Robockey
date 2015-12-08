@@ -9,7 +9,7 @@
 #include <avr/interrupt.h>
 #include <string.h>
 
-#define MAX_MESSAGES_PER_SECOND 16
+#define MAX_MESSAGES_PER_SECOND 32
 
 extern "C"{
 	#include "m_rf.h"
@@ -44,18 +44,18 @@ void sendNextMessage(){
 		case 1:
 			sendPuckPose();
 			break;
-		/*case 2:
+		case 2:
 			sendIR();
 			break;
 		case 3:
 			sendIR2();
-			break;*/
-		case 2:
+			break;
+		/*case 2:
 			sendAllyMessage(Ally::ALLY1);
 			break;
 		case 3:
 			sendAllyMessage(Ally::ALLY2);
-			break;
+			break;*/
 		default:
 			nextMessage = 0;
 			goto case_0;
