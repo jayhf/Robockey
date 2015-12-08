@@ -47,6 +47,7 @@ void strategyWirelessTest();
 
 int main(void)
 {
+	strategyWirelessTest();
 	m_clockdivide(0);
 	m_disableJTAG();
 	_delay_ms(100);
