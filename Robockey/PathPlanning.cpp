@@ -40,23 +40,23 @@ void goToBackwards(Pose target, Pose current){
 	angle offsetTheta = (current.o - targetTheta)/8;
 	uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 	int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
-	uint16_t x = MIN(1400,MAX(0,temp1));
-	uint16_t y = MIN(1200,MAX(0,temp2));
+	uint16_t x = MIN(900,MAX(0,temp1));
+	uint16_t y = MIN(700,MAX(0,temp2));
 	if(distance>12){ //if not within 5 pixels in both x and y
 
-		if(abs(offsetTheta)>PI/32){
-			faceLocation(Location(target.x,target.y),current,targetTheta);
+		if(abs(PI/8-offsetTheta)>PI/32){
+				faceAngle(PI+offsetTheta*8,current);
 		}
 		else{
-			if ((uint16_t) abs(offsetTheta)<650){ //if within 0.1 radians ~5* of target angle,
+			if ((uint16_t) abs(PI/8-offsetTheta)<650){ //if within 0.1 radians ~5* of target angle,
 				setMotors(-x,-x); //forwards
 			}
 			else {
-				if(offsetTheta >0) {
-					setMotors(x-y,x); //spin cw, forwards
+				if(PI/8-offsetTheta <0) {
+					setMotors(-x+y,-x); //spin cw, forwards
 				}
 				else {
-					setMotors(x,x-y); //spin ccw, forwards
+					setMotors(-x,-x+y); //spin ccw, forwards
 				}
 			}
 			lastDistance = distance;
@@ -109,8 +109,8 @@ void goToPosition(Pose target, Pose current, bool toPuck){
 	angle offsetTheta = (current.o - targetTheta)/8;
 	uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 	int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
-	uint16_t x = MIN(1400,MAX(0,temp1));
-	uint16_t y = MIN(1200,MAX(0,temp2));
+	uint16_t x = MIN(900,MAX(0,temp1));
+	uint16_t y = MIN(700,MAX(0,temp2));
 	uint16_t d1;
 	if(toPuck) d1 = (ROBOT_RADIUS+PUCK_RADIUS+10)*(ROBOT_RADIUS+PUCK_RADIUS+10);
 	else d1 = 12;
@@ -212,7 +212,7 @@ void goToPositionPuck(Pose target, Pose current){
 		angle offsetTheta = (current.o - targetTheta)/8;
 		uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 		int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
-		uint16_t x = MIN(800,MAX(0,temp1));
+		uint16_t x = MIN(900,MAX(0,temp1));
 		uint16_t y = MIN(500,MAX(0,temp2));
 		
 		/*
@@ -221,8 +221,7 @@ void goToPositionPuck(Pose target, Pose current){
 		uint8_t packet[10]={0,0,x>>8,x&0xFF,y>>8,y&0xFF,r>>8,r&0xFF,q>>8,q&0xFF};
 		sendPacket(Robot::CONTROLLER,0x21,packet);
 		*/
-		
-		if (offsetTheta < 1375 && offsetTheta > -1375){ //if within 0.1 radians ~5* of target angle,
+		if (offsetTheta < 650 && offsetTheta > -650){ //if within 0.1 radians ~5* of target angle,
 
 			setMotors(x,x); //forwards
 		}
