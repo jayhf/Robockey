@@ -404,11 +404,10 @@ void goBehindPuck(){
 	Pose puck = getPuckLocation().toPose(getPuckHeading()+getRobotPose().o);
 	if(puck.x<getRobotPose().x-2*ROBOT_RADIUS) point1 = false;
 	if(!point1){
-		if(puck.y>=0) targetPose = Pose(puck.x-2*ROBOT_RADIUS,puck.y-2*ROBOT_RADIUS,puck.o);
-		else targetPose = Pose(puck.x-2*ROBOT_RADIUS,puck.y+2*ROBOT_RADIUS,puck.o);
+		if(puck.y>=0) targetPose = Pose(puck.x-3*ROBOT_RADIUS,puck.y-3*ROBOT_RADIUS,puck.o);
+		else targetPose = Pose(puck.x-3*ROBOT_RADIUS,puck.y+3*ROBOT_RADIUS,puck.o);
 		if(!atLocation(Location(targetPose.x,targetPose.y),Location(getRobotPose().x,getRobotPose().y))){
 			goToPosition(targetPose,getRobotPose(),false);
-			setLED(LEDColor::BLUE);
 		}
 		else{
 			point1 = true;
@@ -416,10 +415,9 @@ void goBehindPuck(){
 	}
 	else{
 		goToPosition(puck,getRobotPose(),true);
-		setLED(LEDColor::RED);
 	}
 	uint8_t packet[10]={0,0,targetPose.x,targetPose.y,targetPose.o>>8,targetPose.o&0xFF,0,0,0,0};
-	sendPacket(Robot::CONTROLLER,0x22,packet);
+	sendDebugPacket(Robot::CONTROLLER,0x22,packet);
 }
 
 //Should be called in the move with puck
@@ -483,7 +481,6 @@ void crossO(){
 		}
 		else {
 			point1 = true;
-			setLED(LEDColor::BLUE);
 		}
 	}
 	else{
