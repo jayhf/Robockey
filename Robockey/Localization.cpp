@@ -62,6 +62,7 @@ Location puckLocationToSend;
 Location puckLocation;
 Velocity puckVelocity;
 time puckUpdateTime;
+time lastHadPuckTime = -ONE_MINUTE;
 
 
 void initLocalization(){
@@ -146,6 +147,12 @@ void coordinatesFlipped(){
 void updatePuckPosition(){
 	puckLocationToSend = findPuck();
 	
+	if(hasPuck())
+		lastHadPuckTime = getTime();
+	else if(timePassed(lastHadPuckTime + ONE_MINUTE)){
+		lastHadPuckTime = getTime() - ONE_MINUTE - 1;
+	}
+	
 	Location averagePuckLocation = puckLocationToSend;
 	time currentTime = getTime();
 	//time dt;
@@ -184,6 +191,10 @@ bool hasPuck(){
 	}
 	//m_green(0);
 	return false;
+}
+
+bool recentlyHadPuck(time maxTime){
+	return timePassed(lastHadPuckTime + maxTime);
 }
 
 void locationFilter(Location &location, Velocity &velocity, Location measuredLocation, time &oldTime, time newTime, uint8_t &certainty,uint8_t radius){

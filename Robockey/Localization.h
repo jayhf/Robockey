@@ -110,6 +110,7 @@ Location predictPose(uint8_t dt);
 bool nearWall(Pose pose);
 time getPuckUpdateTime();
 bool hasPuck();
+bool recentlyHadPuck(time maxTime = ONE_SECOND);
 bool stuck();
 
 //Used internally.

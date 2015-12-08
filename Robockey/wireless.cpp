@@ -108,7 +108,7 @@ void sendDebugPacket(Robot robot, uint8_t messageID, uint8_t *packet){
 
 void sendRobotLocation(){
 	uint8_t buffer[10];
-	Pose pose =getRobotPose(); //getAllyLocations()[0].toPose();
+	Pose pose = getRobotPose(); //getAllyLocations()[0].toPose();
 	buffer[2]=pose.x>>8;
 	buffer[3]=pose.x&0xFF;
 	buffer[4]=pose.y>>8;
@@ -226,7 +226,7 @@ void sendAllyMessage(Ally ally){
 	packet[2] = robotPose.y;
 	packet[3] = puckLocation.x;
 	packet[4] = puckLocation.y;
-	packet[5] = hasPuck();
+	packet[5] = recentlyHadPuck();
 	packet[6] = getCurrentStrategyID();
 	packet[7] = getOurSuggestedStrategy(ally);
 	packet[8] = gameCommandsToSend[static_cast<uint8_t>(ally)];
