@@ -49,6 +49,7 @@ int main(void)
 {
 	m_clockdivide(0);
 	m_disableJTAG();
+	_delay_ms(100);
 	sei();
 	m_bus_init();
 	initDigital();
@@ -80,19 +81,19 @@ int main(void)
 			updatePlayer(Player::NONE);
 			break;
 		}
-		if (allowedToMove()){
+		if (1){
 			if(getRobotPose()==UNKNOWN_POSE){
 				setMotors(0,0);
 			}
 			else{
-				if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
-					faceoff();
-				}
-				else{
+				//if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
+				//	faceoff();
+				//}
+				//else{
 					if (first == 0) first++;
+					pushGoalie();
 					
-					
-				}
+				//}
 			}
 		}
 		else setMotors(0,0);

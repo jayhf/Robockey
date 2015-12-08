@@ -616,8 +616,8 @@ Pose prevPose = getRobotPose();
 uint16_t counter = 0;
 void pushGoalie(){
 	if(!point1){
-		if(!atLocation(Location(XMAX-ROBOT_RADIUS,YMAX/2),Location(getRobotPose().x,getRobotPose().y))){
-			goToPosition(Pose(XMAX-ROBOT_RADIUS,YMAX/2,0),getRobotPose(),false);
+		if(!atLocationWide(Location(XMAX-2*ROBOT_RADIUS,YMAX/2),Location(getRobotPose().x,getRobotPose().y))){
+			goToPosition(Pose(XMAX-2*ROBOT_RADIUS,YMAX/2,0),getRobotPose(),false);
 		}
 		else point1 = true;
 	}
@@ -629,16 +629,22 @@ void pushGoalie(){
 			point2 = true;
 			prevPose = getRobotPose();
 		}
+		setLED(LEDColor::PURPLE);
 	}
 	else{
-		if(counter<500){
+		setLED(LEDColor::OFF);
+		if(counter<1000){
 			setMotors(800,800);
 		}
-		else setMotors(1600,1600);
+		else {
+			setMotors(1600,1600);
+			setLED(LEDColor::BLUE);
+		}
 		if(abs(getRobotPose().y - prevPose.y)<6){
 			counter++;
+			setLED(LEDColor::RED);
 		}
-		if (counter==505) counter = 0;
+		prevPose = getRobotPose();
 	}
 }
 
