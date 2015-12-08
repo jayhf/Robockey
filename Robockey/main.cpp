@@ -47,8 +47,8 @@ void strategyWirelessTest();
 
 int main(void)
 {
-	//strategyWirelessTest();
-	friendlies();
+	strategyWirelessTest();
+	//friendlies();
 }
 
 void localizationCalibration(){
@@ -91,7 +91,7 @@ void oldMain(){
 	Pose robot;
 	Location puck;
 	while (1) {
-		m_red(flipCoordinates());
+		//m_red(flipCoordinates());
 		beginADC();
 		updateLocalization();
 		/*if(i<300){
@@ -177,13 +177,15 @@ void strategyWirelessTest(){
 	initWireless();
 	initLocalization();
 	updateLocalization();
-	_delay_ms(500);
+	_delay_ms(200);
 	setLED(LEDColor::OFF);
 	updateLocalization();
 	//m_red(1);
 	while(1){
+		updateLocalization();
+		updateLED();
 		updateWireless();
-		updateStrategies();
+		//updateStrategies();
 		//m_green(2);
 		//m_red(2);
 	}
@@ -199,7 +201,7 @@ void friendlies(){
 	initWireless();
 	initLocalization();
 	updateLocalization();
-	_delay_ms(500);
+	_delay_ms(200);
 	updateLocalization();
 	Location initPuck = getPuckLocation();
 	startKick();

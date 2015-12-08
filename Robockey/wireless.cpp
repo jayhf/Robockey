@@ -9,7 +9,7 @@
 #include <avr/interrupt.h>
 #include <string.h>
 
-#define MAX_MESSAGES_PER_SECOND 32
+#define MAX_MESSAGES_PER_SECOND 16
 
 extern "C"{
 	#include "m_rf.h"
@@ -20,7 +20,7 @@ bool allyHasPuck[] = {0,0};
 bool allyIsGoalie[] = {0,0};
 uint8_t allyStrategies[] = {PICK_SOMETHING,PICK_SOMETHING};
 uint8_t allyStrategySuggestions[] = {PICK_SOMETHING,PICK_SOMETHING};
-uint8_t gameCommandsToSend[] = {0,0};
+uint8_t gameCommandsToSend[] = {static_cast<uint8_t>(GameState::HALFTIME),static_cast<uint8_t>(GameState::HALFTIME)};
 uint8_t gameCommandsToSendCount[] = {0,0};
 time lastHalftimeUpdateTime = -10*ONE_SECOND-1;
 	
@@ -74,7 +74,7 @@ void handleGameStateMessage(uint8_t id){
 			updateGameState(GameState::PAUSE);
 			break;
 		case 0xA6:
-			if(!timePassed(lastHalftimeUpdateTime+10*ONE_SECOND)){
+			if(timePassed(lastHalftimeUpdateTime+10*ONE_SECOND)){
 				lastHalftimeUpdateTime = getTime();
 				updateGameState(GameState::HALFTIME);
 			}
@@ -87,27 +87,35 @@ void handleGameStateMessage(uint8_t id){
 	}
 }
 
+uint8_t computeChecksum(uint8_t *packet){
+	uint8_t checksum = 0;
+	for(uint8_t i = 0; i<9; i++)
+		checksum ^= packet[i];
+	return checksum;
+}
 void sendPacket(Robot robot, uint8_t *packet){
 	packet[0]=static_cast<uint8_t>(getThisRobot());
+	packet[9]=computeChecksum(packet);
 	m_rf_send(static_cast<uint8_t>(robot), (char*)packet, 10);
 }
 
 
-void sendPacket(Robot robot, uint8_t messageID, uint8_t *packet){
+void sendDebugPacket(Robot robot, uint8_t messageID, uint8_t *packet){
+	packet[0]=static_cast<uint8_t>(getThisRobot());
 	packet[1]=messageID;
-	sendPacket(robot,packet);
+	m_rf_send(static_cast<uint8_t>(robot), (char*)packet, 10);
 }
 
 void sendRobotLocation(){
 	uint8_t buffer[10];
-	Pose pose = getRobotPose();
+	Pose pose =getRobotPose(); //getAllyLocations()[0].toPose();
 	buffer[2]=pose.x>>8;
 	buffer[3]=pose.x&0xFF;
 	buffer[4]=pose.y>>8;
 	buffer[5]=pose.y&0xFF;
 	buffer[6]=pose.o>>8;
 	buffer[7]=pose.o&0xFF;
-	sendPacket(Robot::CONTROLLER,0x10,buffer);
+	sendDebugPacket(Robot::CONTROLLER,0x10,buffer);
 }
 
 void sendIR(){
@@ -115,7 +123,7 @@ void sendIR(){
 	uint16_t *irData = getIRData();
 	for(int i=0;i<8;i++)
 		buffer[i+2] = (irData[i]>>2)&0xFF;
-	sendPacket(Robot::CONTROLLER, 0x11, buffer);
+	sendDebugPacket(Robot::CONTROLLER, 0x11, buffer);
 }
 
 void sendIR2(){
@@ -123,14 +131,14 @@ void sendIR2(){
 	uint16_t *irData = getIRData();
 	for(int i=0;i<8;i++)
 	buffer[i+2] = (irData[i+8]>>2)&0xFF;
-	sendPacket(Robot::CONTROLLER, 0x12, buffer);
+	sendDebugPacket(Robot::CONTROLLER, 0x12, buffer);
 }
 
 void sendBattery(){
 	uint8_t buffer[10];
 	buffer[2] = getBattery() >> 8;
 	buffer[3] = getBattery() & 0xFF;
-	sendPacket(Robot::CONTROLLER, 0x13, buffer);
+	sendDebugPacket(Robot::CONTROLLER, 0x13, buffer);
 }
 
 void sendPuckPose(){
@@ -141,11 +149,12 @@ void sendPuckPose(){
 	buffer[5] = getPuckLocation().y;
 	buffer[6] = static_cast<uint8_t>(getSelectedResistor());
 	buffer[7] = getPuckDistance();
-	sendPacket(Robot::CONTROLLER, 0x14, buffer);
+	sendDebugPacket(Robot::CONTROLLER, 0x14, buffer);
 }
 
 volatile bool hasMessage = false;
 void updateWireless(){
+	//m_green(!flipCoordinates());
 	if(timePassed(lastHalftimeUpdateTime+10*ONE_SECOND)){
 		lastHalftimeUpdateTime = getTime()-10*ONE_SECOND-1;
 	}
@@ -158,10 +167,12 @@ void updateWireless(){
 			case static_cast<uint8_t>(Robot::ROBOT2):
 			case static_cast<uint8_t>(Robot::ROBOT3):
 				//Received a message from another team robot
-				static uint8_t c = 0;
-				if(c++%10 == 0)
-					m_green(2);
-				processTeamMessage(getAlly(static_cast<Robot>(buffer[0])),buffer);
+				if(buffer[9]==computeChecksum(buffer)){
+					static uint8_t c = 0;
+					if(c++%10 == 0)
+						m_green(2);
+					processTeamMessage(getAlly(static_cast<Robot>(buffer[0])),buffer);
+				}
 				break;
 			case 0xA2:
 				goalScored(Team::RED);
@@ -185,7 +196,7 @@ void updateWireless(){
 	if(timePassed(lastAllyUpdateTime[1]+ONE_SECOND))
 		lastAllyUpdateTime[1] = getTime() - ONE_SECOND - 1;
 		
-	m_red(allyUpToDate(Ally::ALLY2));
+	//m_red(allyUpToDate(Ally::ALLY2));
 }
 
 ISR(INT2_vect){
@@ -233,7 +244,7 @@ void processTeamMessage(Ally ally, uint8_t *data){
 	Location allyPuckLocation = Location(data[3],data[4]);
 	receivedAllyUpdate(allyLocation, allyPuckLocation, ally);
 	uint8_t allyID = static_cast<uint8_t>(ally);
-	allyHasPuck[allyID] = 0;//data[5];
+	allyHasPuck[allyID] = data[5];
 	allyIsGoalie[allyID] = 0;//isGoalie(data[6]) && data[6] != UNKNOWN_STRATEGY && data[6] != PICK_SOMETHING;
 	allyStrategies[allyID] = data[6];
 	allyStrategySuggestions[allyID] = data[7];

@@ -38,18 +38,13 @@ extern "C"{
 #include "stdio.h"
 #include "GameState.h"
 #include "Digital.h"
+#include "wireless.h"
 
-Location newAllyLocations[2];
-Location newAllyPuckLocations[2];
-time newAllyUpdateTimes[2];
 //Location newEnemyLocations[3];
 //time newEnemyUpdateTime;
 
-uint8_t allyLocationCertainty[] = {0,0};
 Location allyLocations[2];
 Location allyPuckLocations[2];
-Velocity allyVelocities[2];
-time allyUpdateTimes[2];
 //Location enemyLocations[3] = {Location(110,5),Location(-110,5), Location(-110,-10)};
 //Velocity enemyVelocities[3];
 //time enemyUpdateTime;
@@ -78,7 +73,7 @@ void initLocalization(){
 
 void updateLocalization(){
 	for(uint8_t i = 0; i<2; i++)
-		if(timePassed(allyUpdateTimes[i]+(ONE_SECOND/8))){
+		if(!allyUpToDate(static_cast<Ally>(i))){
 			allyPuckLocations[i] = UNKNOWN_LOCATION;
 			allyLocations[i] = UNKNOWN_LOCATION;
 		}
@@ -134,8 +129,8 @@ void updateLocalization(){
 		updatePuckPosition();
 		determineTeam();
 	}
-	for(int i=0;i<2;i++)
-		locationFilter(allyLocations[i],allyVelocities[i],newAllyLocations[i], allyUpdateTimes[i], newAllyUpdateTimes[i],allyLocationCertainty[i],15);
+	//for(int i=0;i<2;i++)
+	//	locationFilter(allyLocations[i],allyVelocities[i],newAllyLocations[i], allyUpdateTimes[i], newAllyUpdateTimes[i],allyLocationCertainty[i],15);
 	//for(int i=0;i<3;i++)
 	//	locationFilter(enemyLocations[i],enemyVelocities[i],newEnemyLocations[i], enemyUpdateTime, newEnemyUpdateTime);
 }
@@ -152,15 +147,15 @@ void updatePuckPosition(){
 	
 	Location averagePuckLocation = puckLocationToSend;
 	time currentTime = getTime();
-	time dt;
+	//time dt;
 	if(allyPuckLocations[0] == UNKNOWN_LOCATION){
 		if(allyPuckLocations[1] == UNKNOWN_LOCATION){
-			dt = 0;
+			//dt = 0;
 		}
 		else{
 			averagePuckLocation.x = (averagePuckLocation.x>>1) + (allyPuckLocations[1].x>>1);
 			averagePuckLocation.y = (averagePuckLocation.y>>1) + (allyPuckLocations[1].y>>1);
-			dt = currentTime-allyUpdateTimes[1];
+			//dt = currentTime-allyUpdateTimes[1];
 		}
 	}
 	else{
@@ -169,15 +164,15 @@ void updatePuckPosition(){
 		if(allyPuckLocations[1] == UNKNOWN_LOCATION){
 			averagePuckLocation.x += allyPuckLocations[0].x>>1;
 			averagePuckLocation.y += allyPuckLocations[0].y>>1;
-			dt = currentTime-allyUpdateTimes[1];
+			//dt = currentTime-allyUpdateTimes[1];
 		}
 		else{
 			averagePuckLocation.x += (allyPuckLocations[0].x>>2) + (allyPuckLocations[1].x>>2);
 			averagePuckLocation.y += (allyPuckLocations[0].y>>2) + (allyPuckLocations[1].y>>2);
-			dt = (currentTime-allyUpdateTimes[1]+currentTime-allyUpdateTimes[0])>>1;
+			//dt = (currentTime-allyUpdateTimes[1]+currentTime-allyUpdateTimes[0])>>1;
 		}
 	}
-	locationFilter(puckLocation, puckVelocity, averagePuckLocation, puckUpdateTime, currentTime-(dt>>1), puckCertainty,30);
+	locationFilter(puckLocation, puckVelocity, averagePuckLocation, puckUpdateTime, currentTime/*-(dt>>1)*/, puckCertainty,30);
 }
 
 bool hasPuck(){
@@ -259,10 +254,6 @@ Pose getLastKnownRobotPose(){
 //	return enemyVelocities;
 //}
 
-Velocity* getAllyVelocities(){
-	return allyVelocities;
-}
-
 Velocity getVelocity(){
 	return robotVelocity;
 }
@@ -283,9 +274,6 @@ Location predictPuck(uint16_t dt){
 	return Location(location.x+(uint8_t)((((uint16_t)dt*velocity.x)>>8)),location.y+(uint8_t)((((uint16_t)dt*velocity.y)>>8)));
 }*/
 
-Location predictAlly(uint8_t allyID, uint16_t dt){
-	return predictLocation(allyLocations[allyID], allyVelocities[allyID], dt);
-}
 
 Location predictPose(uint16_t dt){
 	return predictLocation(robotPose.getLocation(), robotVelocity, dt);
@@ -293,9 +281,8 @@ Location predictPose(uint16_t dt){
 
 void receivedAllyUpdate(Location location, Location puckLocation, Ally ally){
 	uint8_t allyID = static_cast<uint8_t>(ally);
-	newAllyUpdateTimes[allyID] = getTime();
-	newAllyLocations[allyID] = location;
-	newAllyPuckLocations[allyID] = puckLocation;
+	allyLocations[allyID] = location;
+	allyPuckLocations[allyID] = puckLocation;
 }
 
 /*void receivedEnemyLocations(int8_t *locations){

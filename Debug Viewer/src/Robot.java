@@ -29,6 +29,7 @@ public class Robot {
 	private Pose puckEstimate = null;
 	private double puckAngle = 0, puckDistance = 0;
 	private boolean robotActive = false;
+	private Pose destination = new Pose(127,127,0);
 	public Robot(Pose pose, Team team) {
 		this.pose = pose;
 		this.team = team;
@@ -41,6 +42,8 @@ public class Robot {
 	public void paint(Graphics2D g){
 		if(!robotActive)
 			return;
+		g.setColor(Color.ORANGE);
+		g.fill(new Ellipse2D.Double(destination.x-7.5, destination.y-7.5, 15, 15));
 		g.setColor(team==Team.RED?Color.RED:Color.BLUE);
 		g.fill(new Ellipse2D.Double(pose.x-7.5, pose.y-7.5, 15, 15));
 		g.setColor(Color.BLACK);
@@ -415,7 +418,9 @@ public class Robot {
 				System.out.print("y: "+buffer.getShort() + ", ");
 				System.out.print("d: "+buffer.getShort()+", ");
 				System.out.print("w: "+buffer.getShort()+"\n");
-				
+				break;
+			case 0x22:
+				destination = new Pose(buffer.get(),buffer.get(),buffer.getShort()*Math.PI/32768);
 				break;
 		}
 	}

@@ -6,7 +6,7 @@
 
 void initWireless();
 void sendPacket(Robot robot, uint8_t *packet);
-void sendPacket(Robot robot, uint8_t messageID, uint8_t *packet);
+void sendDebugPacket(Robot robot, uint8_t messageID, uint8_t *packet);
 void sendRobotLocation();
 void sendIR();
 void sendIR2();
@@ -24,3 +24,4 @@ bool hasPuck(Ally ally);
 Ally getHighestPriorityAlly();
 bool allyHigherPriorityThanMe(Ally ally);
 void handleGameStateMessage(uint8_t id);
+uint8_t computeChecksum(uint8_t *packet);
