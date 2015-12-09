@@ -9,7 +9,7 @@
 #include <avr/interrupt.h>
 #include <string.h>
 
-#define MAX_MESSAGES_PER_SECOND 32
+#define MAX_MESSAGES_PER_SECOND 16
 
 extern "C"{
 	#include "m_rf.h"
@@ -242,11 +242,14 @@ void sendAllyMessage(Ally ally){
 	packet[5] = recentlyHadPuck();
 	packet[6] = getCurrentStrategy()->getID();
 	packet[7] = getOurSuggestedStrategy(ally);
-	packet[8] = gameCommandsToSend[static_cast<uint8_t>(ally)];
-	if(gameCommandsToSendCount[static_cast<uint8_t>(ally)] > 0)
+	if(gameCommandsToSendCount[static_cast<uint8_t>(ally)] > 0){
 		gameCommandsToSendCount[static_cast<uint8_t>(ally)]--;
-	else
+		packet[8] = gameCommandsToSend[static_cast<uint8_t>(ally)];
+	}
+	else{
+		packet[8] = 0;
 		gameCommandsToSend[static_cast<uint8_t>(ally)] = 0;
+	}
 	sendPacket(getAllyRobot(ally),packet);
 }
 
