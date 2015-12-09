@@ -18,7 +18,6 @@ char m_rf_open(char channel, char RXaddress, char packet_length)
 {	
 	// START | MRFTWIADDR | MRFINIT | channel | RXaddress | packet_length | STOP
 	
-	m_bus_init();
 	
 	// START
 	TWCR = (1<<TWEN)|(1<<TWSTA)|(1<<TWINT);
@@ -28,10 +27,12 @@ char m_rf_open(char channel, char RXaddress, char packet_length)
 	TWDR = MRFTWIADDR<<1;
 	TWCR = (1<<TWINT) | (1<<TWEN);
 	while(!(TWCR & (1<<TWINT))){};
+		m_green(1);
 	if((TWSR & 0xF8)== 0x20){ // ACK was not received - may not be connected/listening
 		TWCR = (1<<TWINT)|(1<<TWEN)| (1<<TWSTO); // let go of the line (STOP)
 		return 0;
 	}
+	
 	
 	// SEND THE DESIRED MRF MODE
 	TWDR = MRFINIT;

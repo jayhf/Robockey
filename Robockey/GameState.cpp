@@ -65,7 +65,6 @@ Robot getThisRobot(){
 		robotCount++;
 		_delay_ms(100);
 	}
-	m_green(1);
 	return thisRobot;
 }
 

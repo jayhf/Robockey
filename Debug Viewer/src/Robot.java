@@ -30,6 +30,7 @@ public class Robot {
 	private double puckAngle = 0, puckDistance = 0;
 	private boolean robotActive = false;
 	private Pose destination = new Pose(127,127,0);
+	private Color puckColor = new Color(Color.HSBtoRGB((float)Math.random(), 1, 1));
 	public Robot(Pose pose, Team team) {
 		this.pose = pose;
 		this.team = team;
@@ -65,7 +66,7 @@ public class Robot {
 		g.setColor(ledColor);
 		g.fill(new Ellipse2D.Double(pose.x-2, pose.y-2, 4, 4));
 		if(puckEstimate!=null){
-			g.setColor(Color.GRAY);
+			g.setColor(puckColor);
 			g.fill(new Ellipse2D.Double(puckEstimate.x-3.81, puckEstimate.y-3.81, 7.62, 7.62));
 			g.setColor(Color.DARK_GRAY);
 			g.draw(new Line2D.Double(pose.x, pose.y, pose.x+100*Math.cos(puckAngle+pose.o), pose.y+100*Math.sin(puckAngle+pose.o)));

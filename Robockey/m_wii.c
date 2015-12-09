@@ -26,7 +26,6 @@ void end(void);
 
 char m_wii_open()
 {	
-	m_bus_init();
 
 	// enter configuration mode
 	if(!start_write(MWIITWIADDR)){return 0;}

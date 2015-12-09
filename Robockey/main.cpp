@@ -218,8 +218,8 @@ void pool(){
 				}
 				else{*/
 					if (first == 0) first++;
-					//goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false);
-					//goBehindPuck();
+					Location* allies = getAllyLocations();
+					followWall();
 				}
 			//}
 		}

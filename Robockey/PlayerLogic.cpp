@@ -111,12 +111,17 @@ void goalieLogic2(){
 	if(puckVisible()){
 		Location puck = getPuckLocation();
 		if(puck != UNKNOWN_LOCATION){
-			if(puck.y>getRobotPose().y){
+			if(puck.x<XMIN+5*ROBOT_RADIUS){
+				goToPosition(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false,1400);
+			}
+			else{
+				if(puck.y>getRobotPose().y){
 					goToPosition(Pose(XMIN+2*ROBOT_RADIUS,MIN(YMAX/2+PUCK_RADIUS,puck.y),0),getRobotPose(),false,false,1400);
 				}
-			else{
+				else{
 					goToPosition(Pose(XMIN+2*ROBOT_RADIUS,MAX(YMIN/2-PUCK_RADIUS,puck.y),0),getRobotPose(),false,true,1400);
 					
+				}
 			}
 		}
 		else{
@@ -186,11 +191,11 @@ void sPattern(){
 				targetSet = true;
 			}
 			else if (currentPose.y>=0&&!point2){
-				targetPose = Pose(currentPose.x+10*ROBOT_RADIUS,YMIN+5*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+8*ROBOT_RADIUS,YMIN+5*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
 			else if(!point2){
-				targetPose = Pose(currentPose.x+10*ROBOT_RADIUS,YMAX-5*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+8*ROBOT_RADIUS,YMAX-5*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
 			else{
@@ -631,7 +636,7 @@ void pushGoalie(){
 		}
 		else {
 			setMotors(1600,1600);
-		
+			
 		}
 		if(abs(getRobotPose().y - prevPose.y)<6){
 			counter++;
@@ -642,23 +647,13 @@ void pushGoalie(){
 }
 
 void defenseLogic2(){
-	if(puckVisible()&&getPuckLocation()!=UNKNOWN_LOCATION){
-		/*if(!hasPuck(Ally::ALLY1)||!hasPuck(Ally::ALLY2)){
-			if(getPuckLocation().x<0){
-				goBehindPuck();
-			}
-			else {
-				scoreLogic();
-			}
+	if(getPuckLocation()!=UNKNOWN_LOCATION){
+		if(!hasPuck(Ally::ALLY1)&&!hasPuck(Ally::ALLY2)){
+			goBehindPuck();
 		}
-		else {*/
-			if(getPuckLocation().x<XMAX/2 - 2*ROBOT_RADIUS){
-				goBehindPuck();
-			}
-			else{
-				assistLogic();
-			}
-		//}
+		else {
+			assistLogic();
+		}
 	}
 	else goToPosition(Pose(XMIN+4*ROBOT_RADIUS,25,0),getRobotPose(),false);
 }

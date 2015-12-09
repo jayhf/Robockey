@@ -203,7 +203,7 @@ void updatePuckPosition(){
 
 bool hasPuck(){
 	
-	if(puckVisible() && (puckHeading >= -2048) && (puckHeading <= 2048)&&(puckDistance<11)){
+	if(puckVisible() && (puckHeading >= -2048) && (puckHeading <= 2048)&&(puckDistance<13)){
 		//m_green(1);
 		return true;
 	}

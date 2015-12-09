@@ -31,6 +31,7 @@ void updateDestination(Pose destination){
 	
 void initWireless(){
 	m_rf_open(1, static_cast<uint8_t>(getThisRobot()), 10);
+	m_green(0);
 }
 
 void sendNextMessage(){
@@ -176,7 +177,7 @@ void updateWireless(){
 		uint8_t buffer[10];
 		m_rf_read((char*)buffer,10);
 		switch(buffer[0]){
-		/*	case static_cast<uint8_t>(Robot::ROBOT1):
+			case static_cast<uint8_t>(Robot::ROBOT1):
 			case static_cast<uint8_t>(Robot::ROBOT2):
 			case static_cast<uint8_t>(Robot::ROBOT3):
 				//Received a message from another team robot
@@ -186,7 +187,7 @@ void updateWireless(){
 						m_green(2);
 					processTeamMessage(getAlly(static_cast<Robot>(buffer[0])),buffer);
 				}
-				break;*/
+				break;
 			case 0xA2:
 				goalScored(Team::RED);
 				updateScores(buffer[0],buffer[1]);
@@ -239,7 +240,7 @@ void sendAllyMessage(Ally ally){
 	packet[2] = robotPose.y;
 	packet[3] = puckLocation.x;
 	packet[4] = puckLocation.y;
-	packet[5] = recentlyHadPuck();
+	packet[5] = hasPuck();
 	packet[6] = 0;//getCurrentStrategy()->getID();
 	packet[7] = getOurSuggestedStrategy(ally);
 	if(gameCommandsToSendCount[static_cast<uint8_t>(ally)] > 0){
