@@ -113,7 +113,7 @@ void goalieLogic2(){
 	if(puckVisible()){
 		Location puck = getPuckLocation();
 		if(puck != UNKNOWN_LOCATION){
-			if(puck.x<XMIN+5*ROBOT_RADIUS){
+			if(puck.x<XMIN+7*ROBOT_RADIUS){
 				goToPosition(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false,1400);
 			}
 			else{
@@ -372,13 +372,13 @@ void goAndKick(Pose target){
 
 void goBehindPuck(){
 	Pose puck = getPuckLocation().toPose(getPuckHeading()+getRobotPose().o);
-	if(puck.x<getRobotPose().x-2*ROBOT_RADIUS) point1 = false;
+	if(puck.x<getRobotPose().x) point1 = false;
+	else point1 = true;
 	if(!point1){
-		
 		if(puck.y>=0)
-			targetPose = Pose(MIN(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y-3*ROBOT_RADIUS,puck.o);
+			targetPose = Pose(MAX(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y-3*ROBOT_RADIUS,puck.o);
 		else
-			targetPose = Pose(MIN(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y+3*ROBOT_RADIUS,puck.o);
+			targetPose = Pose(MAX(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y+3*ROBOT_RADIUS,puck.o);
 		if(!atLocation(Location(targetPose.x,targetPose.y),Location(getRobotPose().x,getRobotPose().y))){
 			goToPosition(targetPose,getRobotPose(),false);
 		}
@@ -588,7 +588,9 @@ void scoreLogic(){
 					break;
 				}
 				default:{
+					tryKick();
 					break;
+					
 				}
 			}
 		}
