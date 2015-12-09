@@ -191,7 +191,7 @@ void pool(){
 		updateLED();
 			
 		updateLogicTimes();
-		//updateStrategies();
+		updateStrategies();
 		switch(getThisRobot()){
 			case Robot::ROBOT1:
 				updatePlayer(Player::GOALIE);
@@ -218,7 +218,7 @@ void pool(){
 					if (first == 0) first++;
 					//goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false);
 					//goBehindPuck();
-					scoreLogic();
+					goalieLogic();
 				}
 			//}
 		}
