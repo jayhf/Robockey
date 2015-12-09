@@ -80,6 +80,7 @@ void puckLocalizationTest(){
 		sendRobotLocation();
 		sendIR();
 		sendPuckPose();
+		updateLogicTimes();
 		_delay_ms(100);
 		//m_green(2);
 	}
@@ -110,6 +111,7 @@ void strategyWirelessTest(){
 		updateWireless();
 		updateKick();
 		m_green(2);
+		updateLogicTimes();
 		//setMotors(800,800);
 		//goToPosition(Pose(0,0,0),getRobotPose(),false,true);
 		//goTo(getPuckLocation().toPose(0),getRobotPose(),true);
@@ -137,6 +139,7 @@ void friendlies(){
 		updateWireless();
 		updateKick();
 		updateLED();
+		updateLogicTimes();
 		switch(getThisRobot()){
 			case Robot::ROBOT1:
 			updatePlayer(Player::GOALIE);
@@ -190,6 +193,7 @@ void pool(){
 		updateWireless();
 		updateKick();
 		updateLED();
+		updateLogicTimes();
 		switch(getThisRobot()){
 			case Robot::ROBOT1:
 			updatePlayer(Player::GOALIE);
