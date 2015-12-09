@@ -61,7 +61,6 @@ void goalieLogic(){
 	needHelp = false;
 	if(puckVisible()){
 		Location puck = getPuckLocation();
-		//predictPuck(getTime()-getPuckUpdateTime());
 		if (puck != UNKNOWN_LOCATION){
 			if(puck.x < XMIN+5*ROBOT_RADIUS+PUCK_RADIUS){ //if puck closer than 3/4
 				if(puck.x<getRobotPose().x-2*ROBOT_RADIUS){
@@ -103,7 +102,7 @@ void goalieLogic(){
 		}
 	}
 	else{
-		goToPosition(Pose(XMIN+3*ROBOT_RADIUS,0,0),getRobotPose(),false);
+		goToPositionSpin(Pose(XMIN+3*ROBOT_RADIUS,0,0),getRobotPose());
 	}
 }
 class GoalieStrategy : public Strategy{
@@ -561,10 +560,10 @@ void scoreLogic(){
 		else{
 			
 			if (i==0){
-				rando = rand() % 7;
+				rando = rand() % 6;
 				i++;
 			} //change to number of strategies
-			else if (i==3000){
+			else if (i==2500){
 				i=0;
 				point1 = false;
 				point2 = false;
@@ -638,8 +637,8 @@ Pose prevPose = getRobotPose();
 uint16_t counter = 0;
 void pushGoalie(){
 	if(!point1){
-		if(!atLocationWide(Location(XMAX-2*ROBOT_RADIUS,YMAX/2),Location(getRobotPose().x,getRobotPose().y))){
-			goToPosition(Pose(XMAX-2*ROBOT_RADIUS,YMAX/2,0),getRobotPose(),false);
+		if(!atLocationWide(Location(XMAX-ROBOT_RADIUS-PUCK_RADIUS,YMAX/2),Location(getRobotPose().x,getRobotPose().y))){
+			goToPosition(Pose(XMAX-ROBOT_RADIUS-PUCK_RADIUS,YMAX/2,0),getRobotPose(),false);
 		}
 		else point1 = true;
 	}
@@ -651,39 +650,43 @@ void pushGoalie(){
 			point2 = true;
 			prevPose = getRobotPose();
 		}
-		setLED(LEDColor::PURPLE);
+		
 	}
 	else{
-		setLED(LEDColor::OFF);
-		if(counter<1000){
+		
+		if(counter<600){
 			setMotors(800,800);
 		}
 		else {
 			setMotors(1600,1600);
-			setLED(LEDColor::BLUE);
+		
 		}
 		if(abs(getRobotPose().y - prevPose.y)<6){
 			counter++;
-			setLED(LEDColor::RED);
+			
 		}
 		prevPose = getRobotPose();
 	}
 }
 
 void defenseLogic2(){
-	Location* allies = getAllyLocations();
-	if(allies[0] != UNKNOWN_LOCATION){
-		if (hasPuck(Ally::ALLY1)&&allies[0].x>0){
-			assistLogic();
+	if(puckVisible()&&getPuckLocation()!=UNKNOWN_LOCATION){
+		if(!hasPuck(Ally::ALLY1)||!hasPuck(Ally::ALLY2)){
+			if(getPuckLocation().x<0){
+				goBehindPuck();
+			}
+			else {
+				scoreLogic();
+			}
 		}
-	}
-	else if(allies[1] != UNKNOWN_LOCATION){
-		if (hasPuck(Ally::ALLY2)&&allies[1].x>0){
-			assistLogic();
+		else {
+			if(getPuckLocation().x<XMAX/2 - 2*ROBOT_RADIUS){
+				goBehindPuck();
+			}
+			else{
+				assistLogic();
+			}
 		}
-	}
-	else if(puckVisible()&&getPuckLocation()!=UNKNOWN_LOCATION){
-		goBehindPuck();
 	}
 	else goToPosition(Pose(XMIN+4*ROBOT_RADIUS,25,0),getRobotPose(),false);
 }
