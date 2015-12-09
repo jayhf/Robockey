@@ -660,16 +660,16 @@ void assistLogic(){
 }
 //Returns true if it should stop doing this strategy
 bool pushAlly(){
-	Location allyLocation;
+	/*Location allyLocation;
 	if(getAllySuggestedStrategy(Ally::ALLY1) == Strategy::PUSH_ALLY){
 		allyLocation = getAllyLocations()[0];
 	}
 	else if(getAllySuggestedStrategy(Ally::ALLY2) == Strategy::PUSH_ALLY){
 		allyLocation = getAllyLocations()[1];
-	}
+	}*/
 	//else
 	//	return true;
-	goBehindObject(getAllyLocations()[0]);
+	goBehindObject(getAllyLocations()[1]);
 	return false;
 }
 

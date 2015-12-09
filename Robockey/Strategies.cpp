@@ -35,8 +35,10 @@ Strategy pickStrategy(){
 			return getAllySuggestedStrategy(Ally::ALLY2);
 		}
 	}*/
-	
-	uint8_t ally1X = getAllyLocations()[0].x;
+	if(getThisRobot() == Robot::ROBOT1)
+		return Strategy::GOALIE;
+		
+	/*uint8_t ally1X = getAllyLocations()[0].x;
 	bool ally1LocationValid = getAllyLocations()[0] != UNKNOWN_LOCATION && allyUpToDate(Ally::ALLY1);
 	uint8_t ally2X = getAllyLocations()[1].x;
 	bool ally2LocationValid = getAllyLocations()[1] != UNKNOWN_LOCATION && allyUpToDate(Ally::ALLY2);
@@ -70,11 +72,16 @@ Strategy pickStrategy(){
 		if((!ally1LocationValid || robotX < ally1X + 3) && (!ally2LocationValid || robotX < ally2X + 3))
 			return Strategy::GOALIE;
 		return Strategy::DEFENSE;
-	}
+	}*/
+	if(hasPuck())
+		return Strategy::SCORE_PUCK;
+	else if(hasPuck(Ally::ALLY2))
+		return Strategy::PUSH_ALLY;
+	else
+		return Strategy::DEFENSE;
 }
 
 void updateStrategies(){
-	updateLogicTimes();
 	Strategy newStrategy = pickStrategy();
 	if(newStrategy != currentStrategy){
 		resetPoints();
@@ -86,15 +93,12 @@ void updateStrategies(){
 		case Strategy::DO_NOTHING:
 		case Strategy::PICK_SOMETHING:
 			setMotors(0,0);
-			setLED(LEDColor::OFF);
 			break;
 		case Strategy::GOALIE:
-			//goalieLogic2();
-			setLED(LEDColor::PURPLE);
+			goalieLogic();
 			break;
 		case Strategy::DEFENSE:
-			//defenseLogic2();
-			setLED(LEDColor::BLUE);
+			defenseLogic2();
 			break;
 		case Strategy::SWEEP:
 			pushGoalie();
@@ -109,8 +113,7 @@ void updateStrategies(){
 				else if(getAllyStrategy(Ally::ALLY2)!=Strategy::GOALIE)
 					suggestedAllyStrategies[1] = Strategy::PUSH_ALLY;
 			}*/
-			setLED(LEDColor::RED);
-			//scoreLogic();
+			scoreLogic();
 			break;
 	}
 }
