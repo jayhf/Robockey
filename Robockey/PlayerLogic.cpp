@@ -539,6 +539,7 @@ void scoreLogic(){
 			
 			if(timePassed(lastNewStrategyTime+3*ONE_SECOND)){
 				lastNewStrategyTime = getTime();
+				srand(getTime()^rand());
 				rando = rand() % 6;
 				point1 = false;
 				point2 = false;
