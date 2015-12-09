@@ -97,8 +97,8 @@ void strategyWirelessTest(){
 	initDigital();
 	initClock();
 	initADC();
-	initWireless();
 	initLocalization();
+	initWireless();
 	updateLocalization();
 	_delay_ms(200);
 	setLED(LEDColor::OFF);
@@ -127,8 +127,8 @@ void friendlies(){
 	initDigital();
 	initClock();
 	initADC();
-	initWireless();
 	initLocalization();
+	initWireless();
 	updateLocalization();
 	_delay_ms(200);
 	updateLocalization();
@@ -178,8 +178,8 @@ void pool(){
 	initDigital();
 	initClock();
 	initADC();
-	initWireless();
 	initLocalization();
+	initWireless();
 	updateLocalization();
 	_delay_ms(200);
 	updateLocalization();

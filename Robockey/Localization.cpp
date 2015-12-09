@@ -69,6 +69,7 @@ Location lastMoveLocation = UNKNOWN_LOCATION;
 
 void initLocalization(){
 	m_wii_open();
+	m_wait(100);
 	updateLocalization();
 	//m_wait(100);
 	//startPositive = getRobotPose().x >= 0;
