@@ -217,7 +217,7 @@ void pool(){
 				}
 				else{*/
 					if (first == 0) first++;
-					//pushGoalie();
+					goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false);
 				}
 			//}
 		}

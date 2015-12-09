@@ -113,7 +113,7 @@ void goalieLogic2(){
 	if(puckVisible()){
 		Location puck = getPuckLocation();
 		if(puck != UNKNOWN_LOCATION){
-			if(puck.x<XMIN+5*ROBOT_RADIUS){
+			if(puck.x<XMIN+7*ROBOT_RADIUS){
 				goToPosition(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false,1400);
 			}
 			else{
@@ -532,7 +532,7 @@ int rando = 0;
 time lastNewStrategyTime = -3 * ONE_SECOND;
 void scoreLogic(){
 	if(puckVisible()&& getPuckLocation()!=UNKNOWN_LOCATION){
-		if(!hasPuck()){
+		if(!recentlyHadPuck(ONE_SECOND/2)){
 			goBehindPuck();
 		}
 		else{
