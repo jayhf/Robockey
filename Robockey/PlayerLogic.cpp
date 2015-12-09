@@ -412,7 +412,7 @@ void goBehindObject(Location object){
 //Should be called in the move with puck
 void tryKick(){
 	Pose currentPose = getRobotPose();
-	uint8_t dMax = ROBOT_RADIUS + 40;
+	uint8_t dMax = ROBOT_RADIUS + 70;
 	uint8_t dXMax = ROBOT_RADIUS + PUCK_RADIUS + 30;
 	uint8_t dX = XMAX - currentPose.x;
 	if(dX <= dXMax){
