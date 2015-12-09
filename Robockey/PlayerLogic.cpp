@@ -70,7 +70,8 @@ void goalieLogic(){
 					goToPositionSpin(Pose(XMIN+ROBOT_RADIUS,puck.y/2,0),getRobotPose());
 				}
 				else{
-					goToPosition(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true);
+					goToPosition(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false);
+					if(hasPuck()&&getRobotPose().x>XMIN+3*ROBOT_RADIUS) startKick();
 				}
 				//communicate to other robot to fill in
 				needHelp = true;
@@ -78,17 +79,13 @@ void goalieLogic(){
 			else if (puck.x < 0) { //if puck closer than half field
 				int16_t yPos;
 				if (puck.y >= 0) {
-					yPos = MIN(YMAX/2-ROBOT_RADIUS,puck.y);
+					yPos = MIN(YMAX/2,puck.y);
 				}
 				else{
-					yPos = MAX(YMIN/2+ROBOT_RADIUS,puck.y);
+					yPos = MAX(YMIN/2,puck.y);
 				}
-				if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
-					faceLocation(puck, getRobotPose());
-				}
-				else{
-					goToPositionSpin(Pose(XMIN + 2*ROBOT_RADIUS, yPos,getPuckHeading()+getRobotPose().o),getRobotPose());
-				}
+				if(yPos>getRobotPose().y+ROBOT_RADIUS) goToPosition(Pose(XMIN + 2*ROBOT_RADIUS, yPos,getPuckHeading()+getRobotPose().o),getRobotPose(),false,false);
+				else goToPosition(Pose(XMIN + 2*ROBOT_RADIUS, yPos,getPuckHeading()+getRobotPose().o),getRobotPose(),false,true);
 			}
 			else {
 				if(getRobotPose().x<XMIN+5*ROBOT_RADIUS&&getRobotPose().y<2*ROBOT_RADIUS&&getRobotPose().y>-2*ROBOT_RADIUS){
@@ -376,9 +373,9 @@ void goBehindPuck(){
 	else point1 = true;
 	if(!point1){
 		if(puck.y>=0)
-			targetPose = Pose(MAX(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y-3*ROBOT_RADIUS,puck.o);
+		targetPose = Pose(MAX(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y-3*ROBOT_RADIUS,puck.o);
 		else
-			targetPose = Pose(MAX(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y+3*ROBOT_RADIUS,puck.o);
+		targetPose = Pose(MAX(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y+3*ROBOT_RADIUS,puck.o);
 		if(!atLocation(Location(targetPose.x,targetPose.y),Location(getRobotPose().x,getRobotPose().y))){
 			goToPosition(targetPose,getRobotPose(),false);
 		}
@@ -636,9 +633,9 @@ bool pushGoalie(){
 	}
 	else if(getRobotPose().y > YMIN + 4*ROBOT_RADIUS && abs(getRobotPose().o+PI/2) < PI/8){
 		if(recentlyMoved())
-			setMotors(800,800);
+		setMotors(800,800);
 		else
-			setMotors(1600,1600);
+		setMotors(1600,1600);
 	}
 	else{
 		setMotors(0,0);

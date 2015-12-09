@@ -44,3 +44,4 @@ void updateLogicTimes();
 bool pushAlly();
 void resetPoints();
 void goalieLogicJ();
+void goToPosition2(Pose target, Pose current, bool toPuck, bool backwards,uint16_t speed);

@@ -220,6 +220,7 @@ void pool(){
 					//goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false);
 					//goBehindPuck();
 					//scoreLogic();
+					goalieLogic();
 				}
 			//}
 		}
