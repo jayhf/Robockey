@@ -55,12 +55,12 @@ void sendNextMessage(){
 		case 3:
 			sendIR2();
 			break;
-		case 4:
+		/*case 4:
 			sendAllyMessage(Ally::ALLY1);
 			break;
 		case 5:
 			sendAllyMessage(Ally::ALLY2);
-			break;
+			break;*/
 		case 6:
 			sendDestinationMessage();
 			break;
@@ -197,8 +197,8 @@ void updateWireless(){
 				break;
 		}
 		if(buffer[0] == 0xA0 || buffer[0] == 0xA1 || buffer[0] == 0xA4 || buffer[0] == 0xA6 || buffer[0] == 0xA7){
-			gameCommandsToSend[0] = gameCommandsToSend[1] = buffer[0];
-			gameCommandsToSendCount[0] = gameCommandsToSendCount[1] = 5;
+			//gameCommandsToSend[0] = gameCommandsToSend[1] = buffer[0];
+			//gameCommandsToSendCount[0] = gameCommandsToSendCount[1] = 5;
 			handleGameStateMessage(buffer[0]);
 		}
 	}

@@ -202,18 +202,21 @@ void pool(){
 			updatePlayer(Player::NONE);
 			break;
 		}
-		if (allowedToMove()){
+		if (1){
 			if(getRobotPose()==UNKNOWN_POSE){
 				setMotors(0,0);
 			}
 			else{
-				if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
-					faceoff();
-				}
-				else{
+				//if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
+				//	faceoff();
+				//}
+				//else{
 					if (first == 0) first++;
-					playerLogic(getPlayer());
-				}
+					//playerLogic(getPlayer());
+					goalieLogic2();
+					//goToPosition(Pose(0,0,0),getRobotPose(),false,true);
+					//setMotors(800,800);
+				//}
 			}
 		}
 		else setMotors(0,0);

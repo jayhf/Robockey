@@ -14,6 +14,7 @@
 #include "PlayerLogic.h"
 #include "Strategies.h"
 #include "wireless.h"
+#include "miscellaneous.h"
 
 
 bool helpRequested = false;
@@ -94,6 +95,33 @@ void goalieLogic(){
 				else{
 					goToPositionSpin(Pose(XMIN+3*ROBOT_RADIUS,0,0), getRobotPose());
 				}
+			}
+		}
+		else{
+			goToPositionSpin(Pose(XMIN+3*ROBOT_RADIUS,0,0),getRobotPose());
+			if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().x>XMIN+2*ROBOT_RADIUS) faceAngle(0,getRobotPose());
+		}
+	}
+	else{
+		goToPositionSpin(Pose(XMIN+3*ROBOT_RADIUS,0,0),getRobotPose());
+	}
+}
+
+void goalieLogic2(){
+	if(puckVisible()){
+		Location puck = getPuckLocation();
+		if(puck != UNKNOWN_LOCATION){
+			if(puck.y>getRobotPose().y){
+				if(puck.x<XMIN+4*ROBOT_RADIUS){
+					goToPosition(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false,1400);
+				}
+				else{
+					goToPosition(Pose(XMIN+2*ROBOT_RADIUS,MIN(YMAX/2+PUCK_RADIUS,puck.y),0),getRobotPose(),false,false,1400);
+				}
+			}
+			else{
+					goToPosition(Pose(XMIN+2*ROBOT_RADIUS,MAX(YMIN/2-PUCK_RADIUS,puck.y),0),getRobotPose(),false,true,1400);
+					
 			}
 		}
 		else{
@@ -211,19 +239,19 @@ void sPattern(){
 	if(currentPose.x<XMAX-6*ROBOT_RADIUS&&(!point1||!point2)){
 		if(!targetSet){
 			if(currentPose.y<=0 && !point1){
-				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMAX-4*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMAX-5*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
 			else if(!point1){
-				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMIN+4*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMIN+5*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
 			else if (currentPose.y>=0&&!point2){
-				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMIN+4*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+10*ROBOT_RADIUS,YMIN+5*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
 			else if(!point2){
-				targetPose = Pose(currentPose.x+6*ROBOT_RADIUS,YMAX-4*ROBOT_RADIUS,0);
+				targetPose = Pose(currentPose.x+10*ROBOT_RADIUS,YMAX-5*ROBOT_RADIUS,0);
 				targetSet = true;
 			}
 			else{
@@ -556,6 +584,7 @@ void scoreLogic(){
 	if(puckVisible()&& getPuckLocation()!=UNKNOWN_LOCATION){
 		if(!hasPuck()){
 			goBehindPuck();
+			m_green(2);
 		}
 		else{
 			
@@ -671,7 +700,7 @@ void pushGoalie(){
 
 void defenseLogic2(){
 	if(puckVisible()&&getPuckLocation()!=UNKNOWN_LOCATION){
-		if(!hasPuck(Ally::ALLY1)||!hasPuck(Ally::ALLY2)){
+		/*if(!hasPuck(Ally::ALLY1)||!hasPuck(Ally::ALLY2)){
 			if(getPuckLocation().x<0){
 				goBehindPuck();
 			}
@@ -679,14 +708,14 @@ void defenseLogic2(){
 				scoreLogic();
 			}
 		}
-		else {
+		else {*/
 			if(getPuckLocation().x<XMAX/2 - 2*ROBOT_RADIUS){
 				goBehindPuck();
 			}
 			else{
 				assistLogic();
 			}
-		}
+		//}
 	}
 	else goToPosition(Pose(XMIN+4*ROBOT_RADIUS,25,0),getRobotPose(),false);
 }

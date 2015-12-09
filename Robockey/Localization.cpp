@@ -7,8 +7,8 @@
 
 #include "Localization.h"
 
-//#define WU_AND_CHEN
-#define GM_LAB
+#define WU_AND_CHEN
+//#define GM_LAB
 
 #if defined(GM_LAB)
 	#if defined(WU_AND_CHEN)

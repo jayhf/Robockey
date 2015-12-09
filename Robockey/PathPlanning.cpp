@@ -112,7 +112,7 @@ void goTo(Pose target, Pose current, bool backwards){
 }
 
 int k = 0;
-void goToPosition(Pose target, Pose current, bool toPuck, bool backwards){
+void goToPosition(Pose target, Pose current, bool toPuck, bool backwards,uint16_t speed){
 	if(backwards)
 		current.o += PI;
 	int16_t deltaX = current.x - target.x;
@@ -122,8 +122,8 @@ void goToPosition(Pose target, Pose current, bool toPuck, bool backwards){
 	angle offsetTheta = (current.o - targetTheta)/8;
 	uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 	int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
-	uint16_t x = MIN(1400,MAX(0,temp1));
-	uint16_t y = MIN(1200,MAX(0,temp2));
+	uint16_t x = MIN(speed,MAX(0,temp1));
+	uint16_t y = MIN(speed-200,MAX(0,temp2));
 	uint16_t d1;
 	if(toPuck) d1 = (ROBOT_RADIUS+PUCK_RADIUS+10)*(ROBOT_RADIUS+PUCK_RADIUS+10);
 	else d1 = 16;
@@ -240,13 +240,7 @@ void goToPositionPuck(Pose target, Pose current){
 		angle offsetTheta = (current.o - targetTheta)/8;
 		uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 		int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
-		uint16_t x;
-		if(getRobotPose().x<XMAX-5*ROBOT_RADIUS){
-		 x= MIN(1200,MAX(0,temp1));
-		}
-		else{
-			x=MIN(1400,MAX(0,temp1));
-		}
+		uint16_t x= MIN(1200,MAX(0,temp1));
 		uint16_t y = MIN(400,MAX(0,temp2));
 		
 		/*
@@ -298,13 +292,13 @@ void faceLocation(Location target, Pose current){
 	angle o = atan2b(-deltaY,-deltaX);
 	faceLocation(target,current,o);
 }
-void faceLocation(Location target, Pose current,angle o){
+void faceLocation(Location target, Pose current,angle o,int16_t speed){
 	if(!facingLocation(target,current,o)){
 		angle offsetTheta = (current.o - o)/8;
 		//uint8_t buffer[10] = {0,0,(current.o-o)>>8,(current.o-o)&0xFF,(current.o-lastPose.o)>>8,(current.o-lastPose.o)&0xFF,0,0,0,0};
 		//sendPacket(Robot::CONTROLLER,0x21,buffer);
 		int16_t temp1=k2 * abs(offsetTheta) - k4 * abs(offsetTheta - lastTheta);
-		uint16_t x = MAX(0,MIN(1000,temp1));
+		uint16_t x = MAX(0,MIN(speed,temp1));
 		/*uint16_t r = k2 * abs(offsetTheta);
 		uint16_t q = k4 * abs(offsetTheta - lastTheta);
 		uint16_t y = k2 * abs(offsetTheta) - k4 * abs(offsetTheta - lastTheta);
@@ -326,7 +320,7 @@ void faceLocation(Location target, Pose current,angle o){
 
 void faceAngle(angle o,Pose current){
 	int16_t temp1 = k2 * abs((current.o - o)/2) - k4 * abs(current.o - lastPose.o);
-	uint16_t x = MAX(0,MIN(1000,temp1));
+	uint16_t x = MAX(0,MIN(800,temp1));
 	
 	if(!facingHeading(o,current)){
 		

@@ -4,7 +4,7 @@
 #include "BAMSMath.h"
 
 void goTo(Pose target, Pose current, bool backwards = false);
-void goToPosition(Pose target, Pose current, bool toPuck, bool backwards = false);
+void goToPosition(Pose target, Pose current, bool toPuck, bool backwards = false,uint16_t speed = 1200);
 void goToPositionSpin(Pose target, Pose current);
 void goToPositionPuck(Pose target, Pose current);
 bool facingHeading(angle target, Pose current);
@@ -12,7 +12,7 @@ bool facingHeading(angle target, Pose current);
 bool facingLocation(Location target, Pose current);
 bool facingLocation(Location target, Pose current,angle o);
 void faceLocation(Location target, Pose current);
-void faceLocation(Location target, Pose current,angle o);
+void faceLocation(Location target, Pose current,angle o,int16_t speed = 800);
 void faceAngle(angle o, Pose current);
 void goToPuck(Pose target, Pose current);
 void goToBackwards(Pose target,Pose current);
