@@ -167,15 +167,15 @@ void updatePuckPosition(){
 
 	int16_t totalPuckX = 0;
 	int16_t totalPuckY = 0;
-	uint16_t totalWeight = 0;
+	uint8_t totalWeight = 0;
 	
-	if(allyPuckLocations[0] != UNKNOWN_LOCATION){
+	if(allyUpToDate(Ally::ALLY1) && allyPuckLocations[0] != UNKNOWN_LOCATION){
 		uint16_t allyPuckLocationWeight1 = 1;
 		totalPuckX += allyPuckLocations[0].x * allyPuckLocationWeight1;
 		totalPuckY += allyPuckLocations[0].y * allyPuckLocationWeight1;
 		totalWeight += allyPuckLocationWeight1;
 	}
-	if(allyPuckLocations[1] != UNKNOWN_LOCATION){
+	if(allyUpToDate(Ally::ALLY2) && allyPuckLocations[1] != UNKNOWN_LOCATION){
 		uint16_t allyPuckLocationWeight2 = 1;
 		totalPuckX += allyPuckLocations[1].x * allyPuckLocationWeight2;
 		totalPuckY += allyPuckLocations[1].y * allyPuckLocationWeight2;
@@ -327,7 +327,8 @@ void receivedAllyUpdate(Location location, Location puckLocation, Ally ally){
 	}
 }*/
 
-
+#ifdef WU_AND_CHEN
+#define PUCK_VISIBLE_BOUND 290
 uint16_t intensities1K[] = {55,65,150,350,1023};
 uint8_t distances1K[] = {12,11,10,9,8};
 uint16_t intensities6K8[] = {0,45,80,190,330,650,1023};
@@ -336,6 +337,18 @@ uint16_t intensities47K[] = {0,67,105,125,180,300,510,860,980,1023};
 uint8_t distances47K[] = {150,50,40,35,30,25,20,16,14,13};
 uint16_t intensities330K[] = {280,315,330,355,380,450,565,750,875,985,1023};
 uint8_t distances330K[] = {210,160,130,100,80,60,50,40,35,30,25};
+#endif
+#ifdef GM_LAB
+#define PUCK_VISIBLE_BOUND 320
+uint16_t intensities1K[] = {0,160,260,1023};
+uint8_t distances1K[] = {11,10,9,8};
+uint16_t intensities6K8[] = {0,150,300,650,1023};
+uint8_t distances6K8[] = {18,16,12,10,9};
+uint16_t intensities47K[] = {0,150,290,400,500,650,850,1023};
+uint8_t distances47K[] = {34,30,26,22,20,18,16,14};
+uint16_t intensities330K[] = {0,315,320,340,360,410,450,525,600,700,775,850,1023};
+uint8_t distances330K[] = {255,200,150,120,100,80,70,60,50,45,40,35,31};
+#endif
 
 Location findPuck(){
 	uint16_t val = 0;
@@ -393,7 +406,7 @@ Location findPuck(){
 			break;
 		}
 	}
-	if(distance == 0xFF || (getSelectedResistor() == Resistor::R330K && values[photo] < 290)){
+	if(distance == 0xFF || (getSelectedResistor() == Resistor::R330K && values[photo] < PUCK_VISIBLE_BOUND)){
 		seePuck = false;
 		return UNKNOWN_LOCATION;
 	}
