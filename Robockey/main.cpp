@@ -158,7 +158,8 @@ void strategyWirelessTest(){
 		updateLED();
 		updateWireless();
 		updateKick();
-		m_green(2);
+		setMotors(1600,1600);
+		//m_green(hasPuck(Ally::ALLY1));
 		//setMotors(800,800);
 		//goToPosition(Pose(0,0,0),getRobotPose(),false,true);
 		//goTo(getPuckLocation().toPose(0),getRobotPose(),true);
@@ -216,4 +217,31 @@ void friendlies(){
 		
 		else setMotors(0,0);
 	}
+}
+
+void playMatch(){
+		m_clockdivide(0);
+		m_disableJTAG();
+		_delay_ms(100);
+		sei();
+		m_bus_init();
+		initDigital();
+		initClock();
+		initADC();
+		initWireless();
+		initLocalization();
+		updateLocalization();
+		_delay_ms(200);
+		setLED(LEDColor::OFF);
+		updateLocalization();
+		while(1){
+			updateLocalization();
+			updateWireless();
+			updateKick();
+			updateLED();
+			if(allowedToMove()){
+				
+			}
+			
+		}
 }

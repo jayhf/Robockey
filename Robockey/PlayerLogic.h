@@ -38,3 +38,4 @@ void goBehindPuck();
 void goBehindObject(Location object);
 void pushGoalie();
 void defenseLogic2();
+void resetVariables();

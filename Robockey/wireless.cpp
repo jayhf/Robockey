@@ -121,7 +121,7 @@ void sendDebugPacket(Robot robot, uint8_t messageID, uint8_t *packet){
 
 void sendRobotLocation(){
 	uint8_t buffer[10];
-	Pose pose = getRobotPose(); //getAllyLocations()[0].toPose();
+	Pose pose = getAllyLocations()[0].toPose();//getRobotPose(); 
 	buffer[2]=pose.x>>8;
 	buffer[3]=pose.x&0xFF;
 	buffer[4]=pose.y>>8;
@@ -240,7 +240,7 @@ void sendAllyMessage(Ally ally){
 	packet[3] = puckLocation.x;
 	packet[4] = puckLocation.y;
 	packet[5] = recentlyHadPuck();
-	packet[6] = getCurrentStrategyID();
+	packet[6] = getCurrentStrategy()->getID();
 	packet[7] = getOurSuggestedStrategy(ally);
 	packet[8] = gameCommandsToSend[static_cast<uint8_t>(ally)];
 	if(gameCommandsToSendCount[static_cast<uint8_t>(ally)] > 0)
@@ -292,7 +292,7 @@ bool allyHigherPriorityThanMe(Ally ally){
 			return false;
 		if(allyIsGoalie[allyID])
 			return true;
-		if(isGoalie(getCurrentStrategy()->getID()))
+		if(isGoalie())
 			return false;
 		return true;
 	}
@@ -300,7 +300,7 @@ bool allyHigherPriorityThanMe(Ally ally){
 		return false;
 	if(allyHasPuck[allyID])
 		return true;
-	if(isGoalie(getCurrentStrategy()->getID()))
+	if(isGoalie())
 		return false;
 	if(allyIsGoalie[allyID])
 		return true;
