@@ -39,6 +39,7 @@ extern "C"{
 #include "GameState.h"
 #include "Digital.h"
 #include "wireless.h"
+#include "m_general.h"
 
 //Location newEnemyLocations[3];
 //time newEnemyUpdateTime;
@@ -69,6 +70,7 @@ Location lastMoveLocation = UNKNOWN_LOCATION;
 
 void initLocalization(){
 	m_wii_open();
+	m_wait(100);
 	updateLocalization();
 	//m_wait(100);
 	//startPositive = getRobotPose().x >= 0;

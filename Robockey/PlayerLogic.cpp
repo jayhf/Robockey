@@ -133,62 +133,12 @@ void goalieLogic2(){
 		goToPositionSpin(Pose(XMIN+3*ROBOT_RADIUS,0,0),getRobotPose());
 	}
 }
-class GoalieStrategy : public Strategy{
-	private:
-	bool needHelp = false;
-	public:
-	GoalieStrategy(uint8_t id) : Strategy(StrategyType::GOALIE, id){
-		
-	}
 
-	uint8_t run(uint8_t* allyStrategies) override{
-		needHelp = false;
-		if(puckVisible()){
-			Location puck = getPuckLocation();
-			//predictPuck(getTime()-getPuckUpdateTime());
-			if (puck != UNKNOWN_LOCATION){
-				if(puck.x < XMIN+5*ROBOT_RADIUS+PUCK_RADIUS){ //if puck closer than 3/4
-					goToPosition(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),false);
-					//communicate to other robot to fill in
-					needHelp = true;
-				}
-				else if (puck.x < 0) { //if puck closer than half field
-					int16_t yPos;
-					if (puck.y >= 0) {
-						yPos = MIN(YMAX/2-ROBOT_RADIUS,puck.y);
-					}
-					else{
-						yPos = MAX(YMIN/2+ROBOT_RADIUS,puck.y);
-					}
-					if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
-						faceLocation(puck, getRobotPose());
-					}
-					else{
-						goToPosition(Pose(XMIN + 3*ROBOT_RADIUS, yPos,getPuckHeading()+getRobotPose().o),getRobotPose(),false);
-					}
-				}
-				else {
-					if(getRobotPose().x<XMIN+5*ROBOT_RADIUS&&getRobotPose().y<2*ROBOT_RADIUS&&getRobotPose().y>-2*ROBOT_RADIUS){
-						faceLocation(puck, getRobotPose());
-					}
-					else{
-						goToPosition(Pose(XMIN+4*ROBOT_RADIUS,0,0), getRobotPose(),false);
-					}
-				}
-			}
-			else{
-				goToPosition(Pose(XMIN+3*ROBOT_RADIUS,0,0),getRobotPose(),false);
-				if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().x>XMIN+2*ROBOT_RADIUS) faceAngle(0,getRobotPose());
-			}
-		}
-		return getID();
-	}
-	
-	uint8_t getPriority(){
-		return 0;
-	}
-	
-};
+void resetVariables(){
+	point1 = false;
+	point2 = false;
+	targetSet = false;
+}
 
 void rightCorner(){
 	Pose currentPose = getRobotPose();

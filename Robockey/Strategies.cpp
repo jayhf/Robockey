@@ -240,7 +240,8 @@ class Corner : public Strategy{
 	public:
 	Corner(uint8_t id, bool left) : Strategy(id), left(left){}
 	void prepare(){
-		//resetVariables();
+		resetVariables();
+
 	}
 	Strategy* run(uint8_t *strategyIDs){
 		if(left)
@@ -257,7 +258,8 @@ class Defense : public Strategy{
 	public:
 	Defense(uint8_t id) : Strategy(id){}
 	void prepare(){
-		//resetVariables();
+		resetVariables();
+
 	}
 	Strategy* run(uint8_t *strategyIDs){
 		goBehindPuck();
@@ -269,7 +271,9 @@ class Goalie : public Strategy{
 	public:
 	Goalie(uint8_t id) : Strategy(id){} 
 	void prepare(){
-		//resetVariables();
+
+		resetVariables();
+
 	}
 	Strategy* run(uint8_t *strategyIDs){
 		goalieLogic();

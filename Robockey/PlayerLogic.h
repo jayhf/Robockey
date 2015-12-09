@@ -39,4 +39,5 @@ void goBehindObject(Location object);
 void pushGoalie();
 void goalieLogic2();
 void defenseLogic2();
+void resetVariables();
 void assistLogic();
