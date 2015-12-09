@@ -30,8 +30,7 @@ void updateDestination(Pose destination){
 }
 	
 void initWireless(){
-	m_rf_open(1, static_cast<uint8_t>(getThisRobot()), 10);
-	m_green(0);
+	while(!m_rf_open(1, static_cast<uint8_t>(getThisRobot()), 10));
 }
 
 void sendNextMessage(){

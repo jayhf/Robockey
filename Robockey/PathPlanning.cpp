@@ -123,7 +123,7 @@ void goToPosition(Pose target, Pose current, bool toPuck, bool backwards,uint16_
 	uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 	int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
 	uint16_t x = MIN(speed,MAX(0,temp1));
-	uint16_t y = MIN(speed-200,MAX(0,temp2));
+	uint16_t y = MIN(MAX(speed-200,0),MAX(0,temp2));
 	uint16_t d1;
 	if(toPuck) d1 = (ROBOT_RADIUS+PUCK_RADIUS+10)*(ROBOT_RADIUS+PUCK_RADIUS+10);
 	else d1 = 16;

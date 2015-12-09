@@ -218,8 +218,7 @@ void pool(){
 				}
 				else{*/
 					if (first == 0) first++;
-					Location* allies = getAllyLocations();
-					followWall();
+					//pushGoalie();
 				}
 			//}
 		}

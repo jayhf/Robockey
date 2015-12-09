@@ -40,3 +40,4 @@ void pushGoalie();
 void defenseLogic2();
 void assistLogic();
 void goalieLogic2();
+void updateLogicTimes();

@@ -27,7 +27,7 @@ char m_rf_open(char channel, char RXaddress, char packet_length)
 	TWDR = MRFTWIADDR<<1;
 	TWCR = (1<<TWINT) | (1<<TWEN);
 	while(!(TWCR & (1<<TWINT))){};
-		m_green(1);
+	
 	if((TWSR & 0xF8)== 0x20){ // ACK was not received - may not be connected/listening
 		TWCR = (1<<TWINT)|(1<<TWEN)| (1<<TWSTO); // let go of the line (STOP)
 		return 0;
