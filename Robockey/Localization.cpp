@@ -84,26 +84,7 @@ void updateLocalization(){
 	m_wii_read(buffer);
 	Pose newRobotPose = localizeRobot(buffer);
 	if(newRobotPose != UNKNOWN_POSE){
-		static uint8_t wrongSide = 0;
 		bool oldPoseUnknown = robotPose == UNKNOWN_POSE;
-		if(!oldPoseUnknown){
-			if(abs(robotPose.x)>10 && ((robotPose.x > 0) ^ (newRobotPose.x > 0))){
-				wrongSide++;
-				newRobotPose.x = -newRobotPose.x;
-				newRobotPose.y = -newRobotPose.y;
-				newRobotPose.o = PI + newRobotPose.o;
-			}
-			else{
-				if(wrongSide > 0)
-					wrongSide--;
-			}
-			if(wrongSide >= 16){
-				robotPose.x = -robotPose.x;
-				robotPose.y = -robotPose.y;
-				robotPose.o = robotPose.o + PI;
-				wrongSide = 0;
-			}
-		}
 		Location robotLocation = robotPose.getLocation();
 		locationFilter(robotLocation, robotVelocity, newRobotPose.getLocation(), robotUpdateTime, getTime(),robotPoseCertainty,15);
 		robotPose.x = robotLocation.x;
@@ -202,7 +183,6 @@ void updatePuckPosition(){
 }
 
 bool hasPuck(){
-	
 	if(puckVisible() && (puckHeading >= -2048) && (puckHeading <= 2048)&&(puckDistance<11)){
 		//m_green(1);
 		return true;
