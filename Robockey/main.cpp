@@ -177,10 +177,12 @@ void pool(){
 	initDigital();
 	initClock();
 	initADC();
+	
 	initWireless();
 	initLocalization();
 	updateLocalization();
 	_delay_ms(200);
+	
 	updateLocalization();
 	Location initPuck = getPuckLocation();
 	while(1){
@@ -212,7 +214,8 @@ void pool(){
 				}
 				else{*/
 					if (first == 0) first++;
-					goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false);
+					//goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false);
+					//goBehindPuck();
 				}
 			//}
 		}

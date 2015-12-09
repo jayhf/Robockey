@@ -134,12 +134,12 @@ void goToPosition(Pose target, Pose current, bool toPuck, bool backwards,uint16_
 		uint8_t packet[10]={0,0,x>>8,x&0xFF,y>>8,y&0xFF,r>>8,r&0xFF,q>>8,q&0xFF};
 		sendPacket(Robot::CONTROLLER,0x21,packet);
 		*/
-		/*if(abs(offsetTheta)>PI/32){
+		if(abs(offsetTheta)>PI/32){
 			faceLocation(Location(target.x,target.y),current,targetTheta);
 		}
-		else{*/
+		else{
 			uint16_t d2;
-			if (toPuck) d2 = 750;
+			if (toPuck) d2 = 450;
 			else d2 = 650;
 			if(backwards){
 				if ((uint16_t) abs(offsetTheta)<d2){ //if within 0.1 radians ~5* of target angle,
@@ -169,7 +169,7 @@ void goToPosition(Pose target, Pose current, bool toPuck, bool backwards,uint16_
 			}
 			lastDistance = distance;
 			lastTheta = offsetTheta;
-		//}
+		}
 	}
 	else {
 		if(toPuck){

@@ -13,6 +13,7 @@
 #include <avr/io.h>
 #define F_CPU 16000000
 #include <util/delay.h>
+#include "miscellaneous.h"
 
 volatile uint8_t redScore;
 volatile uint8_t blueScore;
@@ -61,9 +62,10 @@ Robot getThisRobot(){
 			thisRobot = selectedRobot;
 		}
 		else
-			robotCount++;
+		robotCount++;
 		_delay_ms(100);
 	}
+	m_green(1);
 	return thisRobot;
 }
 
