@@ -169,17 +169,19 @@ void updatePuckPosition(){
 	int16_t totalPuckY = 0;
 	uint8_t totalWeight = 0;
 	
-	if(allyUpToDate(Ally::ALLY1) && allyPuckLocations[0] != UNKNOWN_LOCATION){
-		uint16_t allyPuckLocationWeight1 = 1;
-		totalPuckX += allyPuckLocations[0].x * allyPuckLocationWeight1;
-		totalPuckY += allyPuckLocations[0].y * allyPuckLocationWeight1;
-		totalWeight += allyPuckLocationWeight1;
-	}
-	if(allyUpToDate(Ally::ALLY2) && allyPuckLocations[1] != UNKNOWN_LOCATION){
-		uint16_t allyPuckLocationWeight2 = 1;
-		totalPuckX += allyPuckLocations[1].x * allyPuckLocationWeight2;
-		totalPuckY += allyPuckLocations[1].y * allyPuckLocationWeight2;
-		totalWeight += allyPuckLocationWeight2;
+	if(!(puckVisible()&&puckDistance<20)){
+		if(allyUpToDate(Ally::ALLY1) && allyPuckLocations[0] != UNKNOWN_LOCATION){
+			uint16_t allyPuckLocationWeight1 = 1;
+			totalPuckX += allyPuckLocations[0].x * allyPuckLocationWeight1;
+			totalPuckY += allyPuckLocations[0].y * allyPuckLocationWeight1;
+			totalWeight += allyPuckLocationWeight1;
+		}
+		if(allyUpToDate(Ally::ALLY2) && allyPuckLocations[1] != UNKNOWN_LOCATION){
+			uint16_t allyPuckLocationWeight2 = 1;
+			totalPuckX += allyPuckLocations[1].x * allyPuckLocationWeight2;
+			totalPuckY += allyPuckLocations[1].y * allyPuckLocationWeight2;
+			totalWeight += allyPuckLocationWeight2;
+		}
 	}
 	if(puckLocationToSend != UNKNOWN_LOCATION){
 		uint16_t puckLocationWeight = 2;
