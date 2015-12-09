@@ -47,10 +47,11 @@ void playerLogic(Player player){
 			break;
 		}
 		case Player::ASSISTER:{
+			assistLogic();
 			break;
 		}
 		case Player::DEFENSE:{
-			defenseLogic();
+			defenseLogic2();
 			break;
 		}
 	}
@@ -60,7 +61,6 @@ void goalieLogic(){
 	needHelp = false;
 	if(puckVisible()){
 		Location puck = getPuckLocation();
-		//predictPuck(getTime()-getPuckUpdateTime());
 		if (puck != UNKNOWN_LOCATION){
 			if(puck.x < XMIN+5*ROBOT_RADIUS+PUCK_RADIUS){ //if puck closer than 3/4
 				if(puck.x<getRobotPose().x-2*ROBOT_RADIUS){
@@ -102,7 +102,7 @@ void goalieLogic(){
 		}
 	}
 	else{
-		goToPosition(Pose(XMIN+3*ROBOT_RADIUS,0,0),getRobotPose(),false);
+		goToPositionSpin(Pose(XMIN+3*ROBOT_RADIUS,0,0),getRobotPose());
 	}
 }
 
@@ -496,45 +496,7 @@ void crossOtoLeft(){
 		goToPositionPuck(Pose(XMAX,YMAX/2-4*ROBOT_RADIUS,0),getRobotPose());
 	}
 }
-void defenseLogic(){
-	if(helpRequested){
-		if(getRobotPose().x>XMIN+4*ROBOT_RADIUS){
-			Location puck = getPuckLocation();
-			int16_t yPos;
-			if (puck.y >= 0) {
-				yPos = MIN(YMAX/2,puck.y);
-			}
-			else{
-				yPos = MAX(YMIN/2,puck.y);
-			}
-			goToPosition(Pose(XMIN + 3*ROBOT_RADIUS, yPos,getPuckHeading()+getRobotPose().o),getRobotPose(),false);
-			if(getRobotPose().x<XMIN+4*ROBOT_RADIUS&&getRobotPose().y<yPos+2*ROBOT_RADIUS&&getRobotPose().y>yPos-2*ROBOT_RADIUS){
-				faceLocation(puck, getRobotPose());
-			}
-		}
-		else{
-			helpRequested = false;
-		}
-	}
-	else{ //get in front of puck
-		if(puckVisible()){
-			Location puck = getPuckLocation();
-			if(puck != UNKNOWN_LOCATION){
-				if(puck.x>0){
-					scoreLogic();
-				}
-				else{
-					goToPosition(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),false);
-				}
-			}
-			else goToPosition(Pose(XMIN+4*ROBOT_RADIUS,25,0),getRobotPose(),false);
-		}
-		else{
-			goToPosition(Pose(XMIN+4*ROBOT_RADIUS,25,0),getRobotPose(),false);
-			if(getRobotPose().x<XMIN+5*ROBOT_RADIUS&&getRobotPose().x>XMIN+3*ROBOT_RADIUS) faceAngle(0,getRobotPose());
-		}
-	}
-}
+
 void requestHelp(){
 	helpRequested = true;
 }
@@ -543,15 +505,15 @@ int rando = 0;
 void scoreLogic(){
 	if(puckVisible()&& getPuckLocation()!=UNKNOWN_LOCATION){
 		if(!hasPuck()){
-			goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),false);
+			goBehindPuck();
 		}
 		else{
 			
 			if (i==0){
-				rando = rand() % 3;
+				rando = rand() % 6;
 				i++;
 			} //change to number of strategies
-			else if (i==3000){
+			else if (i==2500){
 				i=0;
 				point1 = false;
 				point2 = false;
@@ -561,18 +523,42 @@ void scoreLogic(){
 			switch(rando){
 				case 0:{
 					leftCorner();
+					tryKick();
 					break;
 				}
 				case 1:{
 					rightCorner();
+					tryKick();
 					break;
 				}
 				case 2:{
-					goToPositionPuck(Pose(XMAX+5,0,0),getRobotPose());
+					center();
+					tryKick();
 					break;
 				}
 				case 3:{
 					charge();
+					tryKick();
+					break;
+				}
+				case 4:{
+					crossOtoLeft();
+					tryKick();
+					break;
+				}
+				case 5:{
+					crossOtoRight();
+					tryKick();
+					break;
+				}
+				case 6:{
+					sPattern();
+					tryKick();
+					break;
+				}
+				case 7:{
+					followWall();
+					tryKick();
 					break;
 				}
 				default:{
@@ -582,7 +568,7 @@ void scoreLogic(){
 		}
 	}
 	else{
-		goToPosition(Pose(XMAX-4*ROBOT_RADIUS,-25,0),getRobotPose(),false);
+		goToPosition(Pose(XMIN+4*ROBOT_RADIUS,-25,0),getRobotPose(),false);
 	}
 }
 
@@ -591,8 +577,8 @@ void faceoff(){
 	if(player==Player::SCORER){
 		goToPosition(puck,getRobotPose(),true);
 	}
-	else if(player==Player::ASSISTER){
-		goToPosition(Pose(puck.x-3*ROBOT_RADIUS,0,0),getRobotPose(),false);
+	else if(player==Player::DEFENSE){
+		goToPosition(Pose(puck.x,10,0),getRobotPose(),false);
 	}
 	else playerLogic(player);
 }
@@ -601,8 +587,8 @@ Pose prevPose = getRobotPose();
 uint16_t counter = 0;
 void pushGoalie(){
 	if(!point1){
-		if(!atLocationWide(Location(XMAX-2*ROBOT_RADIUS,YMAX/2),Location(getRobotPose().x,getRobotPose().y))){
-			goToPosition(Pose(XMAX-2*ROBOT_RADIUS,YMAX/2,0),getRobotPose(),false);
+		if(!atLocationWide(Location(XMAX-ROBOT_RADIUS-PUCK_RADIUS,YMAX/2),Location(getRobotPose().x,getRobotPose().y))){
+			goToPosition(Pose(XMAX-ROBOT_RADIUS-PUCK_RADIUS,YMAX/2,0),getRobotPose(),false);
 		}
 		else point1 = true;
 	}
@@ -614,32 +600,46 @@ void pushGoalie(){
 			point2 = true;
 			prevPose = getRobotPose();
 		}
-		setLED(LEDColor::PURPLE);
+		
 	}
 	else{
-		setLED(LEDColor::OFF);
-		if(counter<1000){
+		
+		if(counter<600){
 			setMotors(800,800);
 		}
 		else {
 			setMotors(1600,1600);
-			setLED(LEDColor::BLUE);
+		
 		}
 		if(abs(getRobotPose().y - prevPose.y)<6){
 			counter++;
-			setLED(LEDColor::RED);
+			
 		}
 		prevPose = getRobotPose();
 	}
 }
 
 void defenseLogic2(){
-	Location* allies = getAllyLocations();
-	if(getPuckLocation().x>0){
-		if(atLocation(Location(XMIN/2,-25),allies[0])||atLocation(Location(XMIN/2,-25),allies[1])){
-			goToPosition(Pose(XMIN/2,25,0),getRobotPose(),false);
+	if(puckVisible()&&getPuckLocation()!=UNKNOWN_LOCATION){
+		if(!hasPuck(Ally::ALLY1)||!hasPuck(Ally::ALLY2)){
+			if(getPuckLocation().x<0){
+				goBehindPuck();
+			}
+			else {
+				scoreLogic();
+			}
 		}
-		else goToPosition(Pose(XMIN/2,-25,0),getRobotPose(),false);
+		else {
+			if(getPuckLocation().x<XMAX/2 - 2*ROBOT_RADIUS){
+				goBehindPuck();
+			}
+			else{
+				assistLogic();
+			}
+		}
 	}
-	else goBehindPuck();
+	else goToPosition(Pose(XMIN+4*ROBOT_RADIUS,25,0),getRobotPose(),false);
+}
+void assistLogic(){
+	pushGoalie();
 }

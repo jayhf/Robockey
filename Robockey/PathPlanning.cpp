@@ -240,8 +240,14 @@ void goToPositionPuck(Pose target, Pose current){
 		angle offsetTheta = (current.o - targetTheta)/8;
 		uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 		int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
-		uint16_t x = MIN(1400,MAX(0,temp1));
-		uint16_t y = MIN(600,MAX(0,temp2));
+		uint16_t x;
+		if(getRobotPose().x<XMAX-5*ROBOT_RADIUS){
+		 x= MIN(1200,MAX(0,temp1));
+		}
+		else{
+			x=MIN(1400,MAX(0,temp1));
+		}
+		uint16_t y = MIN(400,MAX(0,temp2));
 		
 		/*
 		uint16_t r = k1*distance;

@@ -44,60 +44,11 @@ void friendlies();
 void faceoff();
 void localizationCalibration();
 void strategyWirelessTest();
+void pool();
 
 int main(void)
 {
-	strategyWirelessTest();
-	m_clockdivide(0);
-	m_disableJTAG();
-	_delay_ms(100);
-	sei();
-	m_bus_init();
-	initDigital();
-	initClock();
-	initADC();
-	initWireless();
-	initLocalization();
-	updateLocalization();
-	_delay_ms(200);
-	updateLocalization();
-	Location initPuck = getPuckLocation();
-	while(1){
-		updateLocalization();
-		updateWireless();
-		updateKick();
-		updateLED();
-		switch(getThisRobot()){
-			case Robot::ROBOT1:
-			updatePlayer(Player::GOALIE);
-			break;
-			case Robot::ROBOT2:
-			updatePlayer(Player::SCORER);
-			break;
-			case Robot::ROBOT3:
-			updatePlayer(Player::DEFENSE);
-			break;
-			default:
-			updatePlayer(Player::NONE);
-			break;
-		}
-		if (1){
-			if(getRobotPose()==UNKNOWN_POSE){
-				setMotors(0,0);
-			}
-			else{
-				//if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
-				//	faceoff();
-				//}
-				//else{
-					if (first == 0) first++;
-					followWall();
-					
-				//}
-			}
-		}
-		else setMotors(0,0);
-	}
+	pool();
 }
 
 void localizationCalibration(){
@@ -181,7 +132,6 @@ void friendlies(){
 	updateLocalization();
 	_delay_ms(200);
 	updateLocalization();
-	Location initPuck = getPuckLocation();
 	startKick();
 	while(1){
 		updateLocalization();
@@ -219,29 +169,54 @@ void friendlies(){
 	}
 }
 
-void playMatch(){
-		m_clockdivide(0);
-		m_disableJTAG();
-		_delay_ms(100);
-		sei();
-		m_bus_init();
-		initDigital();
-		initClock();
-		initADC();
-		initWireless();
-		initLocalization();
+void pool(){
+	m_clockdivide(0);
+	m_disableJTAG();
+	_delay_ms(100);
+	sei();
+	m_bus_init();
+	initDigital();
+	initClock();
+	initADC();
+	initWireless();
+	initLocalization();
+	updateLocalization();
+	_delay_ms(200);
+	updateLocalization();
+	Location initPuck = getPuckLocation();
+	while(1){
 		updateLocalization();
-		_delay_ms(200);
-		setLED(LEDColor::OFF);
-		updateLocalization();
-		while(1){
-			updateLocalization();
-			updateWireless();
-			updateKick();
-			updateLED();
-			if(allowedToMove()){
-				
-			}
-			
+		updateWireless();
+		updateKick();
+		updateLED();
+		switch(getThisRobot()){
+			case Robot::ROBOT1:
+			updatePlayer(Player::GOALIE);
+			break;
+			case Robot::ROBOT2:
+			updatePlayer(Player::SCORER);
+			break;
+			case Robot::ROBOT3:
+			updatePlayer(Player::DEFENSE);
+			break;
+			default:
+			updatePlayer(Player::NONE);
+			break;
 		}
+		if (allowedToMove()){
+			if(getRobotPose()==UNKNOWN_POSE){
+				setMotors(0,0);
+			}
+			else{
+				if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
+					faceoff();
+				}
+				else{
+					if (first == 0) first++;
+					playerLogic(getPlayer());
+				}
+			}
+		}
+		else setMotors(0,0);
+	}
 }
