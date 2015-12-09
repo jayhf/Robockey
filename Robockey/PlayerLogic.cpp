@@ -410,7 +410,7 @@ void goBehindObject(Location object){
 void tryKick(){
 	Pose currentPose = getRobotPose();
 	uint8_t dMax = ROBOT_RADIUS + 40;
-	uint8_t dXMax = ROBOT_RADIUS + PUCK_RADIUS + 15;
+	uint8_t dXMax = ROBOT_RADIUS + PUCK_RADIUS + 30;
 	uint8_t dX = XMAX - currentPose.x;
 	if(dX <= dXMax){
 		float dL = dX/cosb(currentPose.o);
@@ -655,4 +655,24 @@ void defenseLogic2(){
 }
 void assistLogic(){
 	pushGoalie();
+}
+//Returns true if it should stop doing this strategy
+bool pushAlly(){
+	Location allyLocation;
+	if(getAllySuggestedStrategy(Ally::ALLY1) == Strategy::PUSH_ALLY){
+		allyLocation = getAllyLocations()[0];
+	}
+	else if(getAllySuggestedStrategy(Ally::ALLY2) == Strategy::PUSH_ALLY){
+		allyLocation = getAllyLocations()[1];
+	}
+	//else
+	//	return true;
+	goBehindObject(getAllyLocations()[0]);
+	return false;
+}
+
+void resetPoints(){
+	point1 = false;
+	point2 = false;
+	targetSet = false;
 }
