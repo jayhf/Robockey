@@ -5,15 +5,15 @@
 //TODO remove the following
 #include <avr/io.h>
 #include "miscellaneous.h"
+#include "PlayerLogic.h"
 
-Strategy::Strategy(StrategyType strategyType, uint8_t strategyId) : 
-	strategyType(strategyType),
-	id(strategyId | static_cast<uint8_t>(strategyType)){
+Strategy::Strategy(uint8_t strategyId) : 
+	id(strategyId){
 }
-
+/*
 StrategyType Strategy::getStrategyType(){
 	return strategyType;
-}
+}*/
 
 uint8_t Strategy::getID(){
 	return id;
@@ -236,10 +236,110 @@ void updateStrategies(){
 	}
 }*/
 
+class Corner : public Strategy{
+	public:
+	Corner(uint8_t id, bool left) : Strategy(id), left(left){}
+	void prepare(){
+		//resetVariables();
+	}
+	Strategy* run(uint8_t *strategyIDs){
+		if(left)
+			leftCorner();
+		else
+			rightCorner();
+		return pickStrategy();
+	}
+	private:
+	bool left;
+};
 
-uint8_t getCurrentStrategyID(){
-	return 0;
+class Defense : public Strategy{
+	public:
+	Defense(uint8_t id) : Strategy(id){}
+	void prepare(){
+		//resetVariables();
+	}
+	Strategy* run(uint8_t *strategyIDs){
+		goBehindPuck();
+		return pickStrategy();
+	}
+};
+
+class Goalie : public Strategy{
+	public:
+	Goalie(uint8_t id) : Strategy(id){} 
+	void prepare(){
+		//resetVariables();
+	}
+	Strategy* run(uint8_t *strategyIDs){
+		goalieLogic();
+		return pickStrategy();
+	}
+};
+
+Goalie goalie = Goalie(2);
+Defense defense = Defense(3);
+Corner left = Corner(4,true);
+Corner right = Corner(5,false);
+
+Strategy *currentStrategy = &goalie;
+time lastStrategySwitchTime = -ONE_SECOND;
+uint8_t allySuggestions[2] = {PICK_SOMETHING,PICK_SOMETHING};
+	
+bool isGoalie(){
+	return currentStrategy == &goalie;
+}
+Strategy *getCurrentStrategy(){
+	return currentStrategy;
 }
 uint8_t getOurSuggestedStrategy(Ally ally){
 	return PICK_SOMETHING;
+}
+
+Strategy *pickStrategy(){
+	if(timePassed(lastStrategySwitchTime + ONE_SECOND)){
+		lastStrategySwitchTime = getTime() - ONE_SECOND;
+		int8_t robotX = getRobotPose().x;
+		if(!recentlyHadPuck() && !hasPuck(Ally::ALLY1) && !hasPuck(Ally::ALLY2)){
+			bool closestToGoal = true;
+			if(getAllyLocations()[0].x < robotX)
+				closestToGoal = false;
+			if(getAllyLocations()[1].x < robotX)
+				closestToGoal = false;
+			if(closestToGoal)
+				return &goalie;
+			return &defense;
+		}
+		else{
+			if(recentlyHadPuck()){
+				//Pick offense
+			}
+			else{
+				Ally allyWithoutPuck = hasPuck(Ally::ALLY1) ? Ally::ALLY2 : Ally::ALLY1;
+				if(getAllyLocations()[static_cast<uint8_t>(allyWithoutPuck)].x > robotX)
+					return &goalie;
+				else{
+					//Pick assist
+				}
+			}
+		}
+		return currentStrategy;
+	}
+	else
+		return currentStrategy;
+}
+
+void updateStrategies(){
+	if(allowedToMove() && (getRobotPose() != UNKNOWN_POSE)){
+		allySuggestions[0] = PICK_SOMETHING;
+		allySuggestions[1] = PICK_SOMETHING;
+		Strategy *newStrategy = currentStrategy->run(allySuggestions);
+		if(newStrategy->getID() != currentStrategy->getID()){
+			lastStrategySwitchTime = getTime();
+			currentStrategy = newStrategy;
+			currentStrategy->prepare();
+		}
+	}
+	else
+		setMotors(0,0);
 }

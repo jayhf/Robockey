@@ -9,7 +9,7 @@
 #include <avr/interrupt.h>
 #include <string.h>
 
-#define MAX_MESSAGES_PER_SECOND 32
+#define MAX_MESSAGES_PER_SECOND 16
 
 extern "C"{
 	#include "m_rf.h"
@@ -20,7 +20,7 @@ bool allyHasPuck[] = {0,0};
 bool allyIsGoalie[] = {0,0};
 uint8_t allyStrategies[] = {PICK_SOMETHING,PICK_SOMETHING};
 uint8_t allyStrategySuggestions[] = {PICK_SOMETHING,PICK_SOMETHING};
-uint8_t gameCommandsToSend[] = {static_cast<uint8_t>(GameState::HALFTIME),static_cast<uint8_t>(GameState::HALFTIME)};
+uint8_t gameCommandsToSend[] = {0,0};
 uint8_t gameCommandsToSendCount[] = {0,0};
 time lastHalftimeUpdateTime = -10*ONE_SECOND-1;
 Pose destinationPose;
@@ -121,7 +121,7 @@ void sendDebugPacket(Robot robot, uint8_t messageID, uint8_t *packet){
 
 void sendRobotLocation(){
 	uint8_t buffer[10];
-	Pose pose = getRobotPose(); //getAllyLocations()[0].toPose();
+	Pose pose = getAllyLocations()[0].toPose();//getRobotPose(); 
 	buffer[2]=pose.x>>8;
 	buffer[3]=pose.x&0xFF;
 	buffer[4]=pose.y>>8;
@@ -240,13 +240,16 @@ void sendAllyMessage(Ally ally){
 	packet[3] = puckLocation.x;
 	packet[4] = puckLocation.y;
 	packet[5] = recentlyHadPuck();
-	packet[6] = getCurrentStrategyID();
+	packet[6] = getCurrentStrategy()->getID();
 	packet[7] = getOurSuggestedStrategy(ally);
-	packet[8] = gameCommandsToSend[static_cast<uint8_t>(ally)];
-	if(gameCommandsToSendCount[static_cast<uint8_t>(ally)] > 0)
+	if(gameCommandsToSendCount[static_cast<uint8_t>(ally)] > 0){
 		gameCommandsToSendCount[static_cast<uint8_t>(ally)]--;
-	else
+		packet[8] = gameCommandsToSend[static_cast<uint8_t>(ally)];
+	}
+	else{
+		packet[8] = 0;
 		gameCommandsToSend[static_cast<uint8_t>(ally)] = 0;
+	}
 	sendPacket(getAllyRobot(ally),packet);
 }
 
@@ -292,7 +295,7 @@ bool allyHigherPriorityThanMe(Ally ally){
 			return false;
 		if(allyIsGoalie[allyID])
 			return true;
-		if(isGoalie(getCurrentStrategy()->getID()))
+		if(isGoalie())
 			return false;
 		return true;
 	}
@@ -300,7 +303,7 @@ bool allyHigherPriorityThanMe(Ally ally){
 		return false;
 	if(allyHasPuck[allyID])
 		return true;
-	if(isGoalie(getCurrentStrategy()->getID()))
+	if(isGoalie())
 		return false;
 	if(allyIsGoalie[allyID])
 		return true;

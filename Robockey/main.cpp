@@ -97,8 +97,8 @@ void strategyWirelessTest(){
 	initDigital();
 	initClock();
 	initADC();
-	initWireless();
 	initLocalization();
+	initWireless();
 	updateLocalization();
 	_delay_ms(200);
 	setLED(LEDColor::OFF);
@@ -109,7 +109,8 @@ void strategyWirelessTest(){
 		updateLED();
 		updateWireless();
 		updateKick();
-		m_green(2);
+		setMotors(1600,1600);
+		//m_green(hasPuck(Ally::ALLY1));
 		//setMotors(800,800);
 		//goToPosition(Pose(0,0,0),getRobotPose(),false,true);
 		//goTo(getPuckLocation().toPose(0),getRobotPose(),true);
@@ -126,8 +127,8 @@ void friendlies(){
 	initDigital();
 	initClock();
 	initADC();
-	initWireless();
 	initLocalization();
+	initWireless();
 	updateLocalization();
 	_delay_ms(200);
 	updateLocalization();
@@ -177,8 +178,8 @@ void pool(){
 	initDigital();
 	initClock();
 	initADC();
-	initWireless();
 	initLocalization();
+	initWireless();
 	updateLocalization();
 	_delay_ms(200);
 	updateLocalization();
@@ -212,10 +213,7 @@ void pool(){
 				//}
 				//else{
 					if (first == 0) first++;
-					//playerLogic(getPlayer());
-					goalieLogic2();
-					//goToPosition(Pose(0,0,0),getRobotPose(),false,true);
-					//setMotors(800,800);
+					goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false);
 				//}
 			}
 		}
