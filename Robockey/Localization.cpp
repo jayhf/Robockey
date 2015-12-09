@@ -330,7 +330,7 @@ void receivedAllyUpdate(Location location, Location puckLocation, Ally ally){
 }*/
 
 #ifdef WU_AND_CHEN
-#define PUCK_VISIBLE_BOUND 290
+#define PUCK_VISIBLE_BOUND 300
 uint16_t intensities1K[] = {55,65,150,350,1023};
 uint8_t distances1K[] = {12,11,10,9,8};
 uint16_t intensities6K8[] = {0,45,80,190,330,650,1023};
@@ -341,7 +341,7 @@ uint16_t intensities330K[] = {280,315,330,355,380,450,565,750,875,985,1023};
 uint8_t distances330K[] = {210,160,130,100,80,60,50,40,35,30,25};
 #endif
 #ifdef GM_LAB
-#define PUCK_VISIBLE_BOUND 320
+#define PUCK_VISIBLE_BOUND 340
 uint16_t intensities1K[] = {0,160,260,1023};
 uint8_t distances1K[] = {11,10,9,8};
 uint16_t intensities6K8[] = {0,150,300,650,1023};
