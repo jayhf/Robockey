@@ -5,8 +5,71 @@
 //TODO remove the following
 #include <avr/io.h>
 #include "miscellaneous.h"
+#include "PlayerLogic.h"
 
-Strategy::Strategy(StrategyType strategyType, uint8_t strategyId) : 
+Strategy currentStrategy = Strategy::DO_NOTHING;
+Strategy suggestedAllyStrategies[2];
+
+Strategy getCurrentStrategy(){
+	return currentStrategy;
+}
+Strategy getOurSuggestedStrategy(Ally ally){
+	return suggestedAllyStrategies[static_cast<uint8_t>(ally)];
+}
+
+Strategy pickStrategy(){
+	if(recentlyHadPuck() || hasPuck(Ally::ALLY1) || hasPuck(Ally::ALLY2)){
+		
+	}
+	else{
+		
+	}
+	return Strategy::DO_NOTHING;
+}
+
+void updateStrategies(){
+	updateLogicTimes();
+	Strategy newStrategy = pickStrategy();
+	if(newStrategy != currentStrategy){
+		resetPoints();
+		currentStrategy = newStrategy;
+	}
+	suggestedAllyStrategies[0] = Strategy::PICK_SOMETHING;
+	suggestedAllyStrategies[1] = Strategy::PICK_SOMETHING;
+	switch(currentStrategy){
+		case Strategy::DO_NOTHING:
+		case Strategy::PICK_SOMETHING:
+			setMotors(0,0);
+			break;
+		case Strategy::GOALIE:
+			goalieLogic2();
+			break;
+		case Strategy::DEFENSE:
+			defenseLogic2();
+			break;
+		case Strategy::SWEEP:
+			setLED(LEDColor::BLUE);
+			pushGoalie();
+			//if(pushGoalie())
+			//	currentStrategy = Strategy::PICK_SOMETHING;
+			break;
+		case Strategy::PUSH_ALLY:
+			if(pushAlly());
+				//currentStrategy = Strategy::PICK_SOMETHING;
+			break;
+		case Strategy::SCORE_PUCK:
+			if(!recentlyMoved()){
+				if(getAllyStrategy(Ally::ALLY1)!=Strategy::GOALIE)
+					suggestedAllyStrategies[0] = Strategy::PUSH_ALLY;
+				else if(getAllyStrategy(Ally::ALLY2)!=Strategy::GOALIE)
+					suggestedAllyStrategies[1] = Strategy::PUSH_ALLY;
+			}
+			scoreLogic();
+			break;
+	}
+}
+
+/*Strategy::Strategy(StrategyType strategyType, uint8_t strategyId) : 
 	strategyType(strategyType),
 	id(strategyId | static_cast<uint8_t>(strategyType)){
 }
@@ -18,7 +81,7 @@ StrategyType Strategy::getStrategyType(){
 uint8_t Strategy::getID(){
 	return id;
 }
-/*
+
 class DoNothingStrategy : public Strategy{
 public:
 	DoNothingStrategy(StrategyType strategyType, uint8_t id) : Strategy(strategyType, id){
@@ -235,11 +298,3 @@ void updateStrategies(){
 		currentStrategy->run(suggestedAllyStrategies);
 	}
 }*/
-
-
-uint8_t getCurrentStrategyID(){
-	return 0;
-}
-uint8_t getOurSuggestedStrategy(Ally ally){
-	return PICK_SOMETHING;
-}

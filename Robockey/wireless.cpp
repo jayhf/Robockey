@@ -18,8 +18,8 @@ extern "C"{
 time lastAllyUpdateTime[] = {(time)-1000,(time)-1000};
 bool allyHasPuck[] = {0,0};
 bool allyIsGoalie[] = {0,0};
-uint8_t allyStrategies[] = {PICK_SOMETHING,PICK_SOMETHING};
-uint8_t allyStrategySuggestions[] = {PICK_SOMETHING,PICK_SOMETHING};
+Strategy allyStrategies[2];
+Strategy allyStrategySuggestions[2];
 uint8_t gameCommandsToSend[] = {0,0};
 uint8_t gameCommandsToSendCount[] = {0,0};
 time lastHalftimeUpdateTime = -10*ONE_SECOND-1;
@@ -228,10 +228,10 @@ ISR(INT2_vect){
 	hasMessage = true;
 }
 
-uint8_t getAllyStrategy(Ally ally){
+Strategy getAllyStrategy(Ally ally){
 	return allyStrategies[static_cast<uint8_t>(ally)];
 }
-uint8_t getAllySuggestedStrategy(Ally ally){
+Strategy getAllySuggestedStrategy(Ally ally){
 	return allyStrategySuggestions[static_cast<uint8_t>(ally)];
 }
 
@@ -254,8 +254,8 @@ void sendAllyMessage(Ally ally){
 	packet[3] = puckLocation.x;
 	packet[4] = puckLocation.y;
 	packet[5] = hasPuck();
-	packet[6] = 0;//getCurrentStrategy()->getID();
-	packet[7] = getOurSuggestedStrategy(ally);
+	packet[6] = static_cast<uint8_t>(getCurrentStrategy());
+	packet[7] = static_cast<uint8_t>(getOurSuggestedStrategy(ally));
 	if(gameCommandsToSendCount[static_cast<uint8_t>(ally)] > 0){
 		gameCommandsToSendCount[static_cast<uint8_t>(ally)]--;
 		packet[8] = gameCommandsToSend[static_cast<uint8_t>(ally)];
@@ -273,9 +273,9 @@ void processTeamMessage(Ally ally, uint8_t *data){
 	receivedAllyUpdate(allyLocation, allyPuckLocation, ally);
 	uint8_t allyID = static_cast<uint8_t>(ally);
 	allyHasPuck[allyID] = data[5];
-	allyIsGoalie[allyID] = 0;//isGoalie(data[6]) && data[6] != UNKNOWN_STRATEGY && data[6] != PICK_SOMETHING;
-	allyStrategies[allyID] = data[6];
-	allyStrategySuggestions[allyID] = data[7];
+	allyIsGoalie[allyID] = (static_cast<Strategy>(data[6]) == Strategy::GOALIE);
+	allyStrategies[allyID] = static_cast<Strategy>(data[6]);
+	allyStrategySuggestions[allyID] = static_cast<Strategy>(data[7]);
 	lastAllyUpdateTime[allyID] = getTime();
 	if(data[8]!=0)
 		handleGameStateMessage(data[8]);

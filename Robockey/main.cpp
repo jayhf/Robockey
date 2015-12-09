@@ -192,19 +192,20 @@ void pool(){
 		//pushGoalie();
 			
 		updateLogicTimes();
+		updateStrategies();
 		switch(getThisRobot()){
 			case Robot::ROBOT1:
-			updatePlayer(Player::GOALIE);
-			break;
+				updatePlayer(Player::GOALIE);
+				break;
 			case Robot::ROBOT2:
-			updatePlayer(Player::SCORER);
-			break;
+				updatePlayer(Player::SCORER);
+				break;
 			case Robot::ROBOT3:
-			updatePlayer(Player::DEFENSE);
-			break;
+				updatePlayer(Player::DEFENSE);
+				break;
 			default:
-			updatePlayer(Player::NONE);
-			break;
+				updatePlayer(Player::NONE);
+				break;
 		}
 		if (1){
 			if(getRobotPose()==UNKNOWN_POSE){

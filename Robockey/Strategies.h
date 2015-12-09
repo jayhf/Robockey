@@ -2,7 +2,17 @@
 
 #include "GameState.h"
 
-#define PICK_STRATEGY_MASK 0x3F
+enum class Strategy : uint8_t{
+	DO_NOTHING = 0, PICK_SOMETHING = 1, GOALIE = 2, DEFENSE = 3, SWEEP = 4, PUSH_ALLY = 5, SCORE_PUCK = 6
+};
+
+Strategy getCurrentStrategy();
+Strategy getOurSuggestedStrategy(Ally ally);
+Strategy pickStrategy();
+void updateStrategies();
+
+
+/*#define PICK_STRATEGY_MASK 0x3F
 #define PICK_OFFENSE (PICK_STRATEGY_MASK | static_cast<uint8_t>(StrategyType::OFFENSE))
 #define PICK_DEFENSE (PICK_STRATEGY_MASK | static_cast<uint8_t>(StrategyType::DEFENSE))
 #define PICK_SCORER (PICK_STRATEGY_MASK | static_cast<uint8_t>(StrategyType::SCORER))
@@ -55,4 +65,4 @@ private:
 	Strategy **strategies;
 	uint8_t strategyCount;
 	Strategy *defaultStrategy;
-};
+};*/
