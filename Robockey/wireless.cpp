@@ -20,7 +20,7 @@ bool allyHasPuck[] = {0,0};
 bool allyIsGoalie[] = {0,0};
 uint8_t allyStrategies[] = {PICK_SOMETHING,PICK_SOMETHING};
 uint8_t allyStrategySuggestions[] = {PICK_SOMETHING,PICK_SOMETHING};
-uint8_t gameCommandsToSend[] = {static_cast<uint8_t>(GameState::HALFTIME),static_cast<uint8_t>(GameState::HALFTIME)};
+uint8_t gameCommandsToSend[] = {0,0};
 uint8_t gameCommandsToSendCount[] = {0,0};
 time lastHalftimeUpdateTime = -10*ONE_SECOND-1;
 Pose destinationPose;
