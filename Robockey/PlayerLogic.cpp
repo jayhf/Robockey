@@ -705,3 +705,20 @@ void goalieLogicJ(){
 			setMotors(0,0);
 	}
 }
+
+void defenseLogic3(){
+	if(getPuckLocation()!=UNKNOWN_LOCATION){
+		if(!hasPuck(Ally::ALLY2)){
+			if(getPuckLocation().x<XMIN+6*ROBOT_RADIUS){
+				goBehindPuck();
+			}
+			else {
+				goBehindObject(Location(MIN(getPuckLocation().x-5*ROBOT_RADIUS,XMIN+3*ROBOT_RADIUS),getPuckLocation().y));
+			}
+		}
+		else {
+			assistLogic();
+		}
+	}
+	else goToPosition(Pose(XMIN+4*ROBOT_RADIUS,25,0),getRobotPose(),false);
+}
