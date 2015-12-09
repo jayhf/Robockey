@@ -85,7 +85,6 @@ void updateScores(uint8_t red, uint8_t blue){
 void determineTeam(){
 	static int8_t teamCount;
 	Pose robotPose = getRobotPose();
-	
 	if(team == Team::UNKNOWN){
 		if(robotPose != UNKNOWN_POSE){
 			if(robotPose.x > 0)
@@ -101,6 +100,9 @@ void determineTeam(){
 				team = Team::BLUE;
 			else if(teamCount == -10)
 				team = Team::RED;
+		}
+		if(switchesPressed()){
+			pastHalfTime = !pastHalfTime;
 		}
 	}
 }

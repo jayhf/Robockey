@@ -15,7 +15,7 @@ void initDigital(){
 	DDRD |= 0b11 << 4;
 	DDRD |= 1 << 7;
 	DDRE |= 1 << 6;
-	PORTD |= 1<<7;
+	PORTD |= 0b11<<6;
 	
 	//Set B6,7 to PWM mode (set on rollover)
 	TCCR1A |= 1 << COM1B1;
