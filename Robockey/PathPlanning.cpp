@@ -134,10 +134,10 @@ void goToPosition(Pose target, Pose current, bool toPuck, bool backwards,uint16_
 		uint8_t packet[10]={0,0,x>>8,x&0xFF,y>>8,y&0xFF,r>>8,r&0xFF,q>>8,q&0xFF};
 		sendPacket(Robot::CONTROLLER,0x21,packet);
 		*/
-		if(abs(offsetTheta)>PI/32){
+		/*if(abs(offsetTheta)>PI/32){
 			faceLocation(Location(target.x,target.y),current,targetTheta);
 		}
-		else{
+		else{*/
 			uint16_t d2;
 			if (toPuck) d2 = 750;
 			else d2 = 650;
@@ -169,7 +169,7 @@ void goToPosition(Pose target, Pose current, bool toPuck, bool backwards,uint16_
 			}
 			lastDistance = distance;
 			lastTheta = offsetTheta;
-		}
+		//}
 	}
 	else {
 		if(toPuck){
@@ -240,7 +240,13 @@ void goToPositionPuck(Pose target, Pose current){
 		angle offsetTheta = (current.o - targetTheta)/8;
 		uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 		int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
-		uint16_t x= MIN(1200,MAX(0,temp1));
+		uint16_t x;
+		if(getRobotPose().x<XMAX-5*ROBOT_RADIUS){
+		 x= MIN(1200,MAX(0,temp1));
+		}
+		else{
+			x=MIN(1400,MAX(0,temp1));
+		}
 		uint16_t y = MIN(400,MAX(0,temp2));
 		
 		/*
@@ -292,13 +298,13 @@ void faceLocation(Location target, Pose current){
 	angle o = atan2b(-deltaY,-deltaX);
 	faceLocation(target,current,o);
 }
-void faceLocation(Location target, Pose current,angle o,int16_t speed){
+void faceLocation(Location target, Pose current,angle o){
 	if(!facingLocation(target,current,o)){
 		angle offsetTheta = (current.o - o)/8;
 		//uint8_t buffer[10] = {0,0,(current.o-o)>>8,(current.o-o)&0xFF,(current.o-lastPose.o)>>8,(current.o-lastPose.o)&0xFF,0,0,0,0};
 		//sendPacket(Robot::CONTROLLER,0x21,buffer);
 		int16_t temp1=k2 * abs(offsetTheta) - k4 * abs(offsetTheta - lastTheta);
-		uint16_t x = MAX(0,MIN(speed,temp1));
+		uint16_t x = MAX(0,MIN(800,temp1));
 		/*uint16_t r = k2 * abs(offsetTheta);
 		uint16_t q = k4 * abs(offsetTheta - lastTheta);
 		uint16_t y = k2 * abs(offsetTheta) - k4 * abs(offsetTheta - lastTheta);

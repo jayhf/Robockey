@@ -112,13 +112,8 @@ void goalieLogic2(){
 		Location puck = getPuckLocation();
 		if(puck != UNKNOWN_LOCATION){
 			if(puck.y>getRobotPose().y){
-				if(puck.x<XMIN+4*ROBOT_RADIUS){
-					goToPosition(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false,1400);
-				}
-				else{
 					goToPosition(Pose(XMIN+2*ROBOT_RADIUS,MIN(YMAX/2+PUCK_RADIUS,puck.y),0),getRobotPose(),false,false,1400);
 				}
-			}
 			else{
 					goToPosition(Pose(XMIN+2*ROBOT_RADIUS,MAX(YMIN/2-PUCK_RADIUS,puck.y),0),getRobotPose(),false,true,1400);
 					
@@ -132,12 +127,6 @@ void goalieLogic2(){
 	else{
 		goToPositionSpin(Pose(XMIN+3*ROBOT_RADIUS,0,0),getRobotPose());
 	}
-}
-
-void resetVariables(){
-	point1 = false;
-	point2 = false;
-	targetSet = false;
 }
 
 void rightCorner(){
@@ -534,7 +523,6 @@ void scoreLogic(){
 	if(puckVisible()&& getPuckLocation()!=UNKNOWN_LOCATION){
 		if(!hasPuck()){
 			goBehindPuck();
-			m_green(2);
 		}
 		else{
 			

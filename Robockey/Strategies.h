@@ -2,46 +2,49 @@
 
 #include "GameState.h"
 
-/*#define PICK_STRATEGY_MASK 0x3F
+#define PICK_STRATEGY_MASK 0x3F
 #define PICK_OFFENSE (PICK_STRATEGY_MASK | static_cast<uint8_t>(StrategyType::OFFENSE))
 #define PICK_DEFENSE (PICK_STRATEGY_MASK | static_cast<uint8_t>(StrategyType::DEFENSE))
 #define PICK_SCORER (PICK_STRATEGY_MASK | static_cast<uint8_t>(StrategyType::SCORER))
 #define PICK_GOALIE (PICK_STRATEGY_MASK | static_cast<uint8_t>(StrategyType::GOALIE))
-#define UNKNOWN_STRATEGY 0xFD*/
-
-#define PICK_SOMETHING 0xFF
+#define PICK_SOMETHING 0xFE
+#define UNKNOWN_STRATEGY 0xFD
 
 class Strategy{
 public:
-	Strategy(uint8_t id);
-	//StrategyType getStrategyType();
+	Strategy(StrategyType type, uint8_t id);
+	StrategyType getStrategyType();
 	uint8_t getID();
 	//Called once to update any internal variables before starting to use the strategy
 	virtual void prepare(){};
 	//Gets called every update cycle to control the robot with this strategy
 	//Returns the next strategy. Free to use one of the above constants or this.
 	//Fill the pointer with the suggested ally strategies for ally1 and ally2
-	virtual Strategy* run(uint8_t *strategyIDs) = 0;
+	virtual uint8_t run(uint8_t *strategyIDs) = 0;
 	//Returns how good a time it is for this strategy. Don't make it too slow (ie. no trig if possible)
 	//Approximate values:
 	//0 for do not choose this one
 	//1 for there must be something better, but you can try this
 	//16 for good strategy
 	//etc. can go all the way to 255
-	//virtual uint8_t getPriority() = 0;
+	virtual uint8_t getPriority() = 0;
 	
 protected:
-	//StrategyType strategyType;
+	StrategyType strategyType;
 	uint8_t id;
 };
 
-/*Strategy *getStrategy(uint8_t strategyID);
+Strategy *getStrategy(uint8_t strategyID);
 bool isOffense(uint8_t strategyID);
 bool isDefense(uint8_t strategyID);
 bool isScorer(uint8_t strategyID);
-bool isGoalie(uint8_t strategyID);*/
+bool isGoalie(uint8_t strategyID);
+Strategy *getCurrentStrategy();
+uint8_t getCurrentStrategyID();
+uint8_t getOurSuggestedStrategy(Ally ally);
+void updateStrategies();
 
-/*class StrategySelector{
+class StrategySelector{
 public:
 	StrategySelector(Strategy **strategies, uint8_t strategyCount, Strategy* defaultStrategy) :
 	 strategies(strategies), strategyCount(strategyCount), defaultStrategy(defaultStrategy){
@@ -52,10 +55,4 @@ private:
 	Strategy **strategies;
 	uint8_t strategyCount;
 	Strategy *defaultStrategy;
-};*/
-
-Strategy *getCurrentStrategy();
-uint8_t getOurSuggestedStrategy(Ally ally);
-void updateStrategies();
-Strategy *pickStrategy();
-bool isGoalie();
+};

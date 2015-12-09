@@ -101,9 +101,9 @@ void determineTeam(){
 			else if(teamCount == -10)
 				team = Team::RED;
 		}
-		//if(switchesPressed()){
-		//	pastHalfTime = !pastHalfTime;
-		//}
+		if(switchesPressed()){
+			pastHalfTime = !pastHalfTime;
+		}
 	}
 }
 

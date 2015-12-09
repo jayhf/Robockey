@@ -97,8 +97,8 @@ void strategyWirelessTest(){
 	initDigital();
 	initClock();
 	initADC();
-	initLocalization();
 	initWireless();
+	initLocalization();
 	updateLocalization();
 	_delay_ms(200);
 	setLED(LEDColor::OFF);
@@ -109,8 +109,7 @@ void strategyWirelessTest(){
 		updateLED();
 		updateWireless();
 		updateKick();
-		setMotors(1600,1600);
-		//m_green(hasPuck(Ally::ALLY1));
+		m_green(2);
 		//setMotors(800,800);
 		//goToPosition(Pose(0,0,0),getRobotPose(),false,true);
 		//goTo(getPuckLocation().toPose(0),getRobotPose(),true);
@@ -127,8 +126,8 @@ void friendlies(){
 	initDigital();
 	initClock();
 	initADC();
-	initLocalization();
 	initWireless();
+	initLocalization();
 	updateLocalization();
 	_delay_ms(200);
 	updateLocalization();
@@ -178,8 +177,8 @@ void pool(){
 	initDigital();
 	initClock();
 	initADC();
-	initLocalization();
 	initWireless();
+	initLocalization();
 	updateLocalization();
 	_delay_ms(200);
 	updateLocalization();
@@ -208,14 +207,14 @@ void pool(){
 				setMotors(0,0);
 			}
 			else{
-				//if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
-				//	faceoff();
-				//}
-				//else{
+				/*if (first == 0 && getPuckLocation().x-initPuck.x<6 && getPuckLocation().x-initPuck.x>-6 &&  getPuckLocation().y-initPuck.y<6 && getPuckLocation().y-initPuck.y>-6){
+					faceoff();
+				}
+				else{*/
 					if (first == 0) first++;
 					goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false);
-				//}
-			}
+				}
+			//}
 		}
 		else setMotors(0,0);
 	}
