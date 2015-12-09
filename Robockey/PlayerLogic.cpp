@@ -375,8 +375,10 @@ void goBehindPuck(){
 	if(puck.x<getRobotPose().x-2*ROBOT_RADIUS) point1 = false;
 	if(!point1){
 		
-		if(puck.y>=0) targetPose = Pose(MIN(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y-3*ROBOT_RADIUS,puck.o);
-		else targetPose = Pose(puck.x-3*ROBOT_RADIUS,puck.y+3*ROBOT_RADIUS,puck.o);
+		if(puck.y>=0)
+			targetPose = Pose(MIN(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y-3*ROBOT_RADIUS,puck.o);
+		else
+			targetPose = Pose(MIN(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y+3*ROBOT_RADIUS,puck.o);
 		if(!atLocation(Location(targetPose.x,targetPose.y),Location(getRobotPose().x,getRobotPose().y))){
 			goToPosition(targetPose,getRobotPose(),false);
 		}

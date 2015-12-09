@@ -18,11 +18,53 @@ Strategy getOurSuggestedStrategy(Ally ally){
 }
 
 Strategy pickStrategy(){
-	if(recentlyHadPuck() || hasPuck(Ally::ALLY1) || hasPuck(Ally::ALLY2)){
-		
+	Strategy suggestion1 = getAllySuggestedStrategy(Ally::ALLY1);
+	Strategy suggestion2 = getAllySuggestedStrategy(Ally::ALLY2);
+	
+	if(suggestion1 != Strategy::PICK_SOMETHING && allyUpToDate(Ally::ALLY1)){
+		if(suggestion2 != Strategy::PICK_SOMETHING && allyUpToDate(Ally::ALLY2)){
+			if(suggestion1 == suggestion2)
+				return suggestion1;
+		}
+		else{
+			return getAllySuggestedStrategy(Ally::ALLY1);
+		}
 	}
 	else{
-		
+		if(getAllySuggestedStrategy(Ally::ALLY2) != Strategy::PICK_SOMETHING && allyUpToDate(Ally::ALLY2)){
+			return getAllySuggestedStrategy(Ally::ALLY2);
+		}
+	}
+	
+	uint8_t ally1X = getAllyLocations()[0].x;
+	uint8_t ally2X = getAllyLocations()[1].x;
+	uint8_t robotX = getRobotPose().x;
+	
+	if(recentlyHadPuck() || hasPuck(Ally::ALLY1) || hasPuck(Ally::ALLY2)){
+		if(recentlyHadPuck())
+			return Strategy::SCORE_PUCK;
+		if(hasPuck(Ally::ALLY1)){
+			if(ally1X < robotX)
+				return Strategy::DEFENSE;
+			else
+				return Strategy::GOALIE;
+		}
+		else{
+			if(ally2X < robotX)
+				return Strategy::DEFENSE;
+			else
+				return Strategy::GOALIE;
+		}
+	}
+	else{
+		if(currentStrategy == Strategy::GOALIE)
+			return Strategy::GOALIE;
+		if(getAllyStrategy(Ally::ALLY1) == Strategy::GOALIE || getAllyStrategy(Ally::ALLY2) == Strategy::GOALIE)
+			return Strategy::DEFENSE;
+		if(robotX < ally1X && robotX < ally2X){
+			return Strategy::GOALIE;
+		}
+		return Strategy::DEFENSE;
 	}
 	return Strategy::DO_NOTHING;
 }
@@ -48,22 +90,18 @@ void updateStrategies(){
 			defenseLogic2();
 			break;
 		case Strategy::SWEEP:
-			setLED(LEDColor::BLUE);
 			pushGoalie();
-			//if(pushGoalie())
-			//	currentStrategy = Strategy::PICK_SOMETHING;
 			break;
 		case Strategy::PUSH_ALLY:
-			if(pushAlly());
-				//currentStrategy = Strategy::PICK_SOMETHING;
+			pushAlly();
 			break;
 		case Strategy::SCORE_PUCK:
-			if(!recentlyMoved()){
+			/*if(!recentlyMoved()){
 				if(getAllyStrategy(Ally::ALLY1)!=Strategy::GOALIE)
 					suggestedAllyStrategies[0] = Strategy::PUSH_ALLY;
 				else if(getAllyStrategy(Ally::ALLY2)!=Strategy::GOALIE)
 					suggestedAllyStrategies[1] = Strategy::PUSH_ALLY;
-			}
+			}*/
 			scoreLogic();
 			break;
 	}
