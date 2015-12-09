@@ -206,6 +206,7 @@ void pool(){
 				updatePlayer(Player::NONE);
 				break;
 		}
+		//setMotors(0,0);
 		if (1){
 			if(getRobotPose()==UNKNOWN_POSE){
 				setMotors(0,0);
@@ -218,7 +219,7 @@ void pool(){
 					if (first == 0) first++;
 					//goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false);
 					//goBehindPuck();
-					scoreLogic();
+					//scoreLogic();
 				}
 			//}
 		}

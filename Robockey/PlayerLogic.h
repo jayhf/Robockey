@@ -43,3 +43,4 @@ void goalieLogic2();
 void updateLogicTimes();
 bool pushAlly();
 void resetPoints();
+void goalieLogicJ();

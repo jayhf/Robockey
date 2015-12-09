@@ -681,3 +681,26 @@ void resetPoints(){
 	point2 = false;
 	targetSet = false;
 }
+
+void goalieLogicJ(){
+	Location puck = getPuckLocation();
+	Pose robot = getRobotPose();
+	if(puck.x < XMIN/2){
+		if(robot.distanceToSquared(puck) < 225)
+			goToPosition(puck.toPose(0),robot,true);
+		else{
+			Pose blockPosition = puck.toPose(0);
+			blockPosition.x = (blockPosition.x>>1) + (XMIN>>1);
+			goToPosition(blockPosition,robot,false);
+		}
+	}
+	else{
+		int8_t targetY = puck.y/2;
+		if(robot.y > targetY + 5)
+			goToPosition(Pose(XMIN+ROBOT_RADIUS*2,YMIN,0),robot,true);
+		else if(robot.y < targetY - 5)
+			goToPosition(Pose(XMIN+ROBOT_RADIUS*2,YMAX,0),robot,false);
+		else
+			setMotors(0,0);
+	}
+}
