@@ -369,8 +369,8 @@ void goAndKick(Pose target){
 
 void goBehindPuck(){
 	Pose puck = getPuckLocation().toPose(getPuckHeading()+getRobotPose().o);
-	if(puck.x<getRobotPose().x) point1 = false;
-	else point1 = true;
+	if(puck.x<getRobotPose().x-ROBOT_RADIUS) point1 = false;
+	else if (puck.x>getRobotPose().x+ROBOT_RADIUS) point1 = true;
 	if(!point1){
 		if(puck.y>=0)
 		targetPose = Pose(MAX(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y-3*ROBOT_RADIUS,puck.o);
@@ -389,10 +389,14 @@ void goBehindPuck(){
 }
 
 void goBehindObject(Location object){
-	if(object.x<getRobotPose().x-2*ROBOT_RADIUS) point1 = false;
+	Pose puck = object.toPose(0);
+	if(puck.x<getRobotPose().x-ROBOT_RADIUS) point1 = false;
+	else if (puck.x>getRobotPose().x+ROBOT_RADIUS) point1 = true;
 	if(!point1){
-		if(object.y>=0) targetPose = Pose(object.x-4*ROBOT_RADIUS,object.y-4*ROBOT_RADIUS,0);
-		else targetPose = Pose(object.x-4*ROBOT_RADIUS,object.y+4*ROBOT_RADIUS,0);
+		if(puck.y>=0)
+		targetPose = Pose(MAX(puck.x-4*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y-3*ROBOT_RADIUS,puck.o);
+		else
+		targetPose = Pose(MAX(puck.x-4*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y+3*ROBOT_RADIUS,puck.o);
 		if(!atLocation(Location(targetPose.x,targetPose.y),Location(getRobotPose().x,getRobotPose().y))){
 			goToPosition(targetPose,getRobotPose(),false);
 		}
@@ -401,7 +405,7 @@ void goBehindObject(Location object){
 		}
 	}
 	else{
-		goToPosition(Pose(object.x,object.y,0),getRobotPose(),false);
+		goToPosition(puck,getRobotPose(),true);
 	}
 }
 
