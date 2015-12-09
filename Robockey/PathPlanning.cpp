@@ -27,7 +27,7 @@ extern "C"{
 int16_t lastDistance = 0;
 int16_t lastTheta = 0;
 Pose lastPose = getRobotPose();
-uint16_t k1 = 2; //distance proportional
+uint16_t k1 = 3; //distance proportional
 uint16_t k2 = 1; //angle proportional
 uint16_t k3 = 0; //distance derivative
 uint16_t k4 = 55; //angle derivative
@@ -128,18 +128,17 @@ void goToPosition(Pose target, Pose current, bool toPuck, bool backwards,uint16_
 	if(toPuck) d1 = (ROBOT_RADIUS+PUCK_RADIUS+10)*(ROBOT_RADIUS+PUCK_RADIUS+10);
 	else d1 = 16;
 	if(distance>d1){ //if not within 5 pixels in both x and y
-		/*
-		uint16_t r = k1*distance;
-		uint16_t q = k4*abs((offsetTheta - lastTheta));
-		uint8_t packet[10]={0,0,x>>8,x&0xFF,y>>8,y&0xFF,r>>8,r&0xFF,q>>8,q&0xFF};
-		sendPacket(Robot::CONTROLLER,0x21,packet);
-		*/
+	//uint8_t packet[10]={0,0,x>>8,x&0xFF,y>>8,y&0xFF,0,0,0,0};
+	//sendDebugPacket(Robot::CONTROLLER,0x21,packet);
+		
+		
+		
 		if(abs(offsetTheta)>PI/32){
 			faceLocation(Location(target.x,target.y),current,targetTheta);
 		}
 		else{
 			uint16_t d2;
-			if (toPuck) d2 = 450;
+			if (toPuck) d2 = 850;
 			else d2 = 650;
 			if(backwards){
 				if ((uint16_t) abs(offsetTheta)<d2){ //if within 0.1 radians ~5* of target angle,
@@ -170,15 +169,18 @@ void goToPosition(Pose target, Pose current, bool toPuck, bool backwards,uint16_
 			lastDistance = distance;
 			lastTheta = offsetTheta;
 		}
+		
 	}
 	else {
+		//m_green(0);
 		if(toPuck){
 			
 			if (!facingLocation(getPuckLocation(),getRobotPose(),targetTheta)){
 				faceLocation(getPuckLocation(),getRobotPose(),targetTheta);
 			}
 			else{
-				setMotors(1200,1200);
+				setMotors(600,600);
+				//m_green(1);
 			}
 		}
 		else{
@@ -285,7 +287,7 @@ bool facingLocation(Location target, Pose current){
 	return facingLocation(target, current, o);
 }
 bool facingLocation(Location target, Pose current,angle o){
-	return abs(current.o-o) < 6500;
+	return abs(current.o-o) < 4500;
 }
 
 bool facingHeading(angle target, Pose current){
@@ -300,10 +302,10 @@ void faceLocation(Location target, Pose current){
 }
 void faceLocation(Location target, Pose current,angle o){
 	if(!facingLocation(target,current,o)){
-		angle offsetTheta = (current.o - o)/8;
+		angle offsetTheta = (current.o - o)/4;
 		//uint8_t buffer[10] = {0,0,(current.o-o)>>8,(current.o-o)&0xFF,(current.o-lastPose.o)>>8,(current.o-lastPose.o)&0xFF,0,0,0,0};
 		//sendPacket(Robot::CONTROLLER,0x21,buffer);
-		int16_t temp1=k2 * abs(offsetTheta) - k4 * abs(offsetTheta - lastTheta);
+		int16_t temp1=k2 * abs(offsetTheta) - k4 * abs(offsetTheta - lastTheta)+200;
 		uint16_t x = MAX(0,MIN(800,temp1));
 		/*uint16_t r = k2 * abs(offsetTheta);
 		uint16_t q = k4 * abs(offsetTheta - lastTheta);

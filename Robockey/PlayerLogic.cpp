@@ -372,13 +372,13 @@ void goAndKick(Pose target){
 
 void goBehindPuck(){
 	Pose puck = getPuckLocation().toPose(getPuckHeading()+getRobotPose().o);
-	if(puck.x<getRobotPose().x-2*ROBOT_RADIUS) point1 = false;
+	if(puck.x<getRobotPose().x) point1 = false;
+	else point1 = true;
 	if(!point1){
-		
 		if(puck.y>=0)
-			targetPose = Pose(MIN(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y-3*ROBOT_RADIUS,puck.o);
+			targetPose = Pose(MAX(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y-3*ROBOT_RADIUS,puck.o);
 		else
-			targetPose = Pose(MIN(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y+3*ROBOT_RADIUS,puck.o);
+			targetPose = Pose(MAX(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y+3*ROBOT_RADIUS,puck.o);
 		if(!atLocation(Location(targetPose.x,targetPose.y),Location(getRobotPose().x,getRobotPose().y))){
 			goToPosition(targetPose,getRobotPose(),false);
 		}
@@ -532,7 +532,7 @@ int rando = 0;
 time lastNewStrategyTime = -3 * ONE_SECOND;
 void scoreLogic(){
 	if(puckVisible()&& getPuckLocation()!=UNKNOWN_LOCATION){
-		if(!recentlyHadPuck(ONE_SECOND/2)){
+		if(!hasPuck()){
 			goBehindPuck();
 		}
 		else{
@@ -587,7 +587,9 @@ void scoreLogic(){
 					break;
 				}
 				default:{
+					tryKick();
 					break;
+					
 				}
 			}
 		}
