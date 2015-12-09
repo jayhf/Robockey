@@ -37,7 +37,10 @@ Strategy pickStrategy(){
 	}*/
 	if(getThisRobot() == Robot::ROBOT1)
 		return Strategy::GOALIE;
-		
+	else if(getThisRobot() == Robot::ROBOT2)
+		return Strategy::SCORE_PUCK;
+	else
+		return Strategy::SWEEP;
 	/*uint8_t ally1X = getAllyLocations()[0].x;
 	bool ally1LocationValid = getAllyLocations()[0] != UNKNOWN_LOCATION && allyUpToDate(Ally::ALLY1);
 	uint8_t ally2X = getAllyLocations()[1].x;
@@ -75,8 +78,6 @@ Strategy pickStrategy(){
 	}*/
 	if(hasPuck())
 		return Strategy::SCORE_PUCK;
-	else if(hasPuck(Ally::ALLY2))
-		return Strategy::PUSH_ALLY;
 	else
 		return Strategy::DEFENSE;
 }
@@ -98,7 +99,7 @@ void updateStrategies(){
 			goalieLogic();
 			break;
 		case Strategy::DEFENSE:
-			defenseLogic2();
+			defenseLogic3();
 			break;
 		case Strategy::SWEEP:
 			pushGoalie();

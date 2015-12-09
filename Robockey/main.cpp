@@ -217,8 +217,8 @@ void pool(){
 				}
 				else{*/
 					if (first == 0) first++;
-					//updateStrategies();
-					defenseLogic3();
+					updateStrategies();
+					//defenseLogic3();
 				}
 			//}
 		}
