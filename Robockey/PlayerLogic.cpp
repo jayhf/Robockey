@@ -520,6 +520,7 @@ void requestHelp(){
 }
 int i = 0;
 int rando = 0;
+time lastNewStrategyTime = -3 * ONE_SECOND;
 void scoreLogic(){
 	if(puckVisible()&& getPuckLocation()!=UNKNOWN_LOCATION){
 		if(!hasPuck()){
@@ -527,17 +528,14 @@ void scoreLogic(){
 		}
 		else{
 			
-			if (i==0){
+			if(timePassed(lastNewStrategyTime+3*ONE_SECOND)){
+				lastNewStrategyTime = getTime();
 				rando = rand() % 6;
-				i++;
-			} //change to number of strategies
-			else if (i==2500){
-				i=0;
 				point1 = false;
 				point2 = false;
 				targetSet = false;
-			}
-			else i++;
+			} //change to number of strategies
+			
 			switch(rando){
 				case 0:{
 					leftCorner();
@@ -587,6 +585,12 @@ void scoreLogic(){
 	}
 	else{
 		goToPosition(Pose(XMIN+4*ROBOT_RADIUS,-25,0),getRobotPose(),false);
+	}
+}
+
+void updateLogicTimes(){
+	if(timePassed(lastNewStrategyTime+3*ONE_SECOND)){
+		lastNewStrategyTime = getTime()-3*ONE_SECOND -1;
 	}
 }
 
