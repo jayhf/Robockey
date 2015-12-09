@@ -128,7 +128,7 @@ bool nearWall(Pose pose);
 time getPuckUpdateTime();
 bool hasPuck();
 bool recentlyHadPuck(time maxTime = ONE_SECOND);
-bool recentlyMoved(time maxTime = ONE_SECOND);
+bool recentlyMoved(time maxTime = ONE_SECOND/2);
 bool stuck();
 
 //Used internally.

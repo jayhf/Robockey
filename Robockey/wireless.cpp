@@ -30,7 +30,21 @@ void updateDestination(Pose destination){
 }
 	
 void initWireless(){
-	while(!m_rf_open(1, static_cast<uint8_t>(getThisRobot()), 10));
+	m_bus_init();
+	while(!m_rf_open(1, static_cast<uint8_t>(getThisRobot()), 10)){
+		PORTD &= ~0b111;
+		cli();
+		_delay_ms(50);
+		m_green(2);
+		for(int i=0;i<50;i++){
+			PORTD |= 1;
+			_delay_us(2.5);
+			PORTD &= ~1;
+			_delay_us(2.5);
+		}
+			
+		m_bus_init();
+	}
 }
 
 void sendNextMessage(){

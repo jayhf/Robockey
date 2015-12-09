@@ -56,7 +56,6 @@ void localizationCalibration(){
 	m_disableJTAG();
 	initLocalization();
 	m_usb_init();
-	m_bus_init();
 	m_wii_open();
 	while(1){
 		uint16_t buffer[12];
@@ -94,7 +93,6 @@ void strategyWirelessTest(){
 	m_clockdivide(0);
 	m_disableJTAG();
 	sei();
-	m_bus_init();
 	initDigital();
 	initClock();
 	initADC();
@@ -124,7 +122,6 @@ void friendlies(){
 	m_clockdivide(0);
 	m_disableJTAG();
 	sei();
-	m_bus_init();
 	initDigital();
 	initClock();
 	initADC();
@@ -176,7 +173,6 @@ void pool(){
 	m_disableJTAG();
 	_delay_ms(100);
 	sei();
-	m_bus_init();
 	initDigital();
 	initClock();
 	initADC();
@@ -193,6 +189,8 @@ void pool(){
 		updateWireless();
 		updateKick();
 		updateLED();
+		//pushGoalie();
+			
 		updateLogicTimes();
 		switch(getThisRobot()){
 			case Robot::ROBOT1:

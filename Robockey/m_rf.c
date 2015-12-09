@@ -16,6 +16,7 @@
 
 char m_rf_open(char channel, char RXaddress, char packet_length)
 {	
+	
 	// START | MRFTWIADDR | MRFINIT | channel | RXaddress | packet_length | STOP
 	
 	
@@ -26,6 +27,7 @@ char m_rf_open(char channel, char RXaddress, char packet_length)
 	// ADDRESS
 	TWDR = MRFTWIADDR<<1;
 	TWCR = (1<<TWINT) | (1<<TWEN);
+	uint16_t counter = 1;
 	while(!(TWCR & (1<<TWINT))){};
 	
 	if((TWSR & 0xF8)== 0x20){ // ACK was not received - may not be connected/listening

@@ -15,7 +15,8 @@
 #include "Strategies.h"
 #include "wireless.h"
 #include "miscellaneous.h"
-#include <avr/delay.h>
+#define F_CPU 16000000
+#include <util/delay.h>
 
 
 bool helpRequested = false;
@@ -611,9 +612,8 @@ void faceoff(){
 	else playerLogic(player);
 }
 
-Pose prevPose = getRobotPose();
-uint16_t counter = 0;
-void pushGoalie(){
+//returns true if finished
+bool pushGoalie(){
 	if(!point1){
 		if(!atLocationWide(Location(XMAX-ROBOT_RADIUS-PUCK_RADIUS,YMAX/2),Location(getRobotPose().x,getRobotPose().y))){
 			goToPosition(Pose(XMAX-ROBOT_RADIUS-PUCK_RADIUS,YMAX/2,0),getRobotPose(),false);
@@ -626,25 +626,20 @@ void pushGoalie(){
 		}
 		else {
 			point2 = true;
-			prevPose = getRobotPose();
 		}
 		
+	}
+	else if(getRobotPose().y > YMIN + 4*ROBOT_RADIUS && abs(getRobotPose().o+PI/2) < PI/8){
+		if(recentlyMoved())
+			setMotors(800,800);
+		else
+			setMotors(1600,1600);
 	}
 	else{
-		
-		if(counter<600){
-			setMotors(800,800);
-		}
-		else {
-			setMotors(1600,1600);
-			
-		}
-		if(abs(getRobotPose().y - prevPose.y)<6){
-			counter++;
-			
-		}
-		prevPose = getRobotPose();
+		setMotors(0,0);
+		return true;
 	}
+	return false;
 }
 
 void defenseLogic2(){

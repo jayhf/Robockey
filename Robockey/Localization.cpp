@@ -136,7 +136,7 @@ void updateLocalization(){
 		if(lastMoveLocation == UNKNOWN_LOCATION)
 			lastMoveLocation = robotLocation;
 			
-		if(distanceSquared(lastMoveLocation,robotLocation) > 15){
+		if(distanceSquared(lastMoveLocation,robotLocation) > 16){
 			lastMoveTime = getTime();
 			lastMoveLocation = robotLocation;
 		}
@@ -212,12 +212,12 @@ bool hasPuck(){
 }
 
 bool recentlyHadPuck(time maxTime){
-	return timePassed(lastHadPuckTime + maxTime);
+	return !timePassed(lastHadPuckTime + maxTime);
 }
 
 
 bool recentlyMoved(time maxTime){
-	return timePassed(lastMoveTime + maxTime);
+	return !timePassed(lastMoveTime + maxTime);
 }
 
 void locationFilter(Location &location, Velocity &velocity, Location measuredLocation, time &oldTime, time newTime, uint8_t &certainty,uint8_t radius){
