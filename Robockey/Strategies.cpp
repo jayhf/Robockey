@@ -76,10 +76,10 @@ Strategy pickStrategy(){
 			return Strategy::GOALIE;
 		return Strategy::DEFENSE;
 	}*/
-	if(hasPuck())
+	/*if(hasPuck())
 		return Strategy::SCORE_PUCK;
 	else
-		return Strategy::DEFENSE;
+		return Strategy::DEFENSE;*/
 }
 
 void updateStrategies(){
@@ -96,10 +96,10 @@ void updateStrategies(){
 			setMotors(0,0);
 			break;
 		case Strategy::GOALIE:
-			goalieLogic();
+			goalieLogic2();
 			break;
 		case Strategy::DEFENSE:
-			defenseLogic3();
+		setMotors(0,0);
 			break;
 		case Strategy::SWEEP:
 			pushGoalie();

@@ -207,7 +207,7 @@ void pool(){
 				break;
 		}
 		//setMotors(0,0);
-		if (1|allowedToMove()){
+		if (allowedToMove()){
 			if(getRobotPose()==UNKNOWN_POSE){
 				setMotors(0,0);
 			}
@@ -217,9 +217,7 @@ void pool(){
 				}
 				else{*/
 					if (first == 0) first++;
-					tryKick();
-					//updateStrategies();
-					//defenseLogic3();
+					updateStrategies();
 				}
 			//}
 		}

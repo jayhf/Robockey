@@ -413,7 +413,7 @@ void goBehindObject(Location object){
 void tryKick(){
 	Pose currentPose = getRobotPose();
 	uint8_t dMax = ROBOT_RADIUS + 70;
-	uint8_t dXMax = ROBOT_RADIUS + PUCK_RADIUS + 30;
+	uint8_t dXMax = ROBOT_RADIUS + PUCK_RADIUS + 50;
 	uint8_t dX = XMAX - currentPose.x;
 	if(dX <= dXMax){
 		float dL = dX/cosb(currentPose.o);
