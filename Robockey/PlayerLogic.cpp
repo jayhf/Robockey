@@ -606,7 +606,7 @@ void scoreLogic(){
 		}
 	}
 	else{
-		goToPosition(Pose(XMIN+4*ROBOT_RADIUS,-25,0),getRobotPose(),false);
+		goToPosition(Pose(2*ROBOT_RADIUS,-25,0),getRobotPose(),false);
 	}
 }
 
@@ -719,23 +719,34 @@ void goalieLogic3(){
 	Location puck = getPuckLocation();
 	Pose robot = getRobotPose();
 	if(puck != UNKNOWN_LOCATION){
-		if(puck.x < XMIN+5*ROBOT_RADIUS+PUCK_RADIUS){ //if puck closer than 3/4
-			if(puck.x<getRobotPose().x){
-				goToPosition(Pose(XMIN,0,0),getRobotPose(),false);
+		if((puck.x < XMIN+5*ROBOT_RADIUS && abs(puck.y)<4*ROBOT_RADIUS)||puck.x<XMIN+3*ROBOT_RADIUS){ //if puck closer than 3/4
+			if(puck.x<getRobotPose().x-ROBOT_RADIUS){
+				if(abs(puck.y)>2*(PUCK_RADIUS+ROBOT_RADIUS)) goToPosition(Pose(XMIN+ROBOT_RADIUS,0,0),getRobotPose(),false);
+				else goToPosition(Pose(XMIN+PUCK_RADIUS,puck.y,0),getRobotPose(),false,false,900);
 			}
 			else{
 				goToPosition(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false);
 				if(hasPuck()&&getRobotPose().x>XMIN+3*ROBOT_RADIUS&&abs(getRobotPose().o)<PI/4) startKick();
 			}
+			if(!recentlyMoved(ONE_SECOND/2)){
+				setLED(LEDColor::BLUE);
+				int8_t sign;
+				if (puck.y>0) sign = 1;
+				else sign = 0;
+				setMotors(1600*sign,1600*sign);
+			}
 		}
 		else{
 			int16_t xPos = XMIN+3*ROBOT_RADIUS;
 			if (puck.y>robot.y) goToPosition2(Pose(xPos+2*PUCK_RADIUS,puck.y+PUCK_RADIUS,0),robot,false,false,1000);
-			else if (puck.y<robot.y) goToPosition2(Pose(xPos+2*PUCK_RADIUS,puck.y-PUCK_RADIUS,0),robot,false,true,1000);
+			else if (puck.y<robot.y) goToPosition2(Pose(xPos,puck.y-PUCK_RADIUS,0),robot,false,true,1000);
 			else setMotors(0,0);
 		}
 	}
-	else goToPositionSpin(Pose(XMIN+2*ROBOT_RADIUS,0,0),getRobotPose());
+	else {
+		goToPositionSpin(Pose(XMIN+2*ROBOT_RADIUS,0,0),getRobotPose());
+		if (atLocationWide(Location(XMIN+2*ROBOT_RADIUS,0),Location(robot.x,robot.y))) faceAngle(PI/2,getRobotPose());
+		}
 }
 
 void goalieLogic4(){
@@ -776,15 +787,15 @@ void defenseLogic3(){
 				goBehindPuck();
 			}
 			else {
-				if ((abs(allies[0].x-getPuckLocation().x)>10&&abs(allies[0].y<getPuckLocation().y)>10)&&(abs(allies[1].y-getPuckLocation().x)>10&&abs(allies[1].y<getPuckLocation().y)>10)){
+				if ((abs(allies[0].x-getPuckLocation().x)>10&&abs(allies[0].y-getPuckLocation().y)>10)&&(abs(allies[1].x-getPuckLocation().x)>10&&abs(allies[1].y-getPuckLocation().y)>10)){
 					scoreLogic();
 				}
-				else goToPosition(Pose(MAX(allies[0].x,allies[1].x)-3*ROBOT_RADIUS,getPuckLocation().y,0),getRobotPose(),false,false);
+				else goToPosition(Pose(MAX(MAX(allies[0].x,allies[1].x),-90)-4*ROBOT_RADIUS,getPuckLocation().y,0),getRobotPose(),false,false);
 			}
 		}
 		else {
 			assistLogic();
 		}
 	}
-	else goToPosition(Pose(XMIN+4*ROBOT_RADIUS,25,0),getRobotPose(),false);
+	else goToPosition(Pose(XMIN+6*ROBOT_RADIUS,25,0),getRobotPose(),false);
 }

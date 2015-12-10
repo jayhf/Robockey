@@ -217,7 +217,7 @@ void pool(){
 				}
 				else{*/
 					if (first == 0) first++;
-					goalieLogic3();
+					defenseLogic3();
 				}
 			//}
 		}
