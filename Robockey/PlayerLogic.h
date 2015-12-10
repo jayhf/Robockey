@@ -41,6 +41,7 @@ void defenseLogic2();
 void assistLogic();
 void goalieLogic2();
 void goalieLogic3();
+void goalieLogic4();
 void updateLogicTimes();
 bool pushAlly();
 void resetPoints();

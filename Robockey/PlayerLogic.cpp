@@ -729,6 +729,36 @@ void goalieLogic3(){
 	else goToPosition(Pose(XMIN+2*ROBOT_RADIUS,0,0),getRobotPose(),false,true,900);
 }
 
+void goalieLogic4(){
+	Location puck = getPuckLocation();
+	Pose robot = getRobotPose();
+	if(puck != UNKNOWN_LOCATION){
+		uint8_t threshold = 2;
+		if(puck.y>(robot.y + threshold)){
+			if(robot.y <= (YMAX/2)){
+				goToPosition2(Pose(XMIN+2*ROBOT_RADIUS,YMAX,0),robot,false,false,1000);
+			}
+			else{
+				setMotors(0,0);
+			}
+		}
+		else if(puck.y<(robot.y - threshold)){
+			if(robot.y >= (YMIN/2)){
+				goToPosition2(Pose(XMIN+2*ROBOT_RADIUS,YMIN,0),robot,false,true,1000);
+			}
+			else{
+				setMotors(0,0);
+			}
+		}
+		else{
+			setMotors(0,0);
+		}
+	}
+	else{
+		goToPosition(Pose(XMIN+2*ROBOT_RADIUS,0,0),getRobotPose(),false,true,900);
+	}
+}
+
 void defenseLogic3(){
 	if(getPuckLocation()!=UNKNOWN_LOCATION){
 		Location* allies = getAllyLocations();
