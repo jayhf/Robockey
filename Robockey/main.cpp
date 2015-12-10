@@ -207,7 +207,7 @@ void pool(){
 				break;
 		}
 		//setMotors(0,0);
-		if (1){
+		if (allowedToMove()){
 			if(getRobotPose()==UNKNOWN_POSE){
 				setMotors(0,0);
 			}
@@ -217,8 +217,7 @@ void pool(){
 				}
 				else{*/
 					if (first == 0) first++;
-					//goToPosition(getPuckLocation().toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true);
-					goBehindPuck();
+					playerLogic(getPlayer());
 				}
 			//}
 		}

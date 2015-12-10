@@ -27,7 +27,7 @@ extern "C"{
 int16_t lastDistance = 0;
 int16_t lastTheta = 0;
 Pose lastPose = getRobotPose();
-uint16_t k1 = 3; //distance proportional
+uint16_t k1 = 2; //distance proportional
 uint16_t k2 = 1; //angle proportional
 uint16_t k3 = 0; //distance derivative
 uint16_t k4 = 55; //angle derivative
@@ -237,11 +237,11 @@ void goToPositionPuck(Pose target, Pose current){
 	uint16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
 	if(distance>16){ //if not within 5 pixels in both x and y
 		angle targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
-		angle offsetTheta = (current.o - targetTheta)/8;
+		angle offsetTheta = (current.o - targetTheta)/2;
 		uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 		int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
 		uint16_t x= MIN(1200,MAX(0,temp1));
-		uint16_t y = MIN(350,MAX(0,temp2));
+		uint16_t y = MIN(300,MAX(0,temp2));
 		
 		/*
 		uint16_t r = k1*distance;
@@ -319,7 +319,7 @@ void faceLocation(Location target, Pose current,angle o){
 }
 
 void faceAngle(angle o,Pose current){
-	int16_t temp1 = k2 * abs((current.o - o)/2) - k4 * abs(current.o - lastPose.o);
+	int16_t temp1 = k2 * abs((current.o - o)/2) - k4 * abs(current.o - lastPose.o)+200;
 	uint16_t x = MAX(0,MIN(800,temp1));
 	
 	if(!facingHeading(o,current)){
@@ -466,7 +466,7 @@ void goToPosition2(Pose target, Pose current, bool toPuck, bool backwards,uint16
 	uint16_t distance = (uint16_t)abs(deltaX*deltaX + deltaY*deltaY);
 	angle targetTheta = atan2b(-deltaY,-deltaX); //find angle towards target
 	angle offsetTheta = (current.o - targetTheta)/8;
-	uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
+	uint16_t temp1 = 3 * distance - k3 * (distance - lastDistance);
 	int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
 	uint16_t x = MIN(speed,MAX(0,temp1));
 	uint16_t y = MIN(MAX(speed-200,0),MAX(0,temp2));
