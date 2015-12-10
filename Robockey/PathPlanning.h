@@ -19,6 +19,7 @@ void goToBackwards(Pose target,Pose current);
 bool atLocation(Location target, Location current);
 bool circleIntersectsSegment(Location p1, Location p2, Location c, uint8_t radius);
 bool checkIntersection(Location p1, Location p2, uint8_t radius);
+void goToPosition2(Pose target, Pose current, bool toPuck, bool backwards,uint16_t speed);
 	
 
 //Returns the length of the resulting path.

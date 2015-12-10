@@ -706,6 +706,13 @@ void goalieLogicJ(){
 	}
 }
 
+void goalieLogic3(){
+	Location puck = getPuckLocation();
+	Pose robot = getRobotPose();
+	if (puck.x>robot.x) goToPosition2(Pose(XMIN+2*ROBOT_RADIUS,puck.y+PUCK_RADIUS,0),robot,false,false,900);
+	else goToPosition2(Pose(XMIN+2*ROBOT_RADIUS,puck.y-PUCK_RADIUS,0),robot,false,true,900);
+}
+
 void defenseLogic3(){
 	if(getPuckLocation()!=UNKNOWN_LOCATION){
 		if(!hasPuck(Ally::ALLY2)){
