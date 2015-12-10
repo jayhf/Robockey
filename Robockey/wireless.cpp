@@ -67,12 +67,12 @@ void sendNextMessage(){
 			sendAllyMessage(Ally::ALLY2);
 			break;
 		case 3:
-			sendPuckPose();
-			break;
-		case 4:
 			sendDestinationMessage();
 			break;
-		/*case 2:
+		/*case 4:
+			sendPuckPose();
+			break;
+		case 2:
 			sendIR();
 			break;
 		case 3:

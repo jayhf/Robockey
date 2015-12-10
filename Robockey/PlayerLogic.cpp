@@ -539,7 +539,7 @@ void requestHelp(){
 }
 int i = 0;
 int rando = 0;
-time lastNewStrategyTime = -3 * ONE_SECOND;
+time lastNewStrategyTime = -10 * ONE_SECOND;
 void scoreLogic(){
 	if(puckVisible()&& getPuckLocation()!=UNKNOWN_LOCATION){
 		if(!hasPuck()){
@@ -547,7 +547,7 @@ void scoreLogic(){
 		}
 		else{
 			
-			if(timePassed(lastNewStrategyTime+3*ONE_SECOND)){
+			if(timePassed(lastNewStrategyTime+5*ONE_SECOND)){
 				lastNewStrategyTime = getTime();
 				srand(getTime()^rand());
 				rando = rand() % 6;
@@ -611,8 +611,8 @@ void scoreLogic(){
 }
 
 void updateLogicTimes(){
-	if(timePassed(lastNewStrategyTime+3*ONE_SECOND)){
-		lastNewStrategyTime = getTime()-3*ONE_SECOND -1;
+	if(timePassed(lastNewStrategyTime+10*ONE_SECOND)){
+		lastNewStrategyTime = getTime()-10*ONE_SECOND -1;
 	}
 }
 
@@ -781,7 +781,6 @@ void goalieLogic4(){
 
 void defenseLogic3(){
 	if(getPuckLocation()!=UNKNOWN_LOCATION){
-		Location* allies = getAllyLocations();
 		if(!hasPuck(Ally::ALLY2)&&!hasPuck(Ally::ALLY1)){
 			if(getPuckLocation().x<XMIN+6*ROBOT_RADIUS){
 				goBehindPuck();
