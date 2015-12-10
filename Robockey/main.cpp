@@ -218,6 +218,7 @@ void pool(){
 				else{*/
 					if (first == 0) first++;
 					playerLogic(getPlayer());
+					//defenseLogic3();
 				}
 			//}
 		}

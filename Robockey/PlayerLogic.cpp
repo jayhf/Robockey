@@ -719,14 +719,14 @@ void goalieLogic3(){
 	Location puck = getPuckLocation();
 	Pose robot = getRobotPose();
 	if(puck != UNKNOWN_LOCATION){
-		if((puck.x < XMIN+5*ROBOT_RADIUS && abs(puck.y)<4*ROBOT_RADIUS)||puck.x<XMIN+3*ROBOT_RADIUS){ //if puck closer than 3/4
+		if((puck.x < XMIN+5*ROBOT_RADIUS && abs(puck.y)<3*ROBOT_RADIUS)||puck.x<XMIN+4*ROBOT_RADIUS){ //if puck closer than 3/4
 			if(puck.x<getRobotPose().x-ROBOT_RADIUS){
 				if(abs(puck.y)>2*(PUCK_RADIUS+ROBOT_RADIUS)) goToPosition(Pose(XMIN+ROBOT_RADIUS,0,0),getRobotPose(),false);
 				else goToPosition(Pose(XMIN+PUCK_RADIUS,puck.y,0),getRobotPose(),false,false,900);
 			}
 			else{
 				goToPosition(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false);
-				if(hasPuck()&&getRobotPose().x>XMIN+3*ROBOT_RADIUS&&abs(getRobotPose().o)<PI/4) startKick();
+				if(hasPuck()&&getRobotPose().x>XMIN+2*ROBOT_RADIUS&&abs(getRobotPose().o)<PI/4) startKick();
 			}
 			if(!recentlyMoved(ONE_SECOND/2)){
 				setLED(LEDColor::BLUE);
@@ -787,10 +787,7 @@ void defenseLogic3(){
 				goBehindPuck();
 			}
 			else {
-				if ((abs(allies[0].x-getPuckLocation().x)>10&&abs(allies[0].y-getPuckLocation().y)>10)&&(abs(allies[1].x-getPuckLocation().x)>10&&abs(allies[1].y-getPuckLocation().y)>10)){
-					scoreLogic();
-				}
-				else goToPosition(Pose(MAX(MAX(allies[0].x,allies[1].x),-90)-4*ROBOT_RADIUS,getPuckLocation().y,0),getRobotPose(),false,false);
+				scoreLogic();
 			}
 		}
 		else {
