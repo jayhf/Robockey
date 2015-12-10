@@ -42,7 +42,7 @@ void playerLogic(Player player){
 		case Player::NONE:
 		break;
 		case Player::GOALIE:{
-			goalieLogic();
+			goalieLogic3();
 			break;
 		}
 		case Player::SCORER: {
@@ -54,7 +54,7 @@ void playerLogic(Player player){
 			break;
 		}
 		case Player::DEFENSE:{
-			defenseLogic2();
+			defenseLogic3();
 			break;
 		}
 	}
@@ -709,18 +709,26 @@ void goalieLogicJ(){
 void goalieLogic3(){
 	Location puck = getPuckLocation();
 	Pose robot = getRobotPose();
-	if (puck.x>robot.x) goToPosition2(Pose(XMIN+2*ROBOT_RADIUS,puck.y+PUCK_RADIUS,0),robot,false,false,900);
-	else goToPosition2(Pose(XMIN+2*ROBOT_RADIUS,puck.y-PUCK_RADIUS,0),robot,false,true,900);
+	if(puck != UNKNOWN_LOCATION){
+	if (puck.y>robot.y) goToPosition2(Pose(XMIN+2*ROBOT_RADIUS,puck.y+PUCK_RADIUS,0),robot,false,false,900);
+	else if (puck.y<robot.y) goToPosition2(Pose(XMIN+2*ROBOT_RADIUS,puck.y-PUCK_RADIUS,0),robot,false,true,900);
+	else setMotors(0,0);
+	}
+	else goToPosition(Pose(XMIN+2*ROBOT_RADIUS,0,0),getRobotPose(),false,true,900);
 }
 
 void defenseLogic3(){
 	if(getPuckLocation()!=UNKNOWN_LOCATION){
-		if(!hasPuck(Ally::ALLY2)){
+		Location* allies = getAllyLocations();
+		if(!hasPuck(Ally::ALLY2)&&!hasPuck(Ally::ALLY1)){
 			if(getPuckLocation().x<XMIN+6*ROBOT_RADIUS){
 				goBehindPuck();
 			}
 			else {
-				goBehindObject(Location(MIN(getPuckLocation().x-5*ROBOT_RADIUS,XMIN+3*ROBOT_RADIUS),getPuckLocation().y));
+				if ((abs(allies[0].x-getPuckLocation().x)>10&&abs(allies[0].y<getPuckLocation().y)>10)&&(abs(allies[1].y-getPuckLocation().x)>10&&abs(allies[1].y<getPuckLocation().y)>10)){
+					scoreLogic();
+				}
+				else goToPosition(Pose(MAX(allies[0].x,allies[1].x)-3*ROBOT_RADIUS,getPuckLocation().y,0),getRobotPose(),false,false);
 			}
 		}
 		else {

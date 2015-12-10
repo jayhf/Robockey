@@ -285,7 +285,7 @@ bool facingLocation(Location target, Pose current){
 	return facingLocation(target, current, o);
 }
 bool facingLocation(Location target, Pose current,angle o){
-	return abs(current.o-o) < 6500;
+	return abs(current.o-o) < 4500;
 }
 
 bool facingHeading(angle target, Pose current){
@@ -303,7 +303,7 @@ void faceLocation(Location target, Pose current,angle o){
 		angle offsetTheta = (current.o - o)/8;
 		//uint8_t buffer[10] = {0,0,(current.o-o)>>8,(current.o-o)&0xFF,(current.o-lastPose.o)>>8,(current.o-lastPose.o)&0xFF,0,0,0,0};
 		//sendPacket(Robot::CONTROLLER,0x21,buffer);
-		int16_t temp1=k2 * abs(offsetTheta) - k4 * abs(offsetTheta - lastTheta);
+		int16_t temp1=k2 * abs(offsetTheta) - k4 * abs(offsetTheta - lastTheta)+200;
 		uint16_t x = MAX(0,MIN(800,temp1));
 		/*uint16_t r = k2 * abs(offsetTheta);
 		uint16_t q = k4 * abs(offsetTheta - lastTheta);

@@ -217,7 +217,7 @@ void pool(){
 				}
 				else{*/
 					if (first == 0) first++;
-					updateStrategies();
+					playerLogic(getPlayer());
 				}
 			//}
 		}
