@@ -247,7 +247,7 @@ bool allyUpToDate(Ally ally){
 
 void sendAllyMessage(Ally ally){
 	Pose robotPose = getRobotPose();
-	Location puckLocation = getPuckLocation();
+	Location puckLocation = UNKNOWN_LOCATION;//getPuckLocation();
 	uint8_t packet[10];
 	packet[1] = robotPose.x;
 	packet[2] = robotPose.y;

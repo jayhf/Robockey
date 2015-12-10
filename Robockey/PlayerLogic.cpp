@@ -421,7 +421,7 @@ void goBehindObject(Location object){
 //Should be called in the move with puck
 void tryKick(){
 	Pose currentPose = getRobotPose();
-	uint8_t dMax = ROBOT_RADIUS + 70;
+	uint8_t dMax = ROBOT_RADIUS + 40;
 	uint8_t dXMax = ROBOT_RADIUS + PUCK_RADIUS + 50;
 	uint8_t dX = XMAX - currentPose.x;
 	if(dX <= dXMax){
@@ -729,7 +729,6 @@ void goalieLogic3(){
 				if(hasPuck()&&getRobotPose().x>XMIN+2*ROBOT_RADIUS&&abs(getRobotPose().o)<PI/4) startKick();
 			}
 			if(!recentlyMoved(ONE_SECOND/2)){
-				setLED(LEDColor::BLUE);
 				int8_t sign;
 				if (puck.y>0) sign = 1;
 				else sign = 0;
@@ -737,9 +736,9 @@ void goalieLogic3(){
 			}
 		}
 		else{
-			int16_t xPos = XMIN+3*ROBOT_RADIUS;
-			if (puck.y>robot.y) goToPosition2(Pose(xPos+2*PUCK_RADIUS,puck.y+PUCK_RADIUS,0),robot,false,false,1000);
-			else if (puck.y<robot.y) goToPosition2(Pose(xPos,puck.y-PUCK_RADIUS,0),robot,false,true,1000);
+			int16_t xPos = XMIN+4*ROBOT_RADIUS;
+			if (puck.y>robot.y) goToPosition2(Pose(xPos+2*PUCK_RADIUS,puck.y+PUCK_RADIUS,0),robot,false,false,900);
+			else if (puck.y<robot.y) goToPosition2(Pose(xPos + 2*PUCK_RADIUS,puck.y-PUCK_RADIUS,0),robot,false,true,900);
 			else setMotors(0,0);
 		}
 	}
