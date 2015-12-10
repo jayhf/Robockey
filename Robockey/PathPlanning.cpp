@@ -27,7 +27,7 @@ extern "C"{
 int16_t lastDistance = 0;
 int16_t lastTheta = 0;
 Pose lastPose = getRobotPose();
-uint16_t k1 = 2; //distance proportional
+uint16_t k1 = 3; //distance proportional
 uint16_t k2 = 1; //angle proportional
 uint16_t k3 = 0; //distance derivative
 uint16_t k4 = 55; //angle derivative
@@ -178,7 +178,7 @@ void goToPosition(Pose target, Pose current, bool toPuck, bool backwards,uint16_
 				faceLocation(getPuckLocation(),getRobotPose(),targetTheta);
 			}
 			else{
-				setMotors(1200,1200);
+				setMotors(800,800);
 			}
 		}
 		else{
@@ -240,14 +240,8 @@ void goToPositionPuck(Pose target, Pose current){
 		angle offsetTheta = (current.o - targetTheta)/8;
 		uint16_t temp1 = k1 * distance - k3 * (distance - lastDistance);
 		int16_t temp2 = abs(k2*offsetTheta) - k4*abs((offsetTheta - lastTheta));
-		uint16_t x;
-		if(getRobotPose().x<XMAX-5*ROBOT_RADIUS){
-		 x= MIN(1200,MAX(0,temp1));
-		}
-		else{
-			x=MIN(1400,MAX(0,temp1));
-		}
-		uint16_t y = MIN(400,MAX(0,temp2));
+		uint16_t x= MIN(1200,MAX(0,temp1));
+		uint16_t y = MIN(350,MAX(0,temp2));
 		
 		/*
 		uint16_t r = k1*distance;
@@ -527,7 +521,7 @@ void goToPosition2(Pose target, Pose current, bool toPuck, bool backwards,uint16
 				faceLocation(getPuckLocation(),getRobotPose(),targetTheta);
 			}
 			else{
-				setMotors(1200,1200);
+				setMotors(800,800);
 			}
 		}
 		else{

@@ -369,23 +369,32 @@ void goAndKick(Pose target){
 
 void goBehindPuck(){
 	Pose puck = getPuckLocation().toPose(getPuckHeading()+getRobotPose().o);
-	if(puck.x<getRobotPose().x-ROBOT_RADIUS) point1 = false;
-	else if (puck.x>getRobotPose().x+ROBOT_RADIUS) point1 = true;
+	if(puck.x<getRobotPose().x) {
+		point1 = false;
+		point2 = false;
+	}
+	else if (puck.x>getRobotPose().x+ROBOT_RADIUS){
+		point1 = true;
+	}
 	if(!point1){
-		if(puck.y>=0)
-		targetPose = Pose(MAX(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y-3*ROBOT_RADIUS,puck.o);
-		else
-		targetPose = Pose(MAX(puck.x-3*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y+3*ROBOT_RADIUS,puck.o);
-		if(!atLocation(Location(targetPose.x,targetPose.y),Location(getRobotPose().x,getRobotPose().y))){
+		if(puck.y>YMAX/2) targetPose = Pose(MAX(puck.x-2*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y-2*ROBOT_RADIUS,puck.o);
+		else if (puck.y>0) targetPose = Pose(MAX(puck.x-2*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),MIN(puck.y+2*ROBOT_RADIUS,YMAX),puck.o);
+		else if (puck.y < YMIN/2) targetPose = Pose(MAX(puck.x-2*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),puck.y+2*ROBOT_RADIUS,puck.o);
+		else targetPose = Pose(MAX(puck.x-2*ROBOT_RADIUS,XMIN+ROBOT_RADIUS),MAX(puck.y-2*ROBOT_RADIUS,YMIN),puck.o);
+		if(!atLocationWide(Location(targetPose.x,targetPose.y),Location(getRobotPose().x,getRobotPose().y))){
 			goToPosition(targetPose,getRobotPose(),false);
 		}
 		else{
 			point1 = true;
 		}
 	}
-	else{
-		goToPosition(puck,getRobotPose(),true);
+	else if(!point2) {
+		if(!atLocationWide(Location(puck.x-ROBOT_RADIUS-PUCK_RADIUS,puck.y),Location(getRobotPose().x,getRobotPose().y))){
+			goToPosition(Pose(puck.x-ROBOT_RADIUS-PUCK_RADIUS,puck.y,0),getRobotPose(),false);
+		}
+		else point2 = true;
 	}
+	else goToPosition(puck,getRobotPose(),true);
 }
 
 void goBehindObject(Location object){
@@ -666,10 +675,10 @@ void assistLogic(){
 bool pushAlly(){
 	/*Location allyLocation;
 	if(getAllySuggestedStrategy(Ally::ALLY1) == Strategy::PUSH_ALLY){
-		allyLocation = getAllyLocations()[0];
+	allyLocation = getAllyLocations()[0];
 	}
 	else if(getAllySuggestedStrategy(Ally::ALLY2) == Strategy::PUSH_ALLY){
-		allyLocation = getAllyLocations()[1];
+	allyLocation = getAllyLocations()[1];
 	}*/
 	//else
 	//	return true;
@@ -688,7 +697,7 @@ void goalieLogicJ(){
 	Pose robot = getRobotPose();
 	if(puck.x < XMIN/2){
 		if(robot.distanceToSquared(puck) < 225)
-			goToPosition(puck.toPose(0),robot,true);
+		goToPosition(puck.toPose(0),robot,true);
 		else{
 			Pose blockPosition = puck.toPose(0);
 			blockPosition.x = (blockPosition.x>>1) + (XMIN>>1);
@@ -698,11 +707,11 @@ void goalieLogicJ(){
 	else{
 		int8_t targetY = puck.y/2;
 		if(robot.y > targetY + 5)
-			goToPosition(Pose(XMIN+ROBOT_RADIUS*2,YMIN,0),robot,true);
+		goToPosition(Pose(XMIN+ROBOT_RADIUS*2,YMIN,0),robot,true);
 		else if(robot.y < targetY - 5)
-			goToPosition(Pose(XMIN+ROBOT_RADIUS*2,YMAX,0),robot,false);
+		goToPosition(Pose(XMIN+ROBOT_RADIUS*2,YMAX,0),robot,false);
 		else
-			setMotors(0,0);
+		setMotors(0,0);
 	}
 }
 
@@ -710,9 +719,12 @@ void goalieLogic3(){
 	Location puck = getPuckLocation();
 	Pose robot = getRobotPose();
 	if(puck != UNKNOWN_LOCATION){
-	if (puck.y>robot.y) goToPosition2(Pose(XMIN+2*ROBOT_RADIUS,puck.y+PUCK_RADIUS,0),robot,false,false,900);
-	else if (puck.y<robot.y) goToPosition2(Pose(XMIN+2*ROBOT_RADIUS,puck.y-PUCK_RADIUS,0),robot,false,true,900);
-	else setMotors(0,0);
+		int16_t xPos;
+		if(abs(getRobotPose().o) > PI/3) xPos = XMIN;
+		else xPos = XMIN+2*ROBOT_RADIUS;
+		if (puck.y>robot.y) goToPosition2(Pose(xPos,puck.y+PUCK_RADIUS,0),robot,false,false,900);
+		else if (puck.y<robot.y) goToPosition2(Pose(xPos,puck.y-PUCK_RADIUS,0),robot,false,true,900);
+		else setMotors(0,0);
 	}
 	else goToPosition(Pose(XMIN+2*ROBOT_RADIUS,0,0),getRobotPose(),false,true,900);
 }
