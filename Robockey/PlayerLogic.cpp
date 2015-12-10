@@ -719,14 +719,23 @@ void goalieLogic3(){
 	Location puck = getPuckLocation();
 	Pose robot = getRobotPose();
 	if(puck != UNKNOWN_LOCATION){
-		int16_t xPos;
-		if(abs(getRobotPose().o) >= PI/2) xPos = XMIN+ROBOT_RADIUS;
-		else xPos = XMIN+2*ROBOT_RADIUS;
-		if (puck.y>robot.y) goToPosition2(Pose(xPos,puck.y+PUCK_RADIUS,0),robot,false,false,900);
-		else if (puck.y<robot.y) goToPosition2(Pose(xPos,puck.y-PUCK_RADIUS,0),robot,false,true,900);
-		else setMotors(0,0);
+		if(puck.x < XMIN+5*ROBOT_RADIUS+PUCK_RADIUS){ //if puck closer than 3/4
+			if(puck.x<getRobotPose().x){
+				goToPosition(Pose(XMIN,0,0),getRobotPose(),false);
+			}
+			else{
+				goToPosition(puck.toPose(getPuckHeading()+getRobotPose().o),getRobotPose(),true,false);
+				if(hasPuck()&&getRobotPose().x>XMIN+3*ROBOT_RADIUS&&abs(getRobotPose().o)<PI/4) startKick();
+			}
+		}
+		else{
+			int16_t xPos = XMIN+3*ROBOT_RADIUS;
+			if (puck.y>robot.y) goToPosition2(Pose(xPos+2*PUCK_RADIUS,puck.y+PUCK_RADIUS,0),robot,false,false,1000);
+			else if (puck.y<robot.y) goToPosition2(Pose(xPos+2*PUCK_RADIUS,puck.y-PUCK_RADIUS,0),robot,false,true,1000);
+			else setMotors(0,0);
+		}
 	}
-	else goToPosition(Pose(XMIN+2*ROBOT_RADIUS,0,0),getRobotPose(),false,true,900);
+	else goToPositionSpin(Pose(XMIN+2*ROBOT_RADIUS,0,0),getRobotPose());
 }
 
 void goalieLogic4(){
@@ -736,7 +745,7 @@ void goalieLogic4(){
 		uint8_t threshold = 2;
 		if(puck.y>(robot.y + threshold)){
 			if(robot.y <= (YMAX/2)){
-				goToPosition2(Pose(XMIN+2*ROBOT_RADIUS,YMAX,0),robot,false,false,1000);
+				goToPosition2(Pose(XMIN+5*ROBOT_RADIUS,YMAX,0),robot,false,false,1000);
 			}
 			else{
 				setMotors(0,0);
@@ -744,7 +753,7 @@ void goalieLogic4(){
 		}
 		else if(puck.y<(robot.y - threshold)){
 			if(robot.y >= (YMIN/2)){
-				goToPosition2(Pose(XMIN+2*ROBOT_RADIUS,YMIN,0),robot,false,true,1000);
+				goToPosition2(Pose(XMIN+5*ROBOT_RADIUS,YMIN,0),robot,false,true,1000);
 			}
 			else{
 				setMotors(0,0);

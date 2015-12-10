@@ -27,7 +27,7 @@ extern "C"{
 int16_t lastDistance = 0;
 int16_t lastTheta = 0;
 Pose lastPose = getRobotPose();
-uint16_t k1 = 2; //distance proportional
+uint16_t k1 = 3; //distance proportional
 uint16_t k2 = 1; //angle proportional
 uint16_t k3 = 0; //distance derivative
 uint16_t k4 = 55; //angle derivative
@@ -198,7 +198,7 @@ void goToPositionSpin(Pose target, Pose current){
 		faceLocation(target.getLocation(),current,o);
 	}
 	else{
-		if(!atLocation(Location(target.x,target.y),Location(current.x,current.y))){
+		if(!atLocationWide(Location(target.x,target.y),Location(current.x,current.y))){
 			goToPosition(target,current,false);
 		}
 		else{//reset PID terms
