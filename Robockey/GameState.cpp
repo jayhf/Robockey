@@ -136,16 +136,14 @@ void setLEDToTeamColor(){
 			break;
 	}
 }
-
+static time startTime;
+bool commTesting = false;
+void startCommTest(){
+	commTesting = true;
+	startTime = getTime();
+}
 void updateLED(){
-	static time startTime;
-	static bool commTesting = false;
-	if(gameState == GameState::COMM_TEST){
-		commTesting = true;
-		startTime = getTime();
-		updateGameState(GameState::NONE);
-	}
-	if(gameState == GameState::NONE){
+	if(gameState == GameState::NONE || commTesting){
 		if(commTesting){
 			if(timePassed(startTime+256)){
 				commTesting = false;

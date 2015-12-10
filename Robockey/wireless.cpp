@@ -92,7 +92,7 @@ void sendDestinationMessage(){
 void handleGameStateMessage(uint8_t id){
 	switch(id){
 		case 0xA0:
-			updateGameState(GameState::COMM_TEST);
+			startCommTest();
 			break;
 		case 0xA1:
 			updateGameState(GameState::PLAY);

@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 enum class GameState : uint8_t{
-	NONE = 0, COMM_TEST = 0xA0, PLAY = 0xA1, PAUSE = 0xA4, HALFTIME = 0xA6, GAME_OVER = 0xA7
+	NONE = 0, PLAY = 0xA1, PAUSE = 0xA4, HALFTIME = 0xA6, GAME_OVER = 0xA7
 };
 
 enum class Robot : uint8_t{
@@ -32,6 +32,8 @@ void determineTeam();
 void updateGameState(GameState state);
 GameState getGameState();
 void updateLED();
+
+void startCommTest();
 
 void goalScored(Team team);
 void updateScores(uint8_t red, uint8_t blue);
